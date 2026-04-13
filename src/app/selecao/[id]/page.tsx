@@ -57,7 +57,6 @@ export default async function SelecaoPage({ params }: PageProps) {
     .from("selections")
     .update({ views: (selection.views ?? 0) + 1 })
     .eq("id", id)
-    .then(() => {}).catch(() => {})
 
   const corretor = selection.corretor as Profile | null
   const items = (selection.items ?? []) as Array<SelectionItem & { property: Property }>

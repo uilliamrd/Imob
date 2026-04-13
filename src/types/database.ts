@@ -47,6 +47,9 @@ export interface Development {
   is_delivered: boolean
   description: string | null
   cover_image: string | null
+  images: string[]
+  custom_page_html: string | null
+  custom_page_type: 'html' | 'json' | null
   created_at: string
 }
 

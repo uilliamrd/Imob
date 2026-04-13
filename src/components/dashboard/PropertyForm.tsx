@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
 import { ImageUpload } from "@/components/ui/ImageUpload"
-import { Save, Plus, X, Hash, Building2 } from "lucide-react"
+import { Save, Plus, X, Hash } from "lucide-react"
 import type { IngestPropertyPayload, PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
 const ALL_TAGS = Object.keys(getAllTags())
@@ -142,37 +142,6 @@ export function PropertyForm({ initialData, propertyId, orgId, developments = []
         </div>
       )}
 
-      {/* ── Empreendimento ────────────────────────────────────── */}
-      {developments.length > 0 && (
-        <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center gap-2 border-b border-white/5 pb-4">
-            <Building2 size={16} className="text-gold" />
-            <h2 className="font-serif text-lg font-semibold text-white">Empreendimento</h2>
-            <span className="text-white/30 text-xs font-sans ml-1">(opcional)</span>
-          </div>
-          <div>
-            <label className={labelClass}>Vincular a um empreendimento</label>
-            <select
-              value={developmentId}
-              onChange={(e) => handleDevelopmentChange(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">— Imóvel avulso (sem empreendimento) —</option>
-              {developments.map((dev) => (
-                <option key={dev.id} value={dev.id}>
-                  {dev.name}{dev.neighborhood ? ` · ${dev.neighborhood}` : ""}{dev.city ? `, ${dev.city}` : ""}
-                  {dev.is_lancamento ? " 🔥 Lançamento" : ""}
-                </option>
-              ))}
-            </select>
-            {developmentId && (
-              <p className="text-gold/50 text-xs font-sans mt-1">
-                Localização preenchida automaticamente pelo empreendimento.
-              </p>
-            )}
-          </div>
-        </section>
-      )}
 
       {/* ── Fotos ───────────────────────────────────────────── */}
       <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-5">
@@ -204,6 +173,29 @@ export function PropertyForm({ initialData, propertyId, orgId, developments = []
           Informações Básicas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Empreendimento */}
+          <div className="md:col-span-2">
+            <label className={labelClass}>Empreendimento</label>
+            <select
+              value={developmentId}
+              onChange={(e) => handleDevelopmentChange(e.target.value)}
+              className={inputClass}
+            >
+              <option value="">— Imóvel avulso (sem empreendimento) —</option>
+              {developments.map((dev) => (
+                <option key={dev.id} value={dev.id}>
+                  {dev.name}{dev.neighborhood ? ` · ${dev.neighborhood}` : ""}{dev.city ? `, ${dev.city}` : ""}
+                  {dev.is_lancamento ? " 🔥 Lançamento" : ""}
+                </option>
+              ))}
+            </select>
+            {developmentId && (
+              <p className="text-gold/50 text-xs font-sans mt-1">
+                Localização preenchida automaticamente pelo empreendimento.
+              </p>
+            )}
+          </div>
+
           <div className="md:col-span-2">
             <label className={labelClass}>Título *</label>
             <input required type="text" value={title}

@@ -17,7 +17,7 @@ const MOCK: Property = {
   features: { suites: 4, vagas: 3, area_m2: 198, andar: 12, banheiros: 5 },
   tags: ["VM", "MD", "AL", "SM"],
   status: "disponivel", visibility: "publico",
-  created_by: "1", org_id: "1", images: [],
+  created_by: "1", org_id: "1", development_id: null, images: [],
   video_url: null, address: "Av. Delfim Moreira, 1200",
   neighborhood: "Leblon", city: "Rio de Janeiro",
   slug: "torre-a-apt-1201", created_at: "", updated_at: "",

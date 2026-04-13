@@ -1,18 +1,46 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { DevelopmentsManager } from "@/components/dashboard/DevelopmentsManager"
-import { MapPin, Layers, Building, Navigation } from "lucide-react"
+import { BairrosManager } from "@/components/dashboard/BairrosManager"
+import { LogradourosManager } from "@/components/dashboard/LogradourosManager"
+import { MapPin, Layers, Navigation, Building } from "lucide-react"
+import Link from "next/link"
 import type { Development } from "@/types/database"
 
-export default async function LocaisPage() {
-  await requireAuth(["admin"])
-  const supabase = await createClient()
+type Tab = "empreendimentos" | "bairros" | "logradouros"
 
-  const [{ data: developments }, { data: orgs }] = await Promise.all([
-    supabase.from("developments").select("*").order("name"),
-    supabase.from("organizations").select("id, name").order("name"),
+interface PageProps {
+  searchParams: Promise<{ tab?: string }>
+}
+
+export default async function LocaisPage({ searchParams }: PageProps) {
+  await requireAuth(["admin"])
+  const { tab: tabParam } = await searchParams
+  const activeTab: Tab =
+    tabParam === "bairros" ? "bairros" :
+    tabParam === "logradouros" ? "logradouros" :
+    "empreendimentos"
+
+  const adminClient = createAdminClient()
+
+  const [
+    { data: developments },
+    { data: orgs },
+    { data: bairros },
+    { data: logradouros },
+  ] = await Promise.all([
+    adminClient.from("developments").select("*").order("name"),
+    adminClient.from("organizations").select("id, name").order("name"),
+    adminClient.from("bairros").select("*").order("name"),
+    adminClient.from("logradouros").select("*").order("name"),
   ])
+
+  const tabs = [
+    { id: "empreendimentos" as Tab, label: "Empreendimentos", icon: Layers,     count: developments?.length ?? 0 },
+    { id: "bairros"         as Tab, label: "Bairros",         icon: Navigation, count: bairros?.length ?? 0 },
+    { id: "logradouros"     as Tab, label: "Logradouros",     icon: Building,   count: logradouros?.length ?? 0 },
+  ]
 
   return (
     <div className="p-8 max-w-6xl">
@@ -25,47 +53,87 @@ export default async function LocaisPage() {
           <AnimatedGradientText className="font-serif text-4xl font-bold">Locais</AnimatedGradientText>
         </h1>
         <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
-          Cadastre empreendimentos, bairros e logradouros que serão vinculados pelos usuários ao criar imóveis.
+          Cadastre empreendimentos, bairros e logradouros que serão vinculados aos imóveis.
         </p>
         <div className="divider-gold mt-4 w-20" />
       </div>
 
-      {/* Tabs visual */}
-      <div className="flex gap-1 mb-8 border-b border-white/5 pb-0">
-        {[
-          { label: "Empreendimentos", icon: Layers, active: true },
-          { label: "Bairros", icon: Navigation, active: false },
-          { label: "Logradouros", icon: Building, active: false },
-        ].map((tab) => (
-          <div key={tab.label}
-            className={`flex items-center gap-2 px-5 py-3 text-xs uppercase tracking-[0.15em] font-sans border-b-2 transition-colors ${
-              tab.active
-                ? "border-gold text-gold"
-                : "border-transparent text-white/20 cursor-not-allowed"
-            }`}>
-            <tab.icon size={13} />
-            {tab.label}
-            {!tab.active && (
-              <span className="ml-1 text-[9px] bg-white/5 text-white/20 px-1.5 py-0.5 rounded-full uppercase tracking-wide">em breve</span>
-            )}
-          </div>
-        ))}
+      {/* Tabs */}
+      <div className="flex gap-1 mb-8 border-b border-white/5">
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <Link
+              key={tab.id}
+              href={`/dashboard/locais?tab=${tab.id}`}
+              className={`flex items-center gap-2 px-5 py-3 text-xs uppercase tracking-[0.15em] font-sans border-b-2 transition-colors ${
+                isActive
+                  ? "border-gold text-gold"
+                  : "border-transparent text-white/30 hover:text-white/60"
+              }`}
+            >
+              <Icon size={13} />
+              {tab.label}
+              {tab.count > 0 && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-sans ${
+                  isActive ? "bg-gold/20 text-gold" : "bg-white/5 text-white/25"
+                }`}>
+                  {tab.count}
+                </span>
+              )}
+            </Link>
+          )
+        })}
       </div>
 
-      {/* Empreendimentos */}
+      {/* Content */}
       <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
-          <Layers size={16} className="text-gold" />
-          <h2 className="font-serif text-xl font-semibold text-white">Empreendimentos</h2>
-          <span className="ml-auto text-white/20 text-xs font-sans">{developments?.length ?? 0} cadastrados</span>
-        </div>
-        <div className="p-6">
-          <DevelopmentsManager
-            developments={(developments ?? []) as Development[]}
-            orgId={null}
-            orgs={(orgs ?? []).map((o) => ({ id: o.id, name: o.name }))}
-          />
-        </div>
+        {activeTab === "empreendimentos" && (
+          <>
+            <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+              <Layers size={16} className="text-gold" />
+              <h2 className="font-serif text-xl font-semibold text-white">Empreendimentos</h2>
+              <span className="ml-auto text-white/20 text-xs font-sans">{developments?.length ?? 0} cadastrados</span>
+            </div>
+            <div className="p-6">
+              <DevelopmentsManager
+                developments={(developments ?? []) as Development[]}
+                orgId={null}
+                orgs={(orgs ?? []).map((o) => ({ id: o.id, name: o.name }))}
+              />
+            </div>
+          </>
+        )}
+
+        {activeTab === "bairros" && (
+          <>
+            <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+              <Navigation size={16} className="text-gold" />
+              <h2 className="font-serif text-xl font-semibold text-white">Bairros</h2>
+              <span className="ml-auto text-white/20 text-xs font-sans">{bairros?.length ?? 0} cadastrados</span>
+            </div>
+            <div className="p-6">
+              <BairrosManager bairros={(bairros ?? []) as { id: string; name: string; city: string; state: string; created_at: string }[]} />
+            </div>
+          </>
+        )}
+
+        {activeTab === "logradouros" && (
+          <>
+            <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+              <Building size={16} className="text-gold" />
+              <h2 className="font-serif text-xl font-semibold text-white">Logradouros</h2>
+              <span className="ml-auto text-white/20 text-xs font-sans">{logradouros?.length ?? 0} cadastrados</span>
+            </div>
+            <div className="p-6">
+              <LogradourosManager
+                logradouros={(logradouros ?? []) as { id: string; type: string; name: string; bairro_id: string | null; city: string; cep: string | null; created_at: string }[]}
+                bairros={(bairros ?? []).map((b) => ({ id: b.id, name: b.name, city: b.city }))}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

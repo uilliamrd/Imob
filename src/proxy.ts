@@ -54,7 +54,10 @@ export async function proxy(request: NextRequest) {
 
   // /dashboard/admin — only for admins
   if (pathname.startsWith("/dashboard/admin") && user) {
-    const { data: profile } = await supabase
+    const adminCheck = createServerClient(SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+      cookies: { getAll: () => [], setAll: () => {} },
+    })
+    const { data: profile } = await adminCheck
       .from("profiles")
       .select("role")
       .eq("id", user.id)

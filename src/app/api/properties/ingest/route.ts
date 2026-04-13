@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     rows_created: created,
     rows_updated: updated,
     rows_errored: errors.length,
-  }).then(() => {}).catch(() => {})
+  })
 
   return NextResponse.json(
     {

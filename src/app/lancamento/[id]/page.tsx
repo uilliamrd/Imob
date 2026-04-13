@@ -27,7 +27,22 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
     const development = dev as Development & { organization: Organization | null }
     const org = development.organization
 
-    const whatsapp = "5521999999999"
+    const whatsapp = org?.whatsapp ?? "5521999999999"
+
+    // Custom page takes over the landing — units still use the standard system pages
+    if (development.custom_page_html) {
+      return (
+        <>
+          <iframe
+            srcDoc={development.custom_page_html}
+            sandbox="allow-scripts allow-forms allow-popups"
+            style={{ width: "100%", border: "none", minHeight: "100vh" }}
+            title={development.name}
+          />
+          <CorretorMinisite defaultWhatsapp={whatsapp} defaultName={org?.name ?? development.name} defaultPhoto={org?.logo ?? undefined} />
+        </>
+      )
+    }
 
     return (
       <main>

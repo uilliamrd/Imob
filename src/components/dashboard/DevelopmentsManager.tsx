@@ -2,15 +2,12 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin } from "lucide-react"
+import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin, Images, Code2 } from "lucide-react"
 import { ImageUpload } from "@/components/ui/ImageUpload"
+import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
 import type { Development } from "@/types/database"
 
-interface OrgOption {
-  id: string
-  name: string
-}
-
+interface OrgOption { id: string; name: string }
 interface DevelopmentsManagerProps {
   developments: Development[]
   orgId?: string | null
@@ -28,10 +25,14 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
   const [showNew, setShowNew] = useState(false)
   const [newForm, setNewForm] = useState(emptyForm)
   const [newOrgId, setNewOrgId] = useState(orgId ?? "")
-  const [newCoverUrls, setNewCoverUrls] = useState<string[]>([])
+  const [newImages, setNewImages] = useState<string[]>([])
+  const [newCustomHtml, setNewCustomHtml] = useState("")
+  const [newCustomType, setNewCustomType] = useState<"html" | "json" | null>(null)
   const [saving, setSaving] = useState(false)
   const [editForms, setEditForms] = useState<Record<string, Partial<Development>>>({})
-  const [editCovers, setEditCovers] = useState<Record<string, string[]>>({})
+  const [editImages, setEditImages] = useState<Record<string, string[]>>({})
+  const [editCustomHtml, setEditCustomHtml] = useState<Record<string, string>>({})
+  const [editCustomType, setEditCustomType] = useState<Record<string, "html" | "json" | null>>({})
 
   const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5"
@@ -43,12 +44,17 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
     const { data, error } = await supabase.from("developments").insert({
       ...newForm,
       org_id: newOrgId || orgId || null,
-      cover_image: newCoverUrls[0] ?? null,
+      images: newImages,
+      cover_image: newImages[0] ?? null,
+      custom_page_html: newCustomHtml || null,
+      custom_page_type: newCustomType,
     }).select("*").single()
     if (!error && data) {
       setDevs((prev) => [data as Development, ...prev])
       setNewForm(emptyForm)
-      setNewCoverUrls([])
+      setNewImages([])
+      setNewCustomHtml("")
+      setNewCustomType(null)
       setShowNew(false)
     }
     setSaving(false)
@@ -57,9 +63,15 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
   async function updateDev(id: string) {
     setSaving(true)
     const supabase = createClient()
+    const images = editImages[id] ?? devs.find((d) => d.id === id)?.images ?? []
+    const customHtml = id in editCustomHtml ? editCustomHtml[id] : (devs.find((d) => d.id === id)?.custom_page_html ?? null)
+    const customType = id in editCustomType ? editCustomType[id] : (devs.find((d) => d.id === id)?.custom_page_type ?? null)
     const patch = {
       ...editForms[id],
-      cover_image: editCovers[id]?.[0] ?? editForms[id]?.cover_image ?? null,
+      images,
+      cover_image: images[0] ?? null,
+      custom_page_html: customHtml || null,
+      custom_page_type: customType,
     }
     const { error } = await supabase.from("developments").update(patch).eq("id", id)
     if (!error) {
@@ -78,35 +90,32 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
 
   function startEdit(dev: Development) {
     setEditForms((prev) => ({ ...prev, [dev.id]: { ...dev } }))
-    setEditCovers((prev) => ({ ...prev, [dev.id]: dev.cover_image ? [dev.cover_image] : [] }))
+    setEditImages((prev) => ({ ...prev, [dev.id]: dev.images?.length ? dev.images : (dev.cover_image ? [dev.cover_image] : []) }))
     setExpanded(dev.id)
   }
 
   return (
     <div className="space-y-3">
-      {/* New button */}
       <button onClick={() => setShowNew(!showNew)}
         className="flex items-center gap-2 px-4 py-2.5 border border-gold/30 text-gold hover:bg-gold/10 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
-        <Plus size={14} />
-        Novo Empreendimento
+        <Plus size={14} /> Novo Empreendimento
       </button>
 
-      {/* New form */}
+      {/* ── New form ─────────────────────────────────────────── */}
       {showNew && (
         <div className="bg-[#111] border border-gold/20 rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-gold text-sm font-sans font-medium">Novo Empreendimento</p>
-            <button onClick={() => setShowNew(false)}><X size={14} className="text-white/30" /></button>
+            <button type="button" onClick={() => setShowNew(false)}><X size={14} className="text-white/30" /></button>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {orgs.length > 0 && (
               <div className="md:col-span-2">
                 <label className={labelClass}>Construtora / Organização</label>
                 <select value={newOrgId} onChange={(e) => setNewOrgId(e.target.value)} className={inputClass}>
                   <option value="">— Sem organização —</option>
-                  {orgs.map((o) => (
-                    <option key={o.id} value={o.id}>{o.name}</option>
-                  ))}
+                  {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
               </div>
             )}
@@ -136,11 +145,27 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
                 rows={2} placeholder="Descreva o empreendimento..." className={inputClass + " resize-none"} />
             </div>
             <div className="md:col-span-2">
-              <label className={labelClass}>Imagem de Capa</label>
-              <ImageUpload bucket="property-images" folder="developments" value={newCoverUrls}
-                onChange={(u) => setNewCoverUrls(u.slice(-1))} maxFiles={1} />
+              <label className={labelClass}>
+                <span className="flex items-center gap-1.5"><Images size={11} /> Fotos (até 40) — a 1ª será capa</span>
+              </label>
+              <ImageUpload bucket="property-images" folder="developments"
+                value={newImages} onChange={setNewImages} maxFiles={40} />
+            </div>
+            <div className="md:col-span-2">
+              <label className={labelClass}>
+                <span className="flex items-center gap-1.5"><Code2 size={11} /> Página de Vendas Customizada (opcional)</span>
+              </label>
+              <p className="text-white/20 text-xs font-sans mb-2">
+                Substitui o layout padrão do lançamento. As páginas das unidades continuam no modelo do sistema.
+              </p>
+              <CustomPageEditor
+                value={newCustomHtml}
+                type={newCustomType}
+                onChange={(v, t) => { setNewCustomHtml(v); setNewCustomType(t) }}
+              />
             </div>
           </div>
+
           <div className="flex gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={newForm.is_lancamento}
@@ -157,24 +182,29 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
               <span className="text-xs font-sans text-white/50">Entregue (portfólio)</span>
             </label>
           </div>
-          <button onClick={createDev} disabled={saving || !newForm.name.trim()}
+
+          <button type="button" onClick={createDev} disabled={saving || !newForm.name.trim()}
             className="flex items-center gap-2 px-6 py-2.5 bg-gold text-graphite hover:bg-gold-light disabled:opacity-50 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
             <Save size={13} /> {saving ? "Salvando..." : "Criar Empreendimento"}
           </button>
         </div>
       )}
 
-      {/* List */}
+      {/* ── List ─────────────────────────────────────────────── */}
       {devs.length === 0 && !showNew && (
         <p className="text-white/20 text-sm font-sans py-4 text-center">Nenhum empreendimento cadastrado ainda.</p>
       )}
+
       {devs.map((dev) => {
         const isExpanded = expanded === dev.id
         const form = editForms[dev.id] ?? dev
-        const covers = editCovers[dev.id] ?? (dev.cover_image ? [dev.cover_image] : [])
+        const images = editImages[dev.id] ?? (dev.images?.length ? dev.images : (dev.cover_image ? [dev.cover_image] : []))
+        const customHtml = dev.id in editCustomHtml ? editCustomHtml[dev.id] : (dev.custom_page_html ?? "")
+        const customType = dev.id in editCustomType ? editCustomType[dev.id] : (dev.custom_page_type ?? null)
 
         return (
           <div key={dev.id} className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
+            {/* Row header */}
             <div className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-white/[0.02]"
               onClick={() => isExpanded ? setExpanded(null) : startEdit(dev)}>
               <div className="flex items-center gap-3">
@@ -187,6 +217,16 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
                     <p className="text-white/90 text-sm font-sans font-medium">{dev.name}</p>
                     {dev.is_lancamento && <Flame size={11} className="text-amber-400" />}
                     {dev.is_delivered && <CheckCircle size={11} className="text-emerald-400" />}
+                    {dev.custom_page_html && (
+                      <span className="text-[10px] text-blue-400/60 font-sans flex items-center gap-0.5">
+                        <Code2 size={9} /> custom
+                      </span>
+                    )}
+                    {(dev.images?.length ?? 0) > 0 && (
+                      <span className="text-[10px] text-white/20 font-sans flex items-center gap-0.5">
+                        <Images size={9} /> {dev.images.length}
+                      </span>
+                    )}
                   </div>
                   {(dev.neighborhood || dev.city) && (
                     <p className="text-white/30 text-xs font-sans flex items-center gap-1">
@@ -196,7 +236,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={(e) => { e.stopPropagation(); deleteDev(dev.id) }}
+                <button type="button" onClick={(e) => { e.stopPropagation(); deleteDev(dev.id) }}
                   className="text-white/20 hover:text-red-400 transition-colors p-1">
                   <X size={14} />
                 </button>
@@ -204,57 +244,83 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
               </div>
             </div>
 
+            {/* Edit panel */}
             {isExpanded && (
               <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className={labelClass}>Nome</label>
-                    <input type="text" value={(form.name ?? "")} onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], name: e.target.value } }))}
+                    <input type="text" value={form.name ?? ""}
+                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], name: e.target.value } }))}
                       className={inputClass} />
                   </div>
                   <div className="md:col-span-2">
                     <label className={labelClass}>Endereço</label>
-                    <input type="text" value={(form.address ?? "")} onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], address: e.target.value } }))}
+                    <input type="text" value={form.address ?? ""}
+                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], address: e.target.value } }))}
                       className={inputClass} />
                   </div>
                   <div>
                     <label className={labelClass}>Bairro</label>
-                    <input type="text" value={(form.neighborhood ?? "")} onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], neighborhood: e.target.value } }))}
+                    <input type="text" value={form.neighborhood ?? ""}
+                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], neighborhood: e.target.value } }))}
                       className={inputClass} />
                   </div>
                   <div>
                     <label className={labelClass}>Cidade</label>
-                    <input type="text" value={(form.city ?? "")} onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], city: e.target.value } }))}
+                    <input type="text" value={form.city ?? ""}
+                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], city: e.target.value } }))}
                       className={inputClass} />
                   </div>
                   <div className="md:col-span-2">
                     <label className={labelClass}>Descrição</label>
-                    <textarea value={(form.description ?? "")} onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], description: e.target.value } }))}
+                    <textarea value={form.description ?? ""}
+                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], description: e.target.value } }))}
                       rows={2} className={inputClass + " resize-none"} />
                   </div>
                   <div className="md:col-span-2">
-                    <label className={labelClass}>Imagem de Capa</label>
-                    <ImageUpload bucket="property-images" folder={`developments/${dev.id}`} value={covers}
-                      onChange={(u) => setEditCovers((p) => ({ ...p, [dev.id]: u.slice(-1) }))} maxFiles={1} />
+                    <label className={labelClass}>
+                      <span className="flex items-center gap-1.5"><Images size={11} /> Fotos (até 40) — a 1ª será capa</span>
+                    </label>
+                    <ImageUpload bucket="property-images" folder={`developments/${dev.id}`}
+                      value={images} onChange={(u) => setEditImages((p) => ({ ...p, [dev.id]: u }))} maxFiles={40} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className={labelClass}>
+                      <span className="flex items-center gap-1.5"><Code2 size={11} /> Página de Vendas Customizada (opcional)</span>
+                    </label>
+                    <p className="text-white/20 text-xs font-sans mb-2">
+                      Substitui o layout padrão do lançamento. As páginas das unidades continuam no modelo do sistema.
+                    </p>
+                    <CustomPageEditor
+                      value={customHtml}
+                      type={customType}
+                      onChange={(v, t) => {
+                        setEditCustomHtml((p) => ({ ...p, [dev.id]: v }))
+                        setEditCustomType((p) => ({ ...p, [dev.id]: t }))
+                      }}
+                    />
                   </div>
                 </div>
+
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={!!(form.is_lancamento)}
+                    <input type="checkbox" checked={!!form.is_lancamento}
                       onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], is_lancamento: e.target.checked } }))}
                       className="w-4 h-4 rounded accent-amber-500" />
                     <Flame size={13} className="text-amber-400" />
                     <span className="text-xs font-sans text-white/50">Lançamento</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={!!(form.is_delivered)}
+                    <input type="checkbox" checked={!!form.is_delivered}
                       onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], is_delivered: e.target.checked } }))}
                       className="w-4 h-4 rounded accent-emerald-500" />
                     <CheckCircle size={13} className="text-emerald-400" />
                     <span className="text-xs font-sans text-white/50">Entregue (portfólio)</span>
                   </label>
                 </div>
-                <button onClick={() => updateDev(dev.id)} disabled={saving}
+
+                <button type="button" onClick={() => updateDev(dev.id)} disabled={saving}
                   className="flex items-center gap-2 px-6 py-2.5 bg-gold text-graphite hover:bg-gold-light disabled:opacity-50 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
                   <Save size={13} /> {saving ? "Salvando..." : "Salvar"}
                 </button>

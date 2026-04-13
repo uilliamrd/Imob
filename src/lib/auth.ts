@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import type { UserRole } from "@/types/database"
 
@@ -13,7 +14,8 @@ export async function getProfile() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data } = await supabase
+  const admin = createAdminClient()
+  const { data } = await admin
     .from("profiles")
     .select("*, organization:organizations(*)")
     .eq("id", user.id)
@@ -29,7 +31,8 @@ export async function requireAuth(allowedRoles?: UserRole[]) {
   if (!user) redirect("/login")
 
   if (allowedRoles) {
-    const { data: profile } = await supabase
+    const admin = createAdminClient()
+    const { data: profile } = await admin
       .from("profiles")
       .select("role")
       .eq("id", user.id)

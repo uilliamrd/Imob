@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { PropertyForm } from "@/components/dashboard/PropertyForm"
@@ -13,16 +14,22 @@ export default async function EditarImovelPage({ params }: PageProps) {
   const user = await requireAuth(["admin", "imobiliaria", "construtora", "corretor"])
   const { id } = await params
   const supabase = await createClient()
+  const adminClient = createAdminClient()
 
   const [{ data }, { data: profile }, { data: developments }] = await Promise.all([
     supabase.from("properties").select("*").eq("id", id).single(),
-    supabase.from("profiles").select("organization_id").eq("id", user.id).single(),
+    adminClient.from("profiles").select("organization_id, role").eq("id", user.id).single(),
     supabase.from("developments").select("*").order("name"),
   ])
 
   if (!data) notFound()
 
   const property = data as Property
+
+  // Ownership check: non-admins can only edit properties belonging to their organization
+  if (profile?.role !== "admin" && property.org_id !== profile?.organization_id) {
+    redirect("/dashboard/imoveis")
+  }
 
   return (
     <div className="p-8 max-w-4xl">

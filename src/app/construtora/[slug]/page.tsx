@@ -51,7 +51,7 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
       portfolio_desc: "Há mais de 20 anos transformamos o conceito de moradia de alto padrão no Brasil.",
       about_text: "Construímos sonhos com a precisão de quem entende que um lar vai além de quatro paredes. Cada projeto é concebido para elevar o padrão de vida dos nossos moradores.",
       about_image: null, hero_tagline: "Onde a Excelência se Encontra com o Lar",
-      hero_image: null, has_lancamentos: false, website: "https://meridian.com.br",
+      hero_image: null, has_lancamentos: false, website: "https://meridian.com.br", whatsapp: null,
       created_at: "",
     },
     properties: [
@@ -67,7 +67,7 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
   if (!data) notFound()
 
   const { org, properties, developments } = data
-  const whatsapp = "5521999999999"
+  const whatsapp = org.whatsapp ?? "5521999999999"
 
   return (
     <main>

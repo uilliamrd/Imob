@@ -46,12 +46,14 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
 
   const refParam = refId ? `?ref=${refId}` : ""
 
-  const navItems: { id: Section; label: string; show: boolean }[] = [
-    { id: "sobre",       label: "Sobre",       show: true },
-    { id: "portfolio",   label: "Portfólio",   show: delivered.length > 0 },
-    { id: "imoveis",     label: "Imóveis",     show: propertiesForSale.length > 0 },
-    { id: "lancamentos", label: "Lançamentos", show: org.has_lancamentos && lancamentos.length > 0 },
-  ].filter((n) => n.show)
+  const navItems = (
+    [
+      { id: "sobre"       as Section, label: "Sobre",       show: true },
+      { id: "portfolio"   as Section, label: "Portfólio",   show: delivered.length > 0 },
+      { id: "imoveis"     as Section, label: "Imóveis",     show: propertiesForSale.length > 0 },
+      { id: "lancamentos" as Section, label: "Lançamentos", show: org.has_lancamentos && lancamentos.length > 0 },
+    ] as { id: Section; label: string; show: boolean }[]
+  ).filter((n) => n.show)
 
   const waMsgDefault = encodeURIComponent(`Olá! Tenho interesse nos empreendimentos ${org.name}.`)
   const waMsgLanc = encodeURIComponent(`Olá! Tenho interesse nos lançamentos da ${org.name}.`)

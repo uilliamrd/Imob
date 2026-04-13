@@ -1,25 +1,26 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { DevelopmentsManager } from "@/components/dashboard/DevelopmentsManager"
 import { Flame, ExternalLink } from "lucide-react"
 import Link from "next/link"
+import { CopyLinkButton } from "@/components/ui/CopyLinkButton"
 import type { Development } from "@/types/database"
 
 export default async function LancamentosPage() {
   const user = await requireAuth(["construtora"])
-  const supabase = await createClient()
+  const adminClient = createAdminClient()
 
-  const { data: profile } = await supabase
+  const { data: profile } = await adminClient
     .from("profiles")
-    .select("org_id, organization:organizations(slug, has_lancamentos)")
+    .select("organization_id, organization:organizations(slug, has_lancamentos)")
     .eq("id", user.id)
     .single()
 
-  const orgId = profile?.org_id ?? null
+  const orgId = profile?.organization_id ?? null
   const org = profile?.organization as { slug?: string; has_lancamentos?: boolean } | null
 
-  const { data: developments } = await supabase
+  const { data: developments } = await adminClient
     .from("developments")
     .select("*")
     .eq("org_id", orgId ?? "")
@@ -67,10 +68,13 @@ export default async function LancamentosPage() {
                   <Flame size={12} className="text-orange-400" />
                   <span className="text-orange-400 text-[10px] uppercase tracking-wider font-sans">Landing Page ativa</span>
                 </div>
-                <Link href={`/lancamento/${dev.id}`} target="_blank"
-                  className="flex items-center gap-1.5 text-white/30 hover:text-gold transition-colors text-xs font-sans">
-                  <ExternalLink size={12} /> Ver página
-                </Link>
+                <div className="flex items-center gap-3">
+                  <CopyLinkButton path={`/lancamento/${dev.id}`} />
+                  <Link href={`/lancamento/${dev.id}`} target="_blank"
+                    className="flex items-center gap-1.5 text-white/30 hover:text-gold transition-colors text-xs font-sans">
+                    <ExternalLink size={12} /> Ver
+                  </Link>
+                </div>
               </div>
             </div>
           ))}
