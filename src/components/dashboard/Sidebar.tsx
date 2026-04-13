@@ -37,11 +37,11 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard",                label: "Visão Geral",      icon: LayoutDashboard, roles: ["admin", "imobiliaria", "corretor", "construtora"] },
 
   // ── Admin
-  { href: "/dashboard/usuarios",          label: "Usuários",         icon: Users,    roles: ["admin"] },
+  { href: "/dashboard/imoveis",           label: "Imóveis",          icon: Home,      roles: ["admin"] },
+  { href: "/dashboard/usuarios",          label: "Usuários",         icon: Users,     roles: ["admin"] },
   { href: "/dashboard/admin",             label: "Organizações",     icon: Building2, roles: ["admin"] },
-  { href: "/dashboard/empreendimentos",   label: "Empreendimentos",  icon: Layers,   roles: ["admin"] },
-  { href: "/dashboard/imoveis",           label: "Imóveis",          icon: Home,     roles: ["admin"] },
-  { href: "/dashboard/locais",            label: "Locais",           icon: MapPin,   roles: ["admin"] },
+  { href: "/dashboard/empreendimentos",   label: "Empreendimentos",  icon: Layers,    roles: ["admin"] },
+  { href: "/dashboard/locais",            label: "Locais",           icon: MapPin,    roles: ["admin"] },
   { href: "/dashboard/datacenter",     label: "Data Center",      icon: Database,        roles: ["admin"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["admin"] },
 

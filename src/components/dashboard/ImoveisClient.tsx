@@ -33,24 +33,27 @@ interface ImoveisClientProps {
 export function ImoveisClient({ properties: initial, role, orgId, userId, listedIds: initialListed, minisiteSlug }: ImoveisClientProps) {
   const [properties, setProperties] = useState(initial)
   const [listedIds, setListedIds] = useState(new Set(initialListed))
-  const [search, setSearch] = useState("")
+  const [search, setSearch]             = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
+  const [filterCategoria, setCategoria] = useState("all")
   const [showPicker, setShowPicker] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
 
-  const canAddNew = role === "admin" || role === "imobiliaria" || role === "construtora" || role === "corretor"
-  const canEdit = role === "admin" || role === "imobiliaria" || role === "construtora"
+  const isAdmin = role === "admin"
+  const canAddNew = true
   const canPickFromSystem = role === "imobiliaria" || role === "corretor"
 
   const filtered = properties.filter((p) => {
     const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) ||
-      (p.neighborhood ?? "").toLowerCase().includes(search.toLowerCase())
-    const matchStatus = filterStatus === "all" || p.status === filterStatus
-    return matchSearch && matchStatus
+      (p.neighborhood ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (p.city ?? "").toLowerCase().includes(search.toLowerCase())
+    const matchStatus    = filterStatus === "all" || p.status === filterStatus
+    const matchCategoria = filterCategoria === "all" || (p as unknown as { categoria?: string }).categoria === filterCategoria
+    return matchSearch && matchStatus && matchCategoria
   })
 
   async function handleDelete(p: Property) {
-    const isOwn = p.created_by === userId
+    const isOwn = p.created_by === userId || isAdmin
     const isListed = listedIds.has(p.id)
 
     const msg = isOwn
@@ -60,17 +63,19 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
     if (!confirm(msg)) return
 
     setDeleting(p.id)
-    const supabase = createClient()
 
-    if (isOwn && (role === "admin" || role === "corretor")) {
-      await supabase.from("properties").delete().eq("id", p.id)
+    if (isOwn) {
+      await fetch(`/api/admin/properties/${p.id}`, { method: "DELETE" }).catch(() => null)
+      // fallback via supabase client se a rota não existir ainda
+      if (!isAdmin) {
+        const supabase = createClient()
+        await supabase.from("properties").delete().eq("id", p.id)
+      }
       setProperties((prev) => prev.filter((x) => x.id !== p.id))
     } else if (isListed) {
-      // Remove from listings
+      const supabase = createClient()
       await supabase.from("property_listings")
-        .delete()
-        .eq("property_id", p.id)
-        .eq("user_id", userId)
+        .delete().eq("property_id", p.id).eq("user_id", userId)
       setProperties((prev) => prev.filter((x) => x.id !== p.id))
       setListedIds((prev) => { const n = new Set(prev); n.delete(p.id); return n })
     }
@@ -93,6 +98,20 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           <option value="disponivel">Disponível</option>
           <option value="reserva">Reservado</option>
           <option value="vendido">Vendido</option>
+        </select>
+        <select value={filterCategoria} onChange={(e) => setCategoria(e.target.value)}
+          className="bg-[#161616] border border-white/10 text-white/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+          <option value="all">Todas as categorias</option>
+          <option value="Apartamento">Apartamento</option>
+          <option value="Casa">Casa</option>
+          <option value="Casa em Condomínio">Casa em Condomínio</option>
+          <option value="Cobertura">Cobertura</option>
+          <option value="Kitnet / Studio">Kitnet / Studio</option>
+          <option value="Terreno">Terreno</option>
+          <option value="Sala Comercial">Sala Comercial</option>
+          <option value="Loja">Loja</option>
+          <option value="Galpão / Depósito">Galpão / Depósito</option>
+          <option value="Sítio / Fazenda">Sítio / Fazenda</option>
         </select>
 
         {minisiteSlug && (
@@ -190,13 +209,13 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
                       className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors">
                       <Eye size={14} />
                     </Link>
-                    {canEdit && isOwn && (
+                    {(isAdmin || isOwn) && (
                       <Link href={`/dashboard/imoveis/${p.id}/editar`}
                         className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors">
                         <Edit size={14} />
                       </Link>
                     )}
-                    {(isOwn || isListed) && (
+                    {(isAdmin || isOwn || isListed) && (
                       <button onClick={() => handleDelete(p)} disabled={deleting === p.id}
                         className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-red-400 hover:border-red-900/50 transition-colors disabled:opacity-40">
                         <Trash2 size={14} />
