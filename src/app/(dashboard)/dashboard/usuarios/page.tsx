@@ -37,7 +37,7 @@ export default async function UsuariosPage() {
       <div className="bg-[#161616] border border-white/5 rounded-2xl mb-8">
         <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
           <UserPlus size={16} className="text-gold" />
-          <h2 className="font-serif text-xl font-semibold text-white">Convidar Usuário</h2>
+          <h2 className="font-serif text-xl font-semibold text-white">Cadastrar Usuário</h2>
         </div>
         <InviteUserForm orgs={orgOptions} />
       </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin, Images, Code2 } from "lucide-react"
+import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin, Images, Code2, ExternalLink } from "lucide-react"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
 import type { Development } from "@/types/database"
@@ -257,6 +257,11 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                <a href={`/lancamento/${dev.id}`} target="_blank" rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-white/20 hover:text-gold transition-colors p-1" title="Ver página pública">
+                  <ExternalLink size={14} />
+                </a>
                 <button type="button" onClick={(e) => { e.stopPropagation(); deleteDev(dev.id) }}
                   className="text-white/20 hover:text-red-400 transition-colors p-1">
                   <X size={14} />
