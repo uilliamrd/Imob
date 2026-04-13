@@ -21,6 +21,7 @@ const MOCK: Property = {
   video_url: null, address: "Av. Delfim Moreira, 1200",
   neighborhood: "Leblon", city: "Rio de Janeiro",
   slug: "torre-a-apt-1201", created_at: "", updated_at: "",
+  cep: null, categoria: null, tipo_negocio: "venda", bairro_id: null, logradouro_id: null,
 }
 
 interface PageProps {
