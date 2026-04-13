@@ -22,6 +22,7 @@ interface OrgFormProps {
     logo: string
     has_lancamentos?: boolean
     slug?: string
+    brand_color?: string
   }
   isAdmin?: boolean
 }
@@ -30,11 +31,12 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
   const router = useRouter()
   const [name, setName] = useState(initialData.name)
   const [type, setType] = useState<OrgType>(initialData.type as OrgType || "construtora")
-  const [portfolioDesc, setPortfolioDesc] = useState(initialData.portfolio_desc)
+  const [portfolioDesc] = useState(initialData.portfolio_desc)
   const [aboutText, setAboutText] = useState(initialData.about_text ?? "")
   const [heroTagline, setHeroTagline] = useState(initialData.hero_tagline ?? "")
   const [website, setWebsite] = useState(initialData.website)
   const [hasLancamentos, setHasLancamentos] = useState(initialData.has_lancamentos ?? false)
+  const [brandColor, setBrandColor] = useState(initialData.brand_color ?? "#C4A052")
 
   const [logoUrls, setLogoUrls] = useState<string[]>(initialData.logo ? [initialData.logo] : [])
   const [heroImageUrls, setHeroImageUrls] = useState<string[]>(initialData.hero_image ? [initialData.hero_image] : [])
@@ -66,6 +68,7 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
       about_image: aboutImageUrls[0] ?? null,
       website: website || null,
       logo: logoUrls[0] ?? null,
+      brand_colors: { primary: brandColor },
     }
 
     if (isAdmin) {
@@ -96,6 +99,7 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
   const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2"
   const landingSlug = slugify(name)
+  const minisitePath = type === "imobiliaria" ? `/imobiliaria/${landingSlug}` : `/construtora/${landingSlug}`
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -193,6 +197,29 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
         </div>
       </section>
 
+      {/* Brand color */}
+      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-4">
+        <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: brandColor }} />
+          <h2 className="font-serif text-lg font-semibold text-white">Cor do Minisite</h2>
+        </div>
+        <div className="flex items-center gap-4">
+          <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)}
+            className="w-12 h-12 rounded-lg cursor-pointer bg-transparent border border-white/10 p-1" />
+          <div>
+            <p className="text-white/60 text-sm font-sans">Cor de destaque do minisite</p>
+            <p className="text-white/20 text-xs font-sans font-mono mt-0.5">{brandColor}</p>
+          </div>
+          <div className="flex gap-2 ml-auto flex-wrap">
+            {["#C4A052","#E8C96B","#B8860B","#1E3A5F","#2D6A4F","#9B2226","#6B21A8"].map((c) => (
+              <button key={c} type="button" onClick={() => setBrandColor(c)}
+                className="w-7 h-7 rounded-full border-2 transition-all"
+                style={{ backgroundColor: c, borderColor: brandColor === c ? "#fff" : "transparent" }} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Landing page link */}
       {name && (
         <section className="bg-[#161616] border border-gold/10 rounded-2xl p-6">
@@ -200,10 +227,11 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-gold/60 font-sans mb-1">Minisite Publicado</p>
               <p className="text-white/60 font-mono text-sm">
-                /construtora/<span className="text-gold">{landingSlug}</span>
+                <span className="text-white/30">{minisitePath.replace(landingSlug, "")}</span>
+                <span className="text-gold">{landingSlug}</span>
               </p>
             </div>
-            <a href={`/construtora/${landingSlug}`} target="_blank" rel="noopener noreferrer"
+            <a href={minisitePath} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 border border-gold/30 text-gold text-xs font-sans uppercase tracking-wider hover:bg-gold/10 transition-colors rounded-lg">
               <ExternalLink size={12} /> Abrir Site
             </a>

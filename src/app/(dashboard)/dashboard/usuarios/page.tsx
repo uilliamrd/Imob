@@ -12,12 +12,17 @@ export default async function UsuariosPage() {
   const { data: { users: authUsers } } = await adminClient.auth.admin.listUsers()
 
   const [{ data: profiles }, { data: orgs }] = await Promise.all([
-    adminClient.from("profiles").select("*, organization:organizations(name)").order("created_at", { ascending: false }),
+    adminClient.from("profiles").select("*").order("created_at", { ascending: false }),
     adminClient.from("organizations").select("id, name, type").order("name"),
   ])
 
   const emailMap = Object.fromEntries((authUsers ?? []).map((u) => [u.id, u.email]))
-  const enrichedProfiles = (profiles ?? []).map((p) => ({ ...p, email: emailMap[p.id] ?? undefined }))
+  const orgMap = Object.fromEntries((orgs ?? []).map((o) => [o.id, o]))
+  const enrichedProfiles = (profiles ?? []).map((p) => ({
+    ...p,
+    email: emailMap[p.id] ?? undefined,
+    organization: p.organization_id ? { name: orgMap[p.organization_id]?.name ?? "—" } : null,
+  }))
   const orgOptions = (orgs ?? []).map((o) => ({ id: o.id, name: o.name, type: o.type }))
 
   return (

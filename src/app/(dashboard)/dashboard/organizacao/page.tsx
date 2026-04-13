@@ -48,6 +48,7 @@ export default async function OrganizacaoPage() {
             portfolio_desc: org.portfolio_desc ?? "",
             website: org.website ?? "",
             logo: org.logo ?? "",
+            brand_color: org.brand_colors?.primary ?? "#C4A052",
           }}
         />
       )}

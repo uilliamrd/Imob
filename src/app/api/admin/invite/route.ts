@@ -44,14 +44,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: createError.message }, { status: 400 })
   }
 
-  // Upsert profile with role and org
+  // Upsert profile with role and org (trigger already inserted the row; we update role + org)
   if (newUser?.user) {
     await adminClient.from("profiles").upsert({
       id: newUser.user.id,
       role,
       organization_id: organization_id ?? null,
       is_active: true,
-      updated_at: new Date().toISOString(),
     }, { onConflict: "id" })
   }
 

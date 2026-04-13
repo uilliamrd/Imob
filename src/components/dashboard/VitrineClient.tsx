@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X } from "lucide-react"
+import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X, Eye, ChevronDown, ChevronUp, MapPin, Hash } from "lucide-react"
 import type { Property, UserRole } from "@/types/database"
 
 function formatPrice(price: number) {
@@ -26,6 +26,7 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
   const [filterMin, setFilterMin] = useState("")
   const [filterMax, setFilterMax] = useState("")
   const [showFilters, setShowFilters] = useState(false)
+  const [expanded, setExpanded] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
   const filtered = properties.filter((p) => {
@@ -149,9 +150,16 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
               </div>
 
               <div className="p-4">
+                {p.code && (
+                  <div className="flex items-center gap-1 text-white/20 text-[10px] font-sans mb-1">
+                    <Hash size={9} />{p.code}
+                  </div>
+                )}
                 <p className="font-serif text-white font-semibold text-base leading-tight mb-1">{p.title}</p>
                 {(p.neighborhood || p.city) && (
-                  <p className="text-white/30 text-xs font-sans mb-3">{p.neighborhood}{p.city ? `, ${p.city}` : ""}</p>
+                  <p className="text-white/30 text-xs font-sans mb-3 flex items-center gap-1">
+                    <MapPin size={10} />{p.neighborhood}{p.city ? `, ${p.city}` : ""}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-3 text-white/40 text-xs font-sans mb-3">
@@ -171,18 +179,48 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
 
                 <div className="flex items-center justify-between">
                   <span className="font-serif text-gold text-base font-semibold">{formatPrice(p.price)}</span>
-                  <button
-                    onClick={() => toggleListing(p.id)}
-                    disabled={pending}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs uppercase tracking-[0.1em] font-sans transition-all duration-200 ${
-                      isListed
-                        ? "bg-gold/10 border border-gold/30 text-gold hover:bg-red-900/20 hover:border-red-500/30 hover:text-red-400"
-                        : "bg-white/5 border border-white/10 text-white/50 hover:bg-gold/10 hover:border-gold/30 hover:text-gold"
-                    }`}
-                  >
-                    {isListed ? <><Check size={11} /> Adicionado</> : <><Plus size={11} /> Adicionar</>}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setExpanded(expanded === p.id ? null : p.id)}
+                      className="p-1.5 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors"
+                      title="Ver detalhes"
+                    >
+                      {expanded === p.id ? <ChevronUp size={12} /> : <Eye size={12} />}
+                    </button>
+                    <button
+                      onClick={() => toggleListing(p.id)}
+                      disabled={pending}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs uppercase tracking-[0.1em] font-sans transition-all duration-200 ${
+                        isListed
+                          ? "bg-gold/10 border border-gold/30 text-gold hover:bg-red-900/20 hover:border-red-500/30 hover:text-red-400"
+                          : "bg-white/5 border border-white/10 text-white/50 hover:bg-gold/10 hover:border-gold/30 hover:text-gold"
+                      }`}
+                    >
+                      {isListed ? <><Check size={11} /> Adicionado</> : <><Plus size={11} /> Adicionar</>}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Detail panel */}
+                {expanded === p.id && (
+                  <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
+                    {p.description && (
+                      <p className="text-white/40 text-xs font-sans leading-relaxed line-clamp-4">{p.description}</p>
+                    )}
+                    <div className="grid grid-cols-2 gap-1 text-[11px] font-sans text-white/30">
+                      {p.features.area_total && <span>Área total: {p.features.area_total}m²</span>}
+                      {p.features.area_terreno && <span>Terreno: {p.features.area_terreno}m²</span>}
+                      {p.features.banheiros && <span>Banheiros: {p.features.banheiros}</span>}
+                      {p.features.dormitorios && <span>Dormitórios: {p.features.dormitorios}</span>}
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <a href={`/imovel/${p.slug}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-colors text-xs font-sans">
+                        <Eye size={11} /> Ver página pública
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )

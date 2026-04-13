@@ -15,7 +15,7 @@ async function getData(slug: string): Promise<{ org: Organization; properties: P
       .eq("slug", slug)
       .maybeSingle()
 
-    if (!org) return null
+    if (!org || org.type !== "construtora") return null
 
     const [{ data: properties }, { data: developments }] = await Promise.all([
       supabase.from("properties").select("*").eq("org_id", org.id).eq("visibility", "publico").order("status"),
