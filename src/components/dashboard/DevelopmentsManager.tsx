@@ -7,10 +7,13 @@ import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
 import type { Development } from "@/types/database"
 
 interface OrgOption { id: string; name: string }
+interface BairroOption { id: string; name: string; city: string; state: string }
+
 interface DevelopmentsManagerProps {
   developments: Development[]
   orgId?: string | null
   orgs?: OrgOption[]
+  bairros?: BairroOption[]
 }
 
 const emptyForm = {
@@ -18,7 +21,7 @@ const emptyForm = {
   description: "", is_lancamento: false, is_delivered: false,
 }
 
-export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }: DevelopmentsManagerProps) {
+export function DevelopmentsManager({ developments: initial, orgId, orgs = [], bairros = [] }: DevelopmentsManagerProps) {
   const [devs, setDevs] = useState(initial)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [showNew, setShowNew] = useState(false)
@@ -136,8 +139,21 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
             </div>
             <div>
               <label className={labelClass}>Bairro</label>
-              <input type="text" value={newForm.neighborhood} onChange={(e) => setNewForm({ ...newForm, neighborhood: e.target.value })}
-                placeholder="Copacabana" className={inputClass} />
+              {bairros.length > 0 ? (
+                <select
+                  value={bairros.find((b) => b.name === newForm.neighborhood)?.id ?? ""}
+                  onChange={(e) => {
+                    const b = bairros.find((b) => b.id === e.target.value)
+                    setNewForm({ ...newForm, neighborhood: b?.name ?? "", city: b?.city ?? newForm.city })
+                  }}
+                  className={inputClass}>
+                  <option value="">— Selecione —</option>
+                  {bairros.map((b) => <option key={b.id} value={b.id}>{b.name}{b.city ? ` — ${b.city}` : ""}</option>)}
+                </select>
+              ) : (
+                <input type="text" value={newForm.neighborhood} onChange={(e) => setNewForm({ ...newForm, neighborhood: e.target.value })}
+                  placeholder="Copacabana" className={inputClass} />
+              )}
             </div>
             <div>
               <label className={labelClass}>Cidade</label>
@@ -267,9 +283,22 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
                   </div>
                   <div>
                     <label className={labelClass}>Bairro</label>
-                    <input type="text" value={form.neighborhood ?? ""}
-                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], neighborhood: e.target.value } }))}
-                      className={inputClass} />
+                    {bairros.length > 0 ? (
+                      <select
+                        value={bairros.find((b) => b.name === form.neighborhood)?.id ?? ""}
+                        onChange={(e) => {
+                          const b = bairros.find((b) => b.id === e.target.value)
+                          setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], neighborhood: b?.name ?? "", city: b?.city ?? p[dev.id]?.city ?? "" } }))
+                        }}
+                        className={inputClass}>
+                        <option value="">— Selecione —</option>
+                        {bairros.map((b) => <option key={b.id} value={b.id}>{b.name}{b.city ? ` — ${b.city}` : ""}</option>)}
+                      </select>
+                    ) : (
+                      <input type="text" value={form.neighborhood ?? ""}
+                        onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], neighborhood: e.target.value } }))}
+                        className={inputClass} />
+                    )}
                   </div>
                   <div>
                     <label className={labelClass}>Cidade</label>

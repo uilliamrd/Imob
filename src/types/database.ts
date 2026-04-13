@@ -58,13 +58,27 @@ export interface PropertyFeatures {
   quartos?: number
   dormitorios?: number
   dependencias?: number
+  livings?: number
   vagas?: number
   numero_vaga?: string
+  tipo_vaga?: string
+  situacao_vaga?: string
   area_m2?: number
+  area_total?: number
+  area_terreno?: number
   banheiros?: number
   andar?: number
   numero_apto?: string
   torre?: string
+  quadra?: string
+  lote?: string
+  numero?: string
+  referencia?: string
+  depositos?: number
+  numero_depositos?: string
+  agenciador?: string
+  chaves?: string
+  mobiliado?: string
   nome_proprietario?: string
   contato_proprietario?: string
   [key: string]: number | string | undefined
@@ -88,6 +102,11 @@ export interface Property {
   address: string | null
   neighborhood: string | null
   city: string | null
+  cep: string | null
+  categoria: string | null
+  tipo_negocio: string
+  bairro_id: string | null
+  logradouro_id: string | null
   slug: string
   created_at: string
   updated_at: string

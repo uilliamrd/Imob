@@ -9,9 +9,10 @@ export default async function EmpreendimentosPage() {
   await requireAuth(["admin"])
   const adminClient = createAdminClient()
 
-  const [{ data: developments }, { data: orgs }] = await Promise.all([
+  const [{ data: developments }, { data: orgs }, { data: bairros }] = await Promise.all([
     adminClient.from("developments").select("*").order("name"),
     adminClient.from("organizations").select("id, name").order("name"),
+    adminClient.from("bairros").select("*").order("name"),
   ])
 
   return (
@@ -41,6 +42,7 @@ export default async function EmpreendimentosPage() {
             developments={(developments ?? []) as Development[]}
             orgId={null}
             orgs={(orgs ?? []).map((o) => ({ id: o.id, name: o.name }))}
+            bairros={(bairros ?? []) as { id: string; name: string; city: string; state: string }[]}
           />
         </div>
       </div>

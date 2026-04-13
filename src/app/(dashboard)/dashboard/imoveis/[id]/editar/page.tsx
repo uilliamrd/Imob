@@ -1,5 +1,4 @@
 import { notFound, redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
@@ -13,32 +12,37 @@ interface PageProps {
 export default async function EditarImovelPage({ params }: PageProps) {
   const user = await requireAuth(["admin", "imobiliaria", "construtora", "corretor"])
   const { id } = await params
-  const supabase = await createClient()
-  const adminClient = createAdminClient()
+  const admin = createAdminClient()
 
-  const [{ data }, { data: profile }, { data: developments }] = await Promise.all([
-    supabase.from("properties").select("*").eq("id", id).single(),
-    adminClient.from("profiles").select("organization_id, role").eq("id", user.id).single(),
-    supabase.from("developments").select("*").order("name"),
+  const [
+    { data },
+    { data: profile },
+    { data: developments },
+    { data: bairros },
+    { data: logradouros },
+  ] = await Promise.all([
+    admin.from("properties").select("*").eq("id", id).single(),
+    admin.from("profiles").select("organization_id, role").eq("id", user.id).single(),
+    admin.from("developments").select("*").order("name"),
+    admin.from("bairros").select("*").order("name"),
+    admin.from("logradouros").select("*").order("name"),
   ])
 
   if (!data) notFound()
 
   const property = data as Property
 
-  // Ownership check: non-admins can only edit properties belonging to their organization
+  // Ownership check: non-admins can only edit their own org's properties
   if (profile?.role !== "admin" && property.org_id !== profile?.organization_id) {
     redirect("/dashboard/imoveis")
   }
 
   return (
-    <div className="p-8 max-w-4xl">
-      <div className="mb-10">
+    <div className="p-8 max-w-5xl">
+      <div className="mb-8">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans mb-2">Portfólio</p>
         <h1 className="font-serif text-4xl font-bold text-white">
-          <AnimatedGradientText className="font-serif text-4xl font-bold">
-            Editar Imóvel
-          </AnimatedGradientText>
+          <AnimatedGradientText className="font-serif text-4xl font-bold">Editar Imóvel</AnimatedGradientText>
         </h1>
         <p className="text-white/30 font-sans text-sm mt-2">{property.title}</p>
         <div className="divider-gold mt-4 w-20" />
@@ -48,21 +52,29 @@ export default async function EditarImovelPage({ params }: PageProps) {
         propertyId={id}
         orgId={profile?.organization_id}
         developments={(developments ?? []) as Development[]}
+        bairros={(bairros ?? []) as { id: string; name: string; city: string; state: string }[]}
+        logradouros={(logradouros ?? []) as { id: string; type: string; name: string; bairro_id: string | null; city: string; cep: string | null }[]}
         initialData={{
-          title: property.title,
-          slug: property.slug,
-          description: property.description ?? undefined,
-          price: property.price,
-          status: property.status,
-          visibility: property.visibility,
-          tags: property.tags,
-          features: property.features,
-          neighborhood: property.neighborhood ?? undefined,
-          city: property.city ?? undefined,
-          address: property.address ?? undefined,
-          images: property.images,
-          code: property.code,
-          development_id: property.development_id ?? undefined,
+          title:          property.title,
+          slug:           property.slug,
+          description:    property.description ?? undefined,
+          price:          property.price,
+          status:         property.status,
+          visibility:     property.visibility,
+          tags:           property.tags,
+          images:         property.images,
+          video_url:      property.video_url,
+          development_id: property.development_id,
+          neighborhood:   property.neighborhood,
+          city:           property.city,
+          address:        property.address,
+          cep:            property.cep,
+          categoria:      property.categoria,
+          tipo_negocio:   property.tipo_negocio,
+          bairro_id:      property.bairro_id,
+          logradouro_id:  property.logradouro_id,
+          code:           property.code,
+          features:       property.features,
         }}
       />
     </div>
