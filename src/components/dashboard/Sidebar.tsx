@@ -47,7 +47,7 @@ const NAV_ITEMS: NavItem[] = [
 
   // ── Imobiliária
   { href: "/dashboard/imoveis",        label: "Imóveis",          icon: Home,            roles: ["imobiliaria"] },
-  { href: "/dashboard/vitrine",        label: "Vitrine Pública",  icon: Globe,           roles: ["imobiliaria"] },
+  { href: "/dashboard/vitrine",        label: "Base de Imóveis",  icon: Globe,           roles: ["imobiliaria"] },
   { href: "/dashboard/equipe",         label: "Minha Equipe",     icon: Users,           roles: ["imobiliaria"] },
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["imobiliaria"] },
   { href: "/dashboard/organizacao",    label: "Branding",         icon: Building2,       roles: ["imobiliaria"] },
@@ -55,7 +55,7 @@ const NAV_ITEMS: NavItem[] = [
 
   // ── Corretor
   { href: "/dashboard/imoveis",        label: "Imóveis",          icon: Home,            roles: ["corretor"] },
-  { href: "/dashboard/vitrine",        label: "Vitrine Pública",  icon: Globe,           roles: ["corretor"] },
+  { href: "/dashboard/vitrine",        label: "Base de Imóveis",  icon: Globe,           roles: ["corretor"] },
   { href: "/dashboard/corretor",       label: "Meus Links",       icon: Link2,           roles: ["corretor"] },
   { href: "/dashboard/selecoes",       label: "Seleções",         icon: BookOpen,        roles: ["corretor"] },
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["corretor"] },

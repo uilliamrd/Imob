@@ -40,10 +40,10 @@ export default async function VitrinePage() {
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans">Curadoria</p>
         </div>
         <h1 className="font-serif text-4xl font-bold text-white">
-          <AnimatedGradientText className="font-serif text-4xl font-bold">Vitrine Pública</AnimatedGradientText>
+          <AnimatedGradientText className="font-serif text-4xl font-bold">Base de Imóveis</AnimatedGradientText>
         </h1>
         <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
-          Base completa de imóveis disponíveis no sistema. Adicione ao seu portfólio para exibir no seu site.
+          Base completa de imóveis disponíveis no sistema. Adicione ao seu portfólio para exibir no minisite.
         </p>
         <div className="divider-gold mt-4 w-20" />
       </div>

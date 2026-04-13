@@ -33,6 +33,12 @@ export default async function DashboardPage() {
     .single()
 
   const role = (profile?.role as UserRole) ?? "corretor"
+
+  // Non-admins start at the Base de Imóveis page
+  if (role !== "admin" && role !== "construtora") {
+    redirect("/dashboard/vitrine")
+  }
+
   const firstName = (profile?.full_name ?? user.email ?? "Usuário").split(" ")[0]
 
   // Start of current month
@@ -96,38 +102,34 @@ export default async function DashboardPage() {
         })}
       </div>
 
-      {/* Quick actions by role */}
+      {/* Quick actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {role !== "corretor" && role !== "admin" && (
-          <Link href="/dashboard/imoveis/novo" className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/30 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-serif text-lg font-semibold text-white mb-1">Cadastrar Imóvel</h3>
-                <p className="text-white/40 text-sm font-sans">Adicionar novo imóvel ao portfólio</p>
-              </div>
-              <ArrowRight size={20} className="text-white/20 group-hover:text-gold transition-colors" />
+        <Link href="/dashboard/imoveis/novo" className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/30 transition-all duration-300">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-white mb-1">Cadastrar Imóvel</h3>
+              <p className="text-white/40 text-sm font-sans">Adicionar novo imóvel ao portfólio</p>
             </div>
-          </Link>
-        )}
+            <ArrowRight size={20} className="text-white/20 group-hover:text-gold transition-colors" />
+          </div>
+        </Link>
 
-        {role !== "admin" && (
-          <Link href="/dashboard/imoveis" className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/30 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-serif text-lg font-semibold text-white mb-1">Ver Portfólio</h3>
-                <p className="text-white/40 text-sm font-sans">Explorar todos os imóveis disponíveis</p>
-              </div>
-              <ArrowRight size={20} className="text-white/20 group-hover:text-gold transition-colors" />
+        <Link href="/dashboard/imoveis" className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/30 transition-all duration-300">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-white mb-1">Ver Imóveis</h3>
+              <p className="text-white/40 text-sm font-sans">Explorar todos os imóveis cadastrados</p>
             </div>
-          </Link>
-        )}
+            <ArrowRight size={20} className="text-white/20 group-hover:text-gold transition-colors" />
+          </div>
+        </Link>
 
-        {role === "corretor" && (
-          <Link href="/dashboard/corretor" className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/30 transition-all duration-300">
+        {role === "construtora" && (
+          <Link href="/dashboard/lancamentos" className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/30 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-lg font-semibold text-white mb-1">Meus Links de Ref</h3>
-                <p className="text-white/40 text-sm font-sans">Gerar e gerenciar links personalizados</p>
+                <h3 className="font-serif text-lg font-semibold text-white mb-1">Lançamentos</h3>
+                <p className="text-white/40 text-sm font-sans">Gerenciar empreendimentos em lançamento</p>
               </div>
               <ArrowRight size={20} className="text-white/20 group-hover:text-gold transition-colors" />
             </div>

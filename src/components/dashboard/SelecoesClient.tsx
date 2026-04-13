@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import {
   BookOpen, Plus, Link2, ExternalLink, X, Check, ChevronDown, ChevronUp,
-  Trash2, Eye, Copy, Building2, Search,
+  Trash2, Eye, Building2, Search,
 } from "lucide-react"
 import type { Selection, SelectionItem, Property } from "@/types/database"
+
+interface DevOption { id: string; name: string }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -26,36 +28,30 @@ function publicUrl(id: string) {
 // ── Property picker modal ────────────────────────────────────────────────────
 
 function PropertyPicker({
-  selectionId,
-  alreadyAdded,
-  onClose,
-  onAdded,
+  selectionId, alreadyAdded, onClose, onAdded, allProperties, developments,
 }: {
   selectionId: string
   alreadyAdded: string[]
   onClose: () => void
   onAdded: (item: SelectionItem & { property: Property }) => void
+  allProperties: Property[]
+  developments: DevOption[]
 }) {
   const [search, setSearch] = useState("")
-  const [results, setResults] = useState<Property[]>([])
-  const [loading, setLoading] = useState(false)
+  const [devFilter, setDevFilter] = useState("")
   const [adding, setAdding] = useState<string | null>(null)
   const [addedNow, setAddedNow] = useState<Set<string>>(new Set())
 
-  async function handleSearch(q: string) {
-    setSearch(q)
-    if (!q.trim()) { setResults([]); return }
-    setLoading(true)
-    const supabase = createClient()
-    const { data } = await supabase
-      .from("properties")
-      .select("*")
-      .or(`title.ilike.%${q}%,neighborhood.ilike.%${q}%,slug.ilike.%${q}%`)
-      .eq("visibility", "publico")
-      .limit(20)
-    setResults((data ?? []) as Property[])
-    setLoading(false)
-  }
+  const filtered = allProperties.filter((p) => {
+    const q = search.toLowerCase()
+    const matchSearch = !q ||
+      p.title.toLowerCase().includes(q) ||
+      (p.neighborhood ?? "").toLowerCase().includes(q) ||
+      (p.city ?? "").toLowerCase().includes(q) ||
+      String(p.code ?? "").includes(q)
+    const matchDev = !devFilter || p.development_id === devFilter
+    return matchSearch && matchDev
+  })
 
   async function handleAdd(property: Property) {
     setAdding(property.id)
@@ -81,53 +77,55 @@ function PropertyPicker({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-xl max-h-[80vh] flex flex-col mx-4">
+      <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col mx-4">
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
           <h2 className="font-serif text-xl font-semibold text-white">Adicionar Imóvel à Seleção</h2>
-          <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors">
-            <X size={18} />
-          </button>
+          <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors"><X size={18} /></button>
         </div>
 
-        <div className="px-6 py-4 border-b border-white/5">
-          <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Buscar por título, bairro ou slug..."
-              className="w-full bg-[#111] border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-            />
+        <div className="px-6 py-3 border-b border-white/5 flex gap-3">
+          <div className="relative flex-1">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="Título, bairro, código..."
+              className="w-full bg-[#111] border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
           </div>
+          {developments.length > 0 && (
+            <select value={devFilter} onChange={(e) => setDevFilter(e.target.value)}
+              className="bg-[#111] border border-white/10 text-white/60 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50">
+              <option value="">Todos os empreendimentos</option>
+              {developments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+            </select>
+          )}
         </div>
+
+        <p className="px-6 py-2 text-[11px] text-white/20 font-sans">{filtered.length} imóveis</p>
 
         <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-          {loading && <div className="py-8 text-center text-white/30 text-sm font-sans">Buscando...</div>}
-          {!loading && results.length === 0 && (
-            <div className="py-10 text-center text-white/20 text-sm font-sans">
-              {search ? "Nenhum imóvel encontrado." : "Digite para buscar imóveis."}
-            </div>
+          {filtered.length === 0 && (
+            <div className="py-10 text-center text-white/20 text-sm font-sans">Nenhum imóvel encontrado.</div>
           )}
-          {results.map((p) => {
+          {filtered.map((p) => {
             const added = isAdded(p.id)
+            const dev = developments.find((d) => d.id === p.development_id)
             return (
-              <div key={p.id} className="px-6 py-4 flex items-center gap-4 hover:bg-white/[0.02]">
+              <div key={p.id} className="px-6 py-3 flex items-center gap-4 hover:bg-white/[0.02]">
+                {p.images?.[0]
+                  ? <img src={p.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-white/10" />
+                  : <div className="w-10 h-10 rounded-lg bg-white/5 flex-shrink-0 border border-white/5" />
+                }
                 <div className="flex-1 min-w-0">
                   <p className="text-white/90 text-sm font-sans truncate font-medium">{p.title}</p>
-                  <p className="text-white/30 text-xs font-sans mt-0.5">
-                    {p.neighborhood && `${p.neighborhood}, `}{p.city} · {formatPrice(p.price)}
+                  <p className="text-white/30 text-xs font-sans mt-0.5 flex items-center gap-2">
+                    {dev && <span className="flex items-center gap-1"><Building2 size={9} />{dev.name}</span>}
+                    {p.neighborhood && <span>{p.neighborhood}{p.city ? `, ${p.city}` : ""}</span>}
+                    <span className="text-gold/60">{formatPrice(p.price)}</span>
                   </p>
                 </div>
-                <button
-                  onClick={() => !added && handleAdd(p)}
-                  disabled={added || adding === p.id}
+                <button onClick={() => !added && handleAdd(p)} disabled={added || adding === p.id}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-sans transition-colors flex-shrink-0 ${
-                    added
-                      ? "bg-emerald-900/20 text-emerald-400 border border-emerald-700/40 cursor-default"
-                      : "bg-gold text-graphite hover:bg-gold-light disabled:opacity-50"
-                  }`}
-                >
+                    added ? "bg-emerald-900/20 text-emerald-400 border border-emerald-700/40 cursor-default"
+                          : "bg-gold text-graphite hover:bg-gold-light disabled:opacity-50"}`}>
                   {added ? <><Check size={11} /> Adicionado</> : adding === p.id ? "..." : <><Plus size={11} /> Adicionar</>}
                 </button>
               </div>
@@ -136,9 +134,7 @@ function PropertyPicker({
         </div>
 
         <div className="px-6 py-4 border-t border-white/5 flex justify-end">
-          <button onClick={onClose} className="text-white/50 text-sm font-sans hover:text-white/80 transition-colors">
-            Fechar
-          </button>
+          <button onClick={onClose} className="text-white/50 text-sm font-sans hover:text-white/80 transition-colors">Fechar</button>
         </div>
       </div>
     </div>
@@ -155,9 +151,11 @@ interface Props {
   userId: string
   initialSelections: SelectionWithItems[]
   orgId: string | null
+  allProperties: Property[]
+  developments: DevOption[]
 }
 
-export function SelecoesClient({ userId, initialSelections, orgId }: Props) {
+export function SelecoesClient({ userId, initialSelections, orgId, allProperties, developments }: Props) {
   const [selections, setSelections] = useState(initialSelections)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
@@ -420,6 +418,8 @@ export function SelecoesClient({ userId, initialSelections, orgId }: Props) {
           alreadyAdded={selections.find((s) => s.id === picker)?.items.map((i) => i.property_id) ?? []}
           onClose={() => setPicker(null)}
           onAdded={(item) => { handleItemAdded(picker, item); }}
+          allProperties={allProperties}
+          developments={developments}
         />
       )}
     </div>
