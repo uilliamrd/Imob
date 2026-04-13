@@ -27,9 +27,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Email e papel são obrigatórios" }, { status: 400 })
   }
 
-  // Create the user (send invite email)
-  const { data: newUser, error: createError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    data: { role },
+  const { password } = body as { password?: string }
+  if (!password || password.length < 6) {
+    return NextResponse.json({ error: "Senha obrigatória (mínimo 6 caracteres)" }, { status: 400 })
+  }
+
+  // Create user directly (confirmed, can login immediately)
+  const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { role },
   })
 
   if (createError) {

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Plus, X, Save, ChevronDown, ChevronUp, Navigation } from "lucide-react"
 
 interface Bairro {
@@ -13,15 +12,16 @@ interface Bairro {
 }
 
 export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
-  const [rows, setRows] = useState(initial)
-  const [showNew, setShowNew] = useState(false)
-  const [newName, setNewName] = useState("")
-  const [newCity, setNewCity] = useState("")
+  const [rows, setRows]         = useState(initial)
+  const [showNew, setShowNew]   = useState(false)
+  const [newName, setNewName]   = useState("")
+  const [newCity, setNewCity]   = useState("")
   const [newState, setNewState] = useState("")
   const [expanded, setExpanded] = useState<string | null>(null)
   const [editForms, setEditForms] = useState<Record<string, Partial<Bairro>>>({})
-  const [saving, setSaving] = useState(false)
-  const [search, setSearch] = useState("")
+  const [saving, setSaving]     = useState(false)
+  const [search, setSearch]     = useState("")
+  const [error, setError]       = useState<string | null>(null)
 
   const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5"
@@ -32,41 +32,60 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
 
   async function create() {
     if (!newName.trim()) return
-    setSaving(true)
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from("bairros")
-      .insert({ name: newName.trim(), city: newCity.trim(), state: newState.trim() })
-      .select("*").single()
-    if (!error && data) {
+    setSaving(true); setError(null)
+    const res = await fetch("/api/admin/bairros", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newName.trim(), city: newCity.trim(), state: newState.trim() }),
+    })
+    const data = await res.json()
+    if (res.ok) {
       setRows((p) => [data as Bairro, ...p])
       setNewName(""); setNewCity(""); setNewState("")
       setShowNew(false)
+    } else {
+      setError(data.error ?? "Erro ao criar bairro.")
     }
     setSaving(false)
   }
 
   async function update(id: string) {
-    setSaving(true)
-    const supabase = createClient()
+    setSaving(true); setError(null)
     const patch = editForms[id] ?? {}
-    const { error } = await supabase.from("bairros").update(patch).eq("id", id)
-    if (!error) {
+    const res = await fetch(`/api/admin/bairros/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    })
+    if (res.ok) {
       setRows((p) => p.map((b) => b.id === id ? { ...b, ...patch } : b))
       setExpanded(null)
+    } else {
+      const data = await res.json()
+      setError(data.error ?? "Erro ao salvar.")
     }
     setSaving(false)
   }
 
   async function remove(id: string) {
     if (!confirm("Excluir este bairro?")) return
-    const supabase = createClient()
-    await supabase.from("bairros").delete().eq("id", id)
-    setRows((p) => p.filter((b) => b.id !== id))
+    const res = await fetch(`/api/admin/bairros/${id}`, { method: "DELETE" })
+    if (res.ok) {
+      setRows((p) => p.filter((b) => b.id !== id))
+    } else {
+      const data = await res.json()
+      setError(data.error ?? "Erro ao excluir.")
+    }
   }
 
   return (
     <div className="space-y-3">
+      {error && (
+        <div className="px-4 py-3 rounded-lg text-sm font-sans bg-red-900/20 text-red-400 border border-red-700/30">
+          {error}
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex gap-3">
         <input type="text" placeholder="Buscar bairro ou cidade..."
@@ -133,9 +152,7 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
                   <div>
                     <p className="text-white/80 text-sm font-sans">{b.name}</p>
                     {(b.city || b.state) && (
-                      <p className="text-white/30 text-xs font-sans">
-                        {b.city}{b.state ? `, ${b.state}` : ""}
-                      </p>
+                      <p className="text-white/30 text-xs font-sans">{b.city}{b.state ? `, ${b.state}` : ""}</p>
                     )}
                   </div>
                 </div>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin, Images, Code2 } from "lucide-react"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
@@ -40,16 +39,20 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
   async function createDev() {
     if (!newForm.name.trim()) return
     setSaving(true)
-    const supabase = createClient()
-    const { data, error } = await supabase.from("developments").insert({
-      ...newForm,
-      org_id: newOrgId || orgId || null,
-      images: newImages,
-      cover_image: newImages[0] ?? null,
-      custom_page_html: newCustomHtml || null,
-      custom_page_type: newCustomType,
-    }).select("*").single()
-    if (!error && data) {
+    const res = await fetch("/api/admin/developments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...newForm,
+        org_id: newOrgId || orgId || null,
+        images: newImages,
+        cover_image: newImages[0] ?? null,
+        custom_page_html: newCustomHtml || null,
+        custom_page_type: newCustomType,
+      }),
+    })
+    const data = await res.json()
+    if (res.ok) {
       setDevs((prev) => [data as Development, ...prev])
       setNewForm(emptyForm)
       setNewImages([])
@@ -62,7 +65,6 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
 
   async function updateDev(id: string) {
     setSaving(true)
-    const supabase = createClient()
     const images = editImages[id] ?? devs.find((d) => d.id === id)?.images ?? []
     const customHtml = id in editCustomHtml ? editCustomHtml[id] : (devs.find((d) => d.id === id)?.custom_page_html ?? null)
     const customType = id in editCustomType ? editCustomType[id] : (devs.find((d) => d.id === id)?.custom_page_type ?? null)
@@ -73,8 +75,12 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
       custom_page_html: customHtml || null,
       custom_page_type: customType,
     }
-    const { error } = await supabase.from("developments").update(patch).eq("id", id)
-    if (!error) {
+    const res = await fetch(`/api/admin/developments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    })
+    if (res.ok) {
       setDevs((prev) => prev.map((d) => d.id === id ? { ...d, ...patch } as Development : d))
       setExpanded(null)
     }
@@ -83,9 +89,8 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [] }:
 
   async function deleteDev(id: string) {
     if (!confirm("Excluir este empreendimento? Os imóveis vinculados serão desvinculados.")) return
-    const supabase = createClient()
-    await supabase.from("developments").delete().eq("id", id)
-    setDevs((prev) => prev.filter((d) => d.id !== id))
+    const res = await fetch(`/api/admin/developments/${id}`, { method: "DELETE" })
+    if (res.ok) setDevs((prev) => prev.filter((d) => d.id !== id))
   }
 
   function startEdit(dev: Development) {

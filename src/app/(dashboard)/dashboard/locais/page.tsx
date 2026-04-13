@@ -1,14 +1,12 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
-import { DevelopmentsManager } from "@/components/dashboard/DevelopmentsManager"
 import { BairrosManager } from "@/components/dashboard/BairrosManager"
 import { LogradourosManager } from "@/components/dashboard/LogradourosManager"
-import { MapPin, Layers, Navigation, Building } from "lucide-react"
+import { MapPin, Navigation, Building } from "lucide-react"
 import Link from "next/link"
-import type { Development } from "@/types/database"
 
-type Tab = "empreendimentos" | "bairros" | "logradouros"
+type Tab = "bairros" | "logradouros"
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>
@@ -17,29 +15,18 @@ interface PageProps {
 export default async function LocaisPage({ searchParams }: PageProps) {
   await requireAuth(["admin"])
   const { tab: tabParam } = await searchParams
-  const activeTab: Tab =
-    tabParam === "bairros" ? "bairros" :
-    tabParam === "logradouros" ? "logradouros" :
-    "empreendimentos"
+  const activeTab: Tab = tabParam === "logradouros" ? "logradouros" : "bairros"
 
   const adminClient = createAdminClient()
 
-  const [
-    { data: developments },
-    { data: orgs },
-    { data: bairros },
-    { data: logradouros },
-  ] = await Promise.all([
-    adminClient.from("developments").select("*").order("name"),
-    adminClient.from("organizations").select("id, name").order("name"),
+  const [{ data: bairros }, { data: logradouros }] = await Promise.all([
     adminClient.from("bairros").select("*").order("name"),
     adminClient.from("logradouros").select("*").order("name"),
   ])
 
   const tabs = [
-    { id: "empreendimentos" as Tab, label: "Empreendimentos", icon: Layers,     count: developments?.length ?? 0 },
-    { id: "bairros"         as Tab, label: "Bairros",         icon: Navigation, count: bairros?.length ?? 0 },
-    { id: "logradouros"     as Tab, label: "Logradouros",     icon: Building,   count: logradouros?.length ?? 0 },
+    { id: "bairros"     as Tab, label: "Bairros",     icon: Navigation, count: bairros?.length ?? 0 },
+    { id: "logradouros" as Tab, label: "Logradouros", icon: Building,   count: logradouros?.length ?? 0 },
   ]
 
   return (
@@ -53,7 +40,7 @@ export default async function LocaisPage({ searchParams }: PageProps) {
           <AnimatedGradientText className="font-serif text-4xl font-bold">Locais</AnimatedGradientText>
         </h1>
         <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
-          Cadastre empreendimentos, bairros e logradouros que serão vinculados aos imóveis.
+          Cadastre bairros e logradouros que serão vinculados aos imóveis.
         </p>
         <div className="divider-gold mt-4 w-20" />
       </div>
@@ -89,23 +76,6 @@ export default async function LocaisPage({ searchParams }: PageProps) {
 
       {/* Content */}
       <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        {activeTab === "empreendimentos" && (
-          <>
-            <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
-              <Layers size={16} className="text-gold" />
-              <h2 className="font-serif text-xl font-semibold text-white">Empreendimentos</h2>
-              <span className="ml-auto text-white/20 text-xs font-sans">{developments?.length ?? 0} cadastrados</span>
-            </div>
-            <div className="p-6">
-              <DevelopmentsManager
-                developments={(developments ?? []) as Development[]}
-                orgId={null}
-                orgs={(orgs ?? []).map((o) => ({ id: o.id, name: o.name }))}
-              />
-            </div>
-          </>
-        )}
-
         {activeTab === "bairros" && (
           <>
             <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">

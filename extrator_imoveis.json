@@ -1,0 +1,244 @@
+{
+  "name": "Extrator de Imóveis — PDF para API",
+  "nodes": [
+    {
+      "id": "a1b2c3d4-0001",
+      "name": "Webhook — Receber PDF",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "extrator-imoveis",
+        "responseMode": "responseNode",
+        "options": {
+          "binaryData": true,
+          "rawBody": false
+        }
+      },
+      "webhookId": "extrator-imoveis-001"
+    },
+    {
+      "id": "a1b2c3d4-0002",
+      "name": "Extrair Texto do PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "data",
+        "options": {}
+      }
+    },
+    {
+      "id": "a1b2c3d4-0003",
+      "name": "Preparar Prompt para OpenAI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "parameters": {
+        "jsCode": "const text = $input.first().json.text || '';\n\n// Trunca para não ultrapassar o limite de tokens do modelo\nconst MAX_CHARS = 8000;\nconst truncated = text.slice(0, MAX_CHARS);\n\nif (!truncated.trim()) {\n  throw new Error('PDF sem texto extraível. Pode ser um PDF escaneado — use o fluxo de Vision API para esse caso.');\n}\n\nreturn [{\n  json: {\n    model: 'gpt-4o',\n    response_format: { type: 'json_object' },\n    temperature: 0.1,\n    messages: [\n      {\n        role: 'system',\n        content: 'Você é um extrator especializado em documentos imobiliários brasileiros. Retorne APENAS JSON válido e puro, sem markdown, sem texto adicional.'\n      },\n      {\n        role: 'user',\n        content: 'Extraia os seguintes dados deste documento imobiliário:\\n- titulo: string descritiva do imóvel (ex: \"Apartamento 3 quartos em Copacabana\")\\n- valor: número inteiro em reais SEM pontos ou vírgulas (ex: 850000)\\n- endereco: endereço completo\\n- bairro: nome do bairro\\n- cidade: nome da cidade\\n- quartos: número inteiro ou null\\n- suites: número inteiro ou null\\n- vagas: número inteiro ou null\\n- area_m2: número decimal da área útil ou null\\n- iptu: valor anual do IPTU em reais como número inteiro ou null\\n\\nSe o formato do documento for diferente do esperado, identifique os campos pelo contexto semântico.\\nRetorne APENAS JSON com essas chaves exatas, sem campos extras.\\n\\nDocumento:\\n' + truncated\n      }\n    ]\n  }\n}];"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0004",
+      "name": "OpenAI — Extrair Dados Estruturados",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "retry": {
+            "enabled": true,
+            "maxTries": 2,
+            "waitBetweenTries": 2000
+          },
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "cred_openai",
+          "name": "OpenAI — Authorization Bearer"
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0005",
+      "name": "Mapear para IngestPropertyPayload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "parameters": {
+        "jsCode": "// Extrai o conteúdo da resposta do OpenAI\nconst choice = $input.first().json.choices?.[0];\nconst content = choice?.message?.content || '{}';\n\nlet extracted;\ntry {\n  extracted = JSON.parse(content);\n} catch (e) {\n  throw new Error('OpenAI retornou JSON inválido: ' + content.slice(0, 200));\n}\n\n// Gera slug único a partir do título\nfunction toSlug(str) {\n  return (str || 'imovel')\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .trim()\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .slice(0, 70) + '-' + Date.now();\n}\n\n// Normaliza valor monetário (ex: \"R$ 1.200.000\" → 1200000)\nfunction normalizePrice(val) {\n  if (val === null || val === undefined) return 0;\n  if (typeof val === 'number') return Math.round(val);\n  const clean = String(val)\n    .replace(/R\\$\\s*/gi, '')\n    .replace(/\\./g, '')\n    .replace(',', '.')\n    .trim();\n  return Math.round(parseFloat(clean)) || 0;\n}\n\n// Normaliza número inteiro\nfunction toInt(val) {\n  if (val === null || val === undefined || val === '') return undefined;\n  const n = parseInt(String(val), 10);\n  return isNaN(n) ? undefined : n;\n}\n\n// Normaliza decimal\nfunction toFloat(val) {\n  if (val === null || val === undefined || val === '') return undefined;\n  const n = parseFloat(String(val).replace(',', '.'));\n  return isNaN(n) ? undefined : n;\n}\n\nconst title = (extracted.titulo || extracted.title || 'Imóvel').trim();\n\nconst payload = {\n  slug: toSlug(title),\n  title,\n  price: normalizePrice(extracted.valor ?? extracted.value ?? extracted.price),\n  address: extracted.endereco || extracted.address || null,\n  neighborhood: extracted.bairro || extracted.neighborhood || null,\n  city: extracted.cidade || extracted.city || null,\n  status: 'disponivel',\n  visibility: 'publico',\n  features: {\n    quartos:  toInt(extracted.quartos),\n    suites:   toInt(extracted.suites),\n    vagas:    toInt(extracted.vagas),\n    area_m2:  toFloat(extracted.area_m2),\n    iptu:     toInt(extracted.iptu),\n  },\n  tags: [],\n};\n\n// Remove chaves undefined dentro de features\nObject.keys(payload.features).forEach(k => {\n  if (payload.features[k] === undefined) delete payload.features[k];\n});\n\nreturn [{ json: payload }];"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0006",
+      "name": "Validar Campos Obrigatórios",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond_title",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            },
+            {
+              "id": "cond_price",
+              "leftValue": "={{ $json.price }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0007",
+      "name": "Ingest API — Salvar Imóvel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.IMOB_API_URL }}/api/properties/ingest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.API_INGEST_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "retry": {
+            "enabled": true,
+            "maxTries": 3,
+            "waitBetweenTries": 3000
+          },
+          "timeout": 15000
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0008",
+      "name": "Checar Resultado da Ingestão",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 200],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "conditions": [
+            {
+              "id": "cond_errors",
+              "leftValue": "={{ $json.errors }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0009",
+      "name": "Resposta — Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, 160],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, action: $json.results?.[0]?.action, slug: $json.results?.[0]?.slug, processed: $json.processed }) }}",
+        "options": { "responseCode": 200 }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0010",
+      "name": "Resposta — Erro na Ingestão",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, 280],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: 'Falha ao salvar no sistema', details: $json.results }) }}",
+        "options": { "responseCode": 500 }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0011",
+      "name": "Resposta — Dados Insuficientes",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1560, 420],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: 'Não foi possível extrair título ou valor do documento', extracted: $json }) }}",
+        "options": { "responseCode": 422 }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook — Receber PDF": {
+      "main": [[{ "node": "Extrair Texto do PDF", "type": "main", "index": 0 }]]
+    },
+    "Extrair Texto do PDF": {
+      "main": [[{ "node": "Preparar Prompt para OpenAI", "type": "main", "index": 0 }]]
+    },
+    "Preparar Prompt para OpenAI": {
+      "main": [[{ "node": "OpenAI — Extrair Dados Estruturados", "type": "main", "index": 0 }]]
+    },
+    "OpenAI — Extrair Dados Estruturados": {
+      "main": [[{ "node": "Mapear para IngestPropertyPayload", "type": "main", "index": 0 }]]
+    },
+    "Mapear para IngestPropertyPayload": {
+      "main": [[{ "node": "Validar Campos Obrigatórios", "type": "main", "index": 0 }]]
+    },
+    "Validar Campos Obrigatórios": {
+      "main": [
+        [{ "node": "Ingest API — Salvar Imóvel", "type": "main", "index": 0 }],
+        [{ "node": "Resposta — Dados Insuficientes", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ingest API — Salvar Imóvel": {
+      "main": [[{ "node": "Checar Resultado da Ingestão", "type": "main", "index": 0 }]]
+    },
+    "Checar Resultado da Ingestão": {
+      "main": [
+        [{ "node": "Resposta — Sucesso", "type": "main", "index": 0 }],
+        [{ "node": "Resposta — Erro na Ingestão", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["imóveis", "pdf", "ingest"],
+  "active": false
+}

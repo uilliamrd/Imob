@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Plus, X, Save, ChevronDown, ChevronUp, Building } from "lucide-react"
 
 interface Bairro { id: string; name: string; city: string }
@@ -25,18 +24,18 @@ export function LogradourosManager({
   logradouros: Logradouro[]
   bairros: Bairro[]
 }) {
-  const [rows, setRows] = useState(initial)
+  const [rows, setRows]       = useState(initial)
   const [showNew, setShowNew] = useState(false)
   const [newForm, setNewForm] = useState({ type: "Rua", name: "", bairro_id: "", city: "", cep: "" })
   const [expanded, setExpanded] = useState<string | null>(null)
   const [editForms, setEditForms] = useState<Record<string, Partial<Logradouro>>>({})
-  const [saving, setSaving] = useState(false)
-  const [search, setSearch] = useState("")
+  const [saving, setSaving]   = useState(false)
+  const [search, setSearch]   = useState("")
+  const [error, setError]     = useState<string | null>(null)
 
   const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5"
-
-  const bairroMap = Object.fromEntries(bairros.map((b) => [b.id, b.name]))
+  const bairroMap  = Object.fromEntries(bairros.map((b) => [b.id, b.name]))
 
   const filtered = rows.filter((l) =>
     !search ||
@@ -47,47 +46,66 @@ export function LogradourosManager({
 
   async function create() {
     if (!newForm.name.trim()) return
-    setSaving(true)
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from("logradouros")
-      .insert({
+    setSaving(true); setError(null)
+    const res = await fetch("/api/admin/logradouros", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         type: newForm.type,
         name: newForm.name.trim(),
         bairro_id: newForm.bairro_id || null,
         city: newForm.city.trim(),
         cep: newForm.cep.trim() || null,
-      })
-      .select("*").single()
-    if (!error && data) {
+      }),
+    })
+    const data = await res.json()
+    if (res.ok) {
       setRows((p) => [data as Logradouro, ...p])
       setNewForm({ type: "Rua", name: "", bairro_id: "", city: "", cep: "" })
       setShowNew(false)
+    } else {
+      setError(data.error ?? "Erro ao criar logradouro.")
     }
     setSaving(false)
   }
 
   async function update(id: string) {
-    setSaving(true)
-    const supabase = createClient()
+    setSaving(true); setError(null)
     const patch = editForms[id] ?? {}
-    const { error } = await supabase.from("logradouros").update(patch).eq("id", id)
-    if (!error) {
+    const res = await fetch(`/api/admin/logradouros/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    })
+    if (res.ok) {
       setRows((p) => p.map((l) => l.id === id ? { ...l, ...patch } : l))
       setExpanded(null)
+    } else {
+      const data = await res.json()
+      setError(data.error ?? "Erro ao salvar.")
     }
     setSaving(false)
   }
 
   async function remove(id: string) {
     if (!confirm("Excluir este logradouro?")) return
-    const supabase = createClient()
-    await supabase.from("logradouros").delete().eq("id", id)
-    setRows((p) => p.filter((l) => l.id !== id))
+    const res = await fetch(`/api/admin/logradouros/${id}`, { method: "DELETE" })
+    if (res.ok) {
+      setRows((p) => p.filter((l) => l.id !== id))
+    } else {
+      const data = await res.json()
+      setError(data.error ?? "Erro ao excluir.")
+    }
   }
 
   return (
     <div className="space-y-3">
+      {error && (
+        <div className="px-4 py-3 rounded-lg text-sm font-sans bg-red-900/20 text-red-400 border border-red-700/30">
+          {error}
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex gap-3">
         <input type="text" placeholder="Buscar logradouro, bairro ou cidade..."
@@ -153,7 +171,7 @@ export function LogradourosManager({
       <div className="divide-y divide-white/[0.04] border border-white/5 rounded-xl overflow-hidden">
         {filtered.map((l) => {
           const isExp = expanded === l.id
-          const form = editForms[l.id] ?? l
+          const form  = editForms[l.id] ?? l
           return (
             <div key={l.id}>
               <div className="px-4 py-3 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
