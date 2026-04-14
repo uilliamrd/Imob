@@ -59,7 +59,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/corretor",       label: "Meus Links",       icon: Link2,           roles: ["corretor"] },
   { href: "/dashboard/selecoes",       label: "Seleções",         icon: BookOpen,        roles: ["corretor"] },
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["corretor"] },
-  { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["corretor"] },
 
   // ── Construtora
   { href: "/dashboard/imoveis",        label: "Imóveis",          icon: Home,            roles: ["construtora"] },

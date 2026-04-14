@@ -6,6 +6,21 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, ChevronUp, User } from 'lucide-react'
 import type { Profile } from '@/types/database'
 
+const COOKIE_NAME = 'corretor_ref'
+const COOKIE_DAYS = 30
+
+function setCookie(value: string) {
+  const expires = new Date()
+  expires.setDate(expires.getDate() + COOKIE_DAYS)
+  document.cookie = `${COOKIE_NAME}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`
+}
+
+function getCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`(?:^|; )${COOKIE_NAME}=([^;]*)`))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
 interface CorretorMinisiteProps {
   defaultWhatsapp: string
   defaultName: string
@@ -20,18 +35,31 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
   const [isOpen, setIsOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
+  // Persist ref in cookie; fall back to cookie when no URL param
+  const [resolvedRef, setResolvedRef] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (refId) {
+      setCookie(refId)
+      setResolvedRef(refId)
+    } else {
+      const saved = getCookie()
+      if (saved) setResolvedRef(saved)
+    }
+  }, [refId])
+
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 2000)
     return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
-    if (!refId) return
-    fetch('/api/corretor/' + refId)
+    if (!resolvedRef) return
+    fetch('/api/corretor/' + resolvedRef)
       .then((r) => r.json())
       .then((data) => { if (data.id) setCorretor(data) })
       .catch(() => {})
-  }, [refId])
+  }, [resolvedRef])
 
   const name = corretor?.full_name ?? defaultName
   const photo = corretor?.avatar_url ?? defaultPhoto
@@ -39,6 +67,9 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
   const creci = corretor?.creci
 
   const whatsappUrl = 'https://wa.me/' + whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent('Olá! Tenho interesse em um imóvel.')
+
+  // Don't show widget if there's no corretor reference at all
+  if (!resolvedRef && !defaultWhatsapp) return null
 
   return (
     <AnimatePresence>
@@ -88,7 +119,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
                 <div className="divider-gold opacity-20 mb-4" />
 
                 <p className="text-white/60 text-xs font-sans leading-relaxed mb-5">
-                  Estou disponivel para apresentar este empreendimento e esclarecer todas as suas duvidas.
+                  Estou disponível para apresentar este imóvel e esclarecer todas as suas dúvidas.
                 </p>
 
                 <a

@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { OrgForm } from "@/components/dashboard/OrgForm"
+import { ProfileForm } from "@/components/dashboard/ProfileForm"
 import { ExternalLink, Monitor, Edit3 } from "lucide-react"
 import type { UserRole } from "@/types/database"
 import Link from "next/link"
@@ -12,19 +13,18 @@ export default async function MinisitePage() {
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("role, organization_id, full_name")
+    .select("role, organization_id, full_name, whatsapp, creci, bio, avatar_url")
     .eq("id", user.id)
     .single()
 
   const role = (profile?.role ?? "corretor") as UserRole
   const orgId = profile?.organization_id ?? null
 
-  // For imobiliaria: fetch org data to show/edit minisite
+  // For imobiliaria: fetch org data
   const { data: org } = orgId
     ? await admin.from("organizations").select("*").eq("id", orgId).single()
     : { data: null }
 
-  // Minisite URL
   const minisiteUrl =
     role === "imobiliaria" && org?.slug ? `/imobiliaria/${org.slug}` :
     role === "corretor" ? `/corretor/${user.id}` :
@@ -52,16 +52,10 @@ export default async function MinisitePage() {
             <p className="text-xs uppercase tracking-[0.2em] text-gold/60 font-sans mb-1">Endereço do seu site</p>
             <p className="text-white/70 font-mono text-sm">{minisiteUrl}</p>
           </div>
-          <div className="flex gap-3">
-            <a href={minisiteUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
-              <ExternalLink size={13} /> Abrir Site
-            </a>
-            <Link href="/dashboard/organizacao"
-              className="flex items-center gap-2 px-5 py-2.5 border border-white/10 text-white/50 hover:text-gold hover:border-gold/30 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
-              <Edit3 size={13} /> Editar Branding
-            </Link>
-          </div>
+          <a href={minisiteUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
+            <ExternalLink size={13} /> Abrir Site
+          </a>
         </div>
       )}
 
@@ -86,7 +80,7 @@ export default async function MinisitePage() {
         </div>
       )}
 
-      {/* For imobiliaria: show the org edit form inline */}
+      {/* For imobiliaria: org edit form */}
       {role === "imobiliaria" && (
         <div className="bg-[#161616] border border-white/5 rounded-2xl">
           <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
@@ -126,34 +120,33 @@ export default async function MinisitePage() {
         </div>
       )}
 
-      {/* For corretor: compact links to customize profile */}
+      {/* For corretor: profile form inline (replaces Configurações) */}
       {role === "corretor" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/dashboard/configuracoes"
-            className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/20 transition-all">
-            <Edit3 size={20} className="text-gold mb-3" />
-            <h3 className="font-serif text-lg font-semibold text-white mb-1">Meu Perfil</h3>
-            <p className="text-white/30 text-sm font-sans">Editar nome, foto, CRECI e contato</p>
-          </Link>
-          <Link href="/dashboard/corretor"
-            className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/20 transition-all">
-            <ExternalLink size={20} className="text-gold mb-3" />
-            <h3 className="font-serif text-lg font-semibold text-white mb-1">Links de Referência</h3>
-            <p className="text-white/30 text-sm font-sans">Gerar links rastreáveis para imóveis</p>
-          </Link>
+        <div className="bg-[#161616] border border-white/5 rounded-2xl">
+          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+            <Edit3 size={16} className="text-gold" />
+            <h2 className="font-serif text-xl font-semibold text-white">Meu Perfil</h2>
+          </div>
+          <div className="p-6">
+            <ProfileForm
+              userId={user.id}
+              initialData={{
+                full_name: profile?.full_name ?? "",
+                whatsapp: profile?.whatsapp ?? "",
+                creci: profile?.creci ?? "",
+                bio: profile?.bio ?? "",
+                avatar_url: profile?.avatar_url ?? "",
+              }}
+            />
+          </div>
         </div>
       )}
 
-      {/* No org linked */}
       {!minisiteUrl && (
         <div className="bg-[#161616] border border-white/5 rounded-2xl p-8 text-center">
           <p className="text-white/30 font-sans text-sm">
-            Nenhum minisite disponível. Configure seu branding primeiro.
+            Nenhum minisite disponível. Configure seu perfil primeiro.
           </p>
-          <Link href="/dashboard/organizacao"
-            className="inline-block mt-4 text-gold text-sm font-sans hover:text-gold-light transition-colors">
-            Configurar agora →
-          </Link>
         </div>
       )}
     </div>
