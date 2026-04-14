@@ -129,11 +129,11 @@ export default async function MinisitePage() {
       {/* For corretor: compact links to customize profile */}
       {role === "corretor" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/dashboard/organizacao"
+          <Link href="/dashboard/configuracoes"
             className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/20 transition-all">
             <Edit3 size={20} className="text-gold mb-3" />
-            <h3 className="font-serif text-lg font-semibold text-white mb-1">Personalizar Branding</h3>
-            <p className="text-white/30 text-sm font-sans">Editar logo, cores e texto do minisite</p>
+            <h3 className="font-serif text-lg font-semibold text-white mb-1">Meu Perfil</h3>
+            <p className="text-white/30 text-sm font-sans">Editar nome, foto, CRECI e contato</p>
           </Link>
           <Link href="/dashboard/corretor"
             className="group bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-gold/20 transition-all">

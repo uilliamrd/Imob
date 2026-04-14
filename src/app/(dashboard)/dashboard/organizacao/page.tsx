@@ -4,7 +4,7 @@ import { AnimatedGradientText } from "@/components/magicui/animated-gradient-tex
 import { OrgForm } from "@/components/dashboard/OrgForm"
 
 export default async function OrganizacaoPage() {
-  const user = await requireAuth(["admin", "imobiliaria", "construtora", "corretor"])
+  const user = await requireAuth(["admin", "imobiliaria", "construtora"])
   const adminClient = createAdminClient()
 
   const { data: profile } = await adminClient

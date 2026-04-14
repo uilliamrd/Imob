@@ -17,10 +17,13 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { email, role, organization_id } = body as {
+  const { email, role, organization_id, full_name, whatsapp, creci } = body as {
     email: string
     role: UserRole
     organization_id?: string | null
+    full_name?: string | null
+    whatsapp?: string | null
+    creci?: string | null
   }
 
   if (!email || !role) {
@@ -44,13 +47,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: createError.message }, { status: 400 })
   }
 
-  // Upsert profile with role and org (trigger already inserted the row; we update role + org)
+  // Upsert profile with role, org, and contact fields
   if (newUser?.user) {
     await adminClient.from("profiles").upsert({
       id: newUser.user.id,
       role,
       organization_id: organization_id ?? null,
       is_active: true,
+      full_name: full_name ?? null,
+      whatsapp: whatsapp ?? null,
+      creci: creci ?? null,
     }, { onConflict: "id" })
   }
 

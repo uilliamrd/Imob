@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
 import { ImageUpload } from "@/components/ui/ImageUpload"
-import { Save, Plus, X, Hash } from "lucide-react"
+import { Save, Plus, X, Hash, Globe, EyeOff } from "lucide-react"
 import type { PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
 const ALL_TAGS = Object.keys(getAllTags())
@@ -162,12 +162,42 @@ export function PropertyForm({ initialData, propertyId, orgId, developments = []
 
   function handleDevChange(devId: string) {
     setDevId(devId)
-    if (devId) {
-      const dev = developments.find((d) => d.id === devId)
-      if (dev) {
-        if (dev.neighborhood) setNeighborhood(dev.neighborhood)
-        if (dev.city) setCity(dev.city)
-        if (dev.address) setAddress(dev.address)
+    if (!devId) return
+    const dev = developments.find((d) => d.id === devId)
+    if (!dev) return
+
+    // Fill free-text fields
+    if (dev.neighborhood) setNeighborhood(dev.neighborhood)
+    if (dev.city)         setCity(dev.city)
+    if (dev.address)      setAddress(dev.address)
+
+    // Try to match bairro by neighborhood name (case-insensitive)
+    if (dev.neighborhood && bairros.length > 0) {
+      const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      const devNorm = norm(dev.neighborhood)
+      const matched = bairros.find((b) => {
+        if (norm(b.name) === devNorm) return true
+        // also try city match as tiebreaker when multiple bairros have similar names
+        if (dev.city && norm(b.name) === devNorm && norm(b.city) === norm(dev.city)) return true
+        return false
+      })
+      if (matched) {
+        setBairroId(matched.id)
+        setCity(matched.city)
+
+        // Try to match logradouro within that bairro by address text
+        if (dev.address && logradouros.length > 0) {
+          const addrNorm = norm(dev.address)
+          const matchedLog = logradouros.find((l) => {
+            if (l.bairro_id && l.bairro_id !== matched.id) return false
+            const logFull = norm(`${l.type} ${l.name}`)
+            return addrNorm.includes(norm(l.name)) || logFull === addrNorm
+          })
+          if (matchedLog) {
+            setLogradouroId(matchedLog.id)
+            if (matchedLog.cep) setCep(matchedLog.cep)
+          }
+        }
       }
     }
   }
@@ -521,23 +551,57 @@ export function PropertyForm({ initialData, propertyId, orgId, developments = []
             </div>
           </div>
 
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={lc}>Status da Unidade</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value as PropertyStatus)} className={ic}>
-                <option value="disponivel">Disponível</option>
-                <option value="reserva">Reservado</option>
-                <option value="vendido">Vendido</option>
-              </select>
+          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={lc}>Status da Unidade</label>
+                <select value={status} onChange={(e) => setStatus(e.target.value as PropertyStatus)} className={ic}>
+                  <option value="disponivel">Disponível</option>
+                  <option value="reserva">Reservado</option>
+                  <option value="vendido">Vendido</option>
+                </select>
+              </div>
+              {!orgId && (
+                <div>
+                  <label className={lc}>Visibilidade</label>
+                  <select value={visibility} onChange={(e) => setVis(e.target.value as PropertyVisibility)} className={ic}>
+                    <option value="publico">Público — todos os corretores</option>
+                    <option value="equipe">Equipe — somente sua organização</option>
+                    <option value="privado">Privado — somente você</option>
+                  </select>
+                </div>
+              )}
             </div>
-            <div>
-              <label className={lc}>Visibilidade</label>
-              <select value={visibility} onChange={(e) => setVis(e.target.value as PropertyVisibility)} className={ic}>
-                <option value="publico">Público — todos os corretores</option>
-                <option value="equipe">Equipe — somente sua organização</option>
-                <option value="privado">Privado — somente você</option>
-              </select>
-            </div>
+
+            {/* When org is set: show explicit minisite toggle */}
+            {orgId && (
+              <button type="button"
+                onClick={() => setVis(visibility === "publico" ? "privado" : "publico")}
+                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-colors ${
+                  visibility === "publico"
+                    ? "border-emerald-700/40 bg-emerald-900/10"
+                    : "border-white/10 bg-white/[0.02]"
+                }`}>
+                <div className="flex items-center gap-3">
+                  {visibility === "publico"
+                    ? <Globe size={16} className="text-emerald-400" />
+                    : <EyeOff size={16} className="text-white/30" />}
+                  <div className="text-left">
+                    <p className={`text-sm font-sans font-medium ${visibility === "publico" ? "text-emerald-300" : "text-white/40"}`}>
+                      {visibility === "publico" ? "Publicado no catálogo e minisite" : "Oculto do catálogo e minisite"}
+                    </p>
+                    <p className="text-xs font-sans text-white/20 mt-0.5">
+                      {visibility === "publico"
+                        ? "Aparece na Base de Imóveis e no minisite da organização"
+                        : "Visível apenas internamente — não aparece no minisite"}
+                    </p>
+                  </div>
+                </div>
+                <div className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${visibility === "publico" ? "bg-emerald-600" : "bg-white/10"}`}>
+                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${visibility === "publico" ? "left-6" : "left-1"}`} />
+                </div>
+              </button>
+            )}
           </div>
         </div>
       )}

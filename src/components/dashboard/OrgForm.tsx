@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { Save, ExternalLink, Globe, FileText, Image, Flame } from "lucide-react"
 import type { OrgType } from "@/types/database"
@@ -27,7 +26,7 @@ interface OrgFormProps {
   isAdmin?: boolean
 }
 
-export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgFormProps) {
+export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }: OrgFormProps) {
   const router = useRouter()
   const [name, setName] = useState(initialData.name)
   const [type, setType] = useState<OrgType>(initialData.type as OrgType || "construtora")
@@ -55,7 +54,6 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const supabase = createClient()
 
     const payload: Record<string, unknown> = {
       name,
@@ -76,17 +74,28 @@ export function OrgForm({ userId, orgId, initialData, isAdmin = false }: OrgForm
     }
 
     if (orgId) {
-      const { error } = await supabase.from("organizations").update(payload).eq("id", orgId)
-      if (error) { setError(error.message); setLoading(false); return }
+      const res = await fetch(`/api/organizations/${orgId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error ?? "Erro ao salvar.")
+        setLoading(false)
+        return
+      }
     } else {
-      const { data: newOrg, error } = await supabase
-        .from("organizations")
-        .insert(payload)
-        .select("id")
-        .single()
-      if (error || !newOrg) { setError(error?.message ?? "Erro ao criar organização."); setLoading(false); return }
-      if (userId) {
-        await supabase.from("profiles").update({ organization_id: newOrg.id }).eq("id", userId)
+      const res = await fetch(`/api/organizations/new`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error ?? "Erro ao criar organização.")
+        setLoading(false)
+        return
       }
     }
 

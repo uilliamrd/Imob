@@ -148,7 +148,8 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
           )}
           {activeSection === "imoveis" && (
             <ImoveisSection key="imoveis" properties={properties} filteredUnits={filteredUnits}
-              unitFilter={unitFilter} setUnitFilter={setUnitFilter} refParam={refParam} />
+              unitFilter={unitFilter} setUnitFilter={setUnitFilter} refParam={refParam}
+              developments={developments} />
           )}
           {activeSection === "lancamentos" && org.has_lancamentos && (
             <LancamentosSection key="lancamentos" developments={lancamentos} whatsapp={whatsapp} waMsgLanc={waMsgLanc} />
@@ -253,14 +254,99 @@ function PortfolioSection({ developments }: { developments: Development[] }) {
   )
 }
 
-function ImoveisSection({ properties, filteredUnits, unitFilter, setUnitFilter, refParam }:
-  { properties: Property[]; filteredUnits: Property[]; unitFilter: string; setUnitFilter: (v: string) => void; refParam: string }) {
+function PropertyRow({ property, index, refParam }: { property: Property; index: number; refParam: string }) {
+  const status = STATUS_MAP[property.status as keyof typeof STATUS_MAP] ?? STATUS_MAP.disponivel
+  const isAvailable = property.status === "disponivel"
+  return (
+    <motion.div key={property.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4, delay: index * 0.04 }}
+      className={`grid grid-cols-12 gap-4 px-6 py-5 hover:bg-white/[0.03] transition-colors ${!isAvailable ? "opacity-50" : ""}`}>
+      <div className="col-span-3 flex flex-col gap-1">
+        <span className="font-serif text-white font-semibold text-base leading-tight">{property.title}</span>
+        <span className={`inline-flex items-center self-start text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
+          {status.label}
+        </span>
+      </div>
+      <div className="col-span-2 flex items-center justify-center gap-1 text-white/70">
+        <Maximize2 size={13} className="text-gold/70" />
+        <span className="font-sans text-sm">{property.features.area_m2 ? `${property.features.area_m2} m²` : "—"}</span>
+      </div>
+      <div className="col-span-2 flex items-center justify-center gap-2 text-white/70">
+        {(property.features.suites || property.features.dormitorios) && (
+          <span className="flex items-center gap-1 font-sans text-sm">
+            <BedDouble size={13} className="text-gold/70" />
+            {property.features.suites ? `${property.features.suites} suítes` : `${property.features.dormitorios} dorms`}
+          </span>
+        )}
+        {property.features.vagas && (
+          <span className="flex items-center gap-1 font-sans text-sm">
+            <Car size={13} className="text-gold/70" />
+            {property.features.vagas}
+          </span>
+        )}
+      </div>
+      <div className="col-span-2 flex items-center gap-1.5 flex-wrap">
+        {property.tags.slice(0, 3).map((tag) => {
+          const info = getTagInfo(tag)
+          const Icon = info.icon
+          return (
+            <span key={tag} title={info.label} className="flex items-center justify-center w-7 h-7 rounded-full border border-gold/30 text-gold/70 hover:border-gold transition-colors">
+              <Icon size={13} />
+            </span>
+          )
+        })}
+      </div>
+      <div className="col-span-2 flex items-center justify-end">
+        <span className="font-serif text-lg font-semibold text-white">{formatPrice(property.price)}</span>
+      </div>
+      <div className="col-span-1 flex items-center justify-end">
+        {isAvailable && (
+          <Link href={`/imovel/${property.slug}${refParam}`}
+            className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-graphite transition-all duration-300">
+            <ArrowRight size={14} />
+          </Link>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, setUnitFilter, refParam, developments }:
+  { properties: Property[]; filteredUnits: Property[]; unitFilter: string; setUnitFilter: (v: string) => void; refParam: string; developments: Development[] }) {
   const filters = [
     { id: "todos", label: "Todos" },
     { id: "disponivel", label: "Disponíveis" },
     { id: "reserva", label: "Reservados" },
     { id: "vendido", label: "Vendidos" },
   ]
+
+  // Group filteredUnits by development_id
+  const devMap = new Map(developments.map((d) => [d.id, d]))
+  const grouped: { dev: Development | null; units: Property[] }[] = []
+
+  // Collect development groups in order of first appearance
+  const seen = new Set<string>()
+  for (const p of filteredUnits) {
+    const devId = p.development_id ?? null
+    if (devId && !seen.has(devId)) {
+      seen.add(devId)
+      grouped.push({ dev: devMap.get(devId) ?? null, units: [] })
+    }
+  }
+  // Standalone group (no development)
+  const standaloneUnits = filteredUnits.filter((p) => !p.development_id)
+
+  // Fill units into groups
+  for (const p of filteredUnits) {
+    if (p.development_id) {
+      const g = grouped.find((gr) => gr.dev?.id === p.development_id)
+      if (g) g.units.push(p)
+    }
+  }
+
+  // Build flat list with running index for stagger
+  let rowIndex = 0
+
   return (
     <motion.section key="imoveis" id="unidades" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
       className="py-24 px-6 bg-graphite">
@@ -283,6 +369,7 @@ function ImoveisSection({ properties, filteredUnits, unitFilter, setUnitFilter, 
             ))}
           </div>
         </div>
+
         <div className="divider-gold opacity-30 mb-2" />
         <div className="grid grid-cols-12 gap-4 px-6 py-4 text-xs uppercase tracking-[0.2em] text-white/30 font-sans">
           <span className="col-span-3">Unidade</span>
@@ -293,64 +380,51 @@ function ImoveisSection({ properties, filteredUnits, unitFilter, setUnitFilter, 
           <span className="col-span-1" />
         </div>
         <div className="divider-gold opacity-20 mb-1" />
+
         <AnimatePresence mode="popLayout">
-          {filteredUnits.map((property, index) => {
-            const status = STATUS_MAP[property.status as keyof typeof STATUS_MAP] ?? STATUS_MAP.disponivel
-            const isAvailable = property.status === "disponivel"
-            return (
-              <motion.div key={property.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.4, delay: index * 0.04 }}
-                className={`grid grid-cols-12 gap-4 px-6 py-5 hover:bg-white/[0.03] transition-colors ${!isAvailable ? "opacity-50" : ""}`}>
-                <div className="col-span-3 flex flex-col gap-1">
-                  <span className="font-serif text-white font-semibold text-base leading-tight">{property.title}</span>
-                  <span className={`inline-flex items-center self-start text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
-                    {status.label}
-                  </span>
-                </div>
-                <div className="col-span-2 flex items-center justify-center gap-1 text-white/70">
-                  <Maximize2 size={13} className="text-gold/70" />
-                  <span className="font-sans text-sm">{property.features.area_m2 ? `${property.features.area_m2} m²` : "—"}</span>
-                </div>
-                <div className="col-span-2 flex items-center justify-center gap-2 text-white/70">
-                  {(property.features.suites || property.features.dormitorios) && (
-                    <span className="flex items-center gap-1 font-sans text-sm">
-                      <BedDouble size={13} className="text-gold/70" />
-                      {property.features.suites ? `${property.features.suites} suítes` : `${property.features.dormitorios} dorms`}
-                    </span>
-                  )}
-                  {property.features.vagas && (
-                    <span className="flex items-center gap-1 font-sans text-sm">
-                      <Car size={13} className="text-gold/70" />
-                      {property.features.vagas}
-                    </span>
-                  )}
-                </div>
-                <div className="col-span-2 flex items-center gap-1.5 flex-wrap">
-                  {property.tags.slice(0, 3).map((tag) => {
-                    const info = getTagInfo(tag)
-                    const Icon = info.icon
-                    return (
-                      <span key={tag} title={info.label} className="flex items-center justify-center w-7 h-7 rounded-full border border-gold/30 text-gold/70 hover:border-gold transition-colors">
-                        <Icon size={13} />
+          {/* Development groups */}
+          {grouped.map(({ dev, units }) => (
+            <div key={dev?.id ?? "no-dev"}>
+              {dev && (
+                <div className="flex items-center justify-between px-6 py-4 mt-4 border-l-2 border-gold/60 bg-white/[0.02]">
+                  <div className="flex items-center gap-2">
+                    <Building2 size={14} className="text-gold/70" />
+                    <span className="font-serif text-white font-semibold text-lg">{dev.name}</span>
+                    {dev.neighborhood && (
+                      <span className="flex items-center gap-1 text-white/30 text-xs font-sans ml-2">
+                        <MapPin size={10} />{dev.neighborhood}
                       </span>
-                    )
-                  })}
+                    )}
+                  </div>
+                  <Link href={`/lancamento/${dev.id}`}
+                    className="flex items-center gap-1.5 text-gold/70 hover:text-gold text-xs uppercase tracking-[0.15em] font-sans transition-colors">
+                    Ver lançamento <ArrowRight size={12} />
+                  </Link>
                 </div>
-                <div className="col-span-2 flex items-center justify-end">
-                  <span className="font-serif text-lg font-semibold text-white">{formatPrice(property.price)}</span>
+              )}
+              {units.map((p) => {
+                const i = rowIndex++
+                return <PropertyRow key={p.id} property={p} index={i} refParam={refParam} />
+              })}
+            </div>
+          ))}
+
+          {/* Standalone properties */}
+          {standaloneUnits.length > 0 && (
+            <div key="standalone">
+              {grouped.length > 0 && (
+                <div className="flex items-center gap-2 px-6 py-4 mt-4 border-l-2 border-white/20 bg-white/[0.01]">
+                  <span className="font-serif text-white/60 font-semibold text-base">Outros Imóveis</span>
                 </div>
-                <div className="col-span-1 flex items-center justify-end">
-                  {isAvailable && (
-                    <Link href={`/imovel/${property.slug}${refParam}`}
-                      className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-graphite transition-all duration-300">
-                      <ArrowRight size={14} />
-                    </Link>
-                  )}
-                </div>
-              </motion.div>
-            )
-          })}
+              )}
+              {standaloneUnits.map((p) => {
+                const i = rowIndex++
+                return <PropertyRow key={p.id} property={p} index={i} refParam={refParam} />
+              })}
+            </div>
+          )}
         </AnimatePresence>
+
         {filteredUnits.length === 0 && (
           <div className="py-16 text-center text-white/30 font-sans">Nenhuma unidade encontrada.</div>
         )}

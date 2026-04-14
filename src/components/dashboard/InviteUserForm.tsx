@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { UserPlus, Mail, ChevronDown, Lock } from "lucide-react"
+import { UserPlus, Mail, ChevronDown, Lock, Phone, Star, User } from "lucide-react"
 import type { UserRole } from "@/types/database"
 
 interface OrgOption { id: string; name: string; type: string }
@@ -13,13 +13,20 @@ const ROLE_LABELS: Record<UserRole, string> = {
   construtora: "Construtora",
 }
 
+const CRECI_ROLES: UserRole[] = ["corretor", "imobiliaria"]
+
 export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
-  const [email, setEmail]       = useState("")
-  const [password, setPassword] = useState("")
-  const [role, setRole]         = useState<UserRole>("corretor")
-  const [orgId, setOrgId]       = useState("")
-  const [loading, setLoading]   = useState(false)
-  const [result, setResult]     = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [email, setEmail]         = useState("")
+  const [password, setPassword]   = useState("")
+  const [fullName, setFullName]   = useState("")
+  const [role, setRole]           = useState<UserRole>("corretor")
+  const [orgId, setOrgId]         = useState("")
+  const [whatsapp, setWhatsapp]   = useState("")
+  const [creci, setCreci]         = useState("")
+  const [loading, setLoading]     = useState(false)
+  const [result, setResult]       = useState<{ type: "success" | "error"; message: string } | null>(null)
+
+  const requiresCreci = CRECI_ROLES.includes(role)
 
   const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2"
@@ -32,14 +39,22 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
     const res = await fetch("/api/admin/invite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role, organization_id: orgId || null }),
+      body: JSON.stringify({
+        email,
+        password,
+        role,
+        organization_id: orgId || null,
+        full_name: fullName || null,
+        whatsapp: whatsapp || null,
+        creci: creci || null,
+      }),
     })
 
     const data = await res.json()
 
     if (res.ok) {
       setResult({ type: "success", message: `Usuário ${email} criado com sucesso. Já pode fazer login.` })
-      setEmail(""); setPassword(""); setRole("corretor"); setOrgId("")
+      setEmail(""); setPassword(""); setFullName(""); setRole("corretor"); setOrgId(""); setWhatsapp(""); setCreci("")
     } else {
       setResult({ type: "error", message: data.error ?? "Erro ao criar usuário." })
     }
@@ -50,6 +65,16 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
   return (
     <form onSubmit={handleSubmit} className="p-6 space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Full Name */}
+        <div>
+          <label className={labelClass}>Nome Completo</label>
+          <div className="relative">
+            <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
+              placeholder="Nome do usuário" className={inputClass + " pl-9"} />
+          </div>
+        </div>
+
         {/* Email */}
         <div>
           <label className={labelClass}>Email *</label>
@@ -84,8 +109,34 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
           </div>
         </div>
 
-        {/* Organization */}
+        {/* WhatsApp */}
         <div>
+          <label className={labelClass}>
+            WhatsApp {requiresCreci && <span className="text-gold/60">*</span>}
+          </label>
+          <div className="relative">
+            <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)}
+              required={requiresCreci}
+              placeholder="5511999999999" className={inputClass + " pl-9"} />
+          </div>
+        </div>
+
+        {/* CRECI */}
+        <div>
+          <label className={labelClass}>
+            CRECI {requiresCreci && <span className="text-gold/60">*</span>}
+          </label>
+          <div className="relative">
+            <Star size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <input type="text" value={creci} onChange={(e) => setCreci(e.target.value)}
+              required={requiresCreci}
+              placeholder="Ex: 12345-F" className={inputClass + " pl-9"} />
+          </div>
+        </div>
+
+        {/* Organization */}
+        <div className="md:col-span-2">
           <label className={labelClass}>Organização</label>
           <div className="relative">
             <select value={orgId} onChange={(e) => setOrgId(e.target.value)}
@@ -99,6 +150,12 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
           </div>
         </div>
       </div>
+
+      {requiresCreci && (
+        <p className="text-white/30 text-xs font-sans">
+          <span className="text-gold/60">*</span> WhatsApp e CRECI são obrigatórios para corretores e imobiliárias.
+        </p>
+      )}
 
       {result && (
         <div className={`px-4 py-3 rounded-lg text-sm font-sans ${
