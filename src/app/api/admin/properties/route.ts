@@ -19,6 +19,40 @@ export async function POST(request: Request) {
   if (!auth) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
 
   const body = await request.json()
+
+  // Check for duplicate slug before inserting
+  if (body.slug) {
+    const { data: existing } = await auth.admin
+      .from("properties")
+      .select("id, title")
+      .eq("slug", body.slug)
+      .maybeSingle()
+    if (existing) {
+      return NextResponse.json(
+        { error: `Já existe um imóvel com este slug: "${existing.title}". Altere o título ou o slug.` },
+        { status: 409 }
+      )
+    }
+  }
+
+  // Check for duplicate unit in same development
+  const devId = body.development_id
+  const numeroApto = body.features?.numero_apto
+  if (devId && numeroApto) {
+    const { data: dupUnit } = await auth.admin
+      .from("properties")
+      .select("id, title")
+      .eq("development_id", devId)
+      .eq("features->>numero_apto", numeroApto)
+      .maybeSingle()
+    if (dupUnit) {
+      return NextResponse.json(
+        { error: `A unidade "${numeroApto}" já está cadastrada neste empreendimento (${dupUnit.title}).` },
+        { status: 409 }
+      )
+    }
+  }
+
   const { data, error } = await auth.admin.from("properties").insert({
     ...body,
     created_by: auth.userId,

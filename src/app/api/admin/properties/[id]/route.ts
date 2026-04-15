@@ -47,6 +47,40 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const body = await request.json()
+
+  // If slug is being changed, check it doesn't conflict with another property
+  if (body.slug) {
+    const { data: conflict } = await auth.admin
+      .from("properties")
+      .select("id, title")
+      .eq("slug", body.slug)
+      .neq("id", id)
+      .maybeSingle()
+    if (conflict) {
+      return NextResponse.json(
+        { error: `O slug já pertence a outro imóvel: "${conflict.title}".` },
+        { status: 409 }
+      )
+    }
+  }
+
+  // If numero_apto + development_id are being set, check for duplicate unit
+  if (body.development_id && body.features?.numero_apto) {
+    const { data: dupUnit } = await auth.admin
+      .from("properties")
+      .select("id, title")
+      .eq("development_id", body.development_id)
+      .eq("features->>numero_apto", body.features.numero_apto)
+      .neq("id", id)
+      .maybeSingle()
+    if (dupUnit) {
+      return NextResponse.json(
+        { error: `A unidade "${body.features.numero_apto}" já está cadastrada neste empreendimento (${dupUnit.title}).` },
+        { status: 409 }
+      )
+    }
+  }
+
   const { error } = await auth.admin.from("properties").update({
     ...body,
     updated_at: new Date().toISOString(),
