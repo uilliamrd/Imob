@@ -300,7 +300,55 @@ export default async function DashboardPage() {
               Ver todos →
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* Mobile: list-item layout */}
+          <div className="sm:hidden space-y-3">
+            {recentList.map((p) => (
+              <a
+                key={p.id}
+                href={`/imovel/${p.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-[#161616] border border-white/5 rounded-xl overflow-hidden hover:border-gold/20 transition-colors flex gap-3 p-3"
+              >
+                <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-[#111]">
+                  {p.images?.[0] ? (
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Home size={18} className="text-white/10" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  <div>
+                    <p className="font-serif text-white text-[15px] font-semibold leading-snug line-clamp-2">{p.title}</p>
+                    {(p.neighborhood || p.city) && (
+                      <p className="text-white/35 text-xs font-sans mt-0.5 flex items-center gap-1">
+                        <MapPin size={9} />{p.neighborhood ?? p.city}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-serif text-gold text-sm font-semibold">
+                      {p.price >= 1_000_000
+                        ? `R$ ${(p.price / 1_000_000).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 })} Mi`
+                        : `R$ ${p.price.toLocaleString("pt-BR")}`}
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-sans uppercase tracking-wider ${
+                      p.status === "disponivel" ? "text-emerald-400 bg-emerald-900/40 border-emerald-700/40" :
+                      p.status === "reserva"    ? "text-amber-400 bg-amber-900/40 border-amber-700/40" :
+                                                 "text-zinc-400 bg-zinc-800 border-zinc-700/40"
+                    }`}>
+                      {p.status === "disponivel" ? "Disponível" : p.status === "reserva" ? "Reserva" : "Vendido"}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {/* Desktop: grid card layout */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {recentList.map((p) => (
               <a
                 key={p.id}

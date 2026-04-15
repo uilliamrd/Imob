@@ -127,122 +127,146 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
       {/* Count */}
       <p className="text-white/20 text-xs font-sans mb-4">{filtered.length} imóveis encontrados · {listed.size} no seu portfólio</p>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {/* Grid — cards verticais no desktop, lista no mobile */}
+      <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4">
         {filtered.map((p) => {
           const isListed = listed.has(p.id)
+          const accent = p.organization?.brand_colors?.primary ?? "#C4A052"
           return (
             <div key={p.id} className={`bg-[#161616] border rounded-2xl overflow-hidden transition-all duration-200 ${
               isListed ? "border-gold/30" : "border-white/5 hover:border-white/10"
             }`}>
               {/* Construtora accent bar */}
               {p.organization?.type === "construtora" && (
-                <div
-                  className="h-0.5 w-full"
-                  style={{ backgroundColor: p.organization.brand_colors?.primary ?? "#C4A052" }}
-                />
+                <div className="h-0.5 w-full" style={{ backgroundColor: accent }} />
               )}
-              {/* Thumbnail */}
-              <div className="relative aspect-video bg-[#111]">
-                {p.images?.[0] ? (
-                  <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-white/10 text-xs font-sans">Sem foto</span>
-                  </div>
-                )}
-                {isListed && (
-                  <div className="absolute top-2 right-2 bg-gold text-graphite text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-sans">
-                    No portfólio
-                  </div>
-                )}
-                {/* Construtora badge */}
-                {p.organization?.type === "construtora" && (
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
-                    {p.organization.logo ? (
-                      <Image src={p.organization.logo} alt={p.organization.name} width={48} height={12} className="h-3 w-auto object-contain" />
-                    ) : (
-                      <span className="text-[10px] font-sans uppercase tracking-wider" style={{ color: p.organization.brand_colors?.primary ?? "#C4A052" }}>
-                        {p.organization.name}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
 
-              <div className="p-4">
-                {p.code && (
-                  <div className="flex items-center gap-1 text-white/20 text-[10px] font-sans mb-1">
-                    <Hash size={9} />{p.code}
-                  </div>
-                )}
-                <p className="font-serif text-white font-semibold text-base leading-tight mb-1">{p.title}</p>
-                {(p.neighborhood || p.city) && (
-                  <p className="text-white/30 text-xs font-sans mb-3 flex items-center gap-1">
-                    <MapPin size={10} />{p.neighborhood}{p.city ? `, ${p.city}` : ""}
-                  </p>
-                )}
-
-                <div className="flex items-center gap-3 text-white/40 text-xs font-sans mb-3">
-                  {(p.features.suites || p.features.dormitorios) && (
-                    <span className="flex items-center gap-1">
-                      <BedDouble size={11} className="text-gold/50" />
-                      {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
-                    </span>
-                  )}
-                  {p.features.vagas && (
-                    <span className="flex items-center gap-1"><Car size={11} className="text-gold/50" />{p.features.vagas} vaga{p.features.vagas > 1 ? "s" : ""}</span>
-                  )}
-                  {p.features.area_m2 && (
-                    <span className="flex items-center gap-1"><Maximize2 size={11} className="text-gold/50" />{p.features.area_m2} m²</span>
+              {/* ── Mobile: list-item layout ────────────────── */}
+              <div className="md:hidden flex gap-3 p-3">
+                {/* Square thumbnail */}
+                <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-[#111]">
+                  {p.images?.[0]
+                    ? <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center"><span className="text-white/10 text-xs">Sem foto</span></div>
+                  }
+                  {isListed && (
+                    <div className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-gold" />
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="font-serif text-gold text-base font-semibold">{formatPrice(p.price)}</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setExpanded(expanded === p.id ? null : p.id)}
-                      className="p-1.5 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors"
-                      title="Ver detalhes"
-                    >
-                      {expanded === p.id ? <ChevronUp size={12} /> : <Eye size={12} />}
-                    </button>
+                {/* Text content */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  <div>
+                    {p.code && <span className="text-white/20 text-[9px] font-sans">#{p.code} · </span>}
+                    <p className="font-serif text-white font-semibold text-[15px] leading-snug line-clamp-2">{p.title}</p>
+                    {(p.neighborhood || p.city) && (
+                      <p className="text-white/35 text-xs font-sans mt-0.5 flex items-center gap-1">
+                        <MapPin size={9} />{p.neighborhood}{p.city ? `, ${p.city}` : ""}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2.5 text-white/35 text-[11px] font-sans mt-1.5">
+                      {(p.features.suites || p.features.dormitorios) && (
+                        <span className="flex items-center gap-1"><BedDouble size={10} className="text-gold/50" />{p.features.suites ?? p.features.dormitorios}</span>
+                      )}
+                      {p.features.vagas && <span className="flex items-center gap-1"><Car size={10} className="text-gold/50" />{p.features.vagas}v</span>}
+                      {p.features.area_m2 && <span className="flex items-center gap-1"><Maximize2 size={10} className="text-gold/50" />{p.features.area_m2}m²</span>}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-serif text-gold text-sm font-semibold">{formatPrice(p.price)}</span>
                     <button
                       onClick={() => toggleListing(p.id)}
                       disabled={pending}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs uppercase tracking-[0.1em] font-sans transition-all duration-200 ${
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-sans transition-all ${
                         isListed
-                          ? "bg-gold/10 border border-gold/30 text-gold hover:bg-red-900/20 hover:border-red-500/30 hover:text-red-400"
+                          ? "bg-gold/10 border border-gold/30 text-gold"
                           : "bg-white/5 border border-white/10 text-white/50 hover:bg-gold/10 hover:border-gold/30 hover:text-gold"
                       }`}
                     >
-                      {isListed ? <><Check size={11} /> Adicionado</> : <><Plus size={11} /> Adicionar</>}
+                      {isListed ? <><Check size={10} /> Adicionado</> : <><Plus size={10} /> Adicionar</>}
                     </button>
                   </div>
                 </div>
+              </div>
 
-                {/* Detail panel */}
-                {expanded === p.id && (
-                  <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
-                    {p.description && (
-                      <p className="text-white/40 text-xs font-sans leading-relaxed line-clamp-4">{p.description}</p>
-                    )}
-                    <div className="grid grid-cols-2 gap-1 text-[11px] font-sans text-white/30">
-                      {p.features.area_total && <span>Área total: {p.features.area_total}m²</span>}
-                      {p.features.area_terreno && <span>Terreno: {p.features.area_terreno}m²</span>}
-                      {p.features.banheiros && <span>Banheiros: {p.features.banheiros}</span>}
-                      {p.features.dormitorios && <span>Dormitórios: {p.features.dormitorios}</span>}
+              {/* ── Desktop: vertical card layout ────────────── */}
+              <div className="hidden md:block">
+                {/* Thumbnail */}
+                <div className="relative aspect-video bg-[#111]">
+                  {p.images?.[0] ? (
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-white/10 text-xs font-sans">Sem foto</span>
                     </div>
-                    <div className="flex gap-2 pt-1">
+                  )}
+                  {isListed && (
+                    <div className="absolute top-2 right-2 bg-gold text-graphite text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-sans">
+                      No portfólio
+                    </div>
+                  )}
+                  {p.organization?.type === "construtora" && (
+                    <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
+                      {p.organization.logo ? (
+                        <Image src={p.organization.logo} alt={p.organization.name} width={48} height={12} className="h-3 w-auto object-contain" />
+                      ) : (
+                        <span className="text-[10px] font-sans uppercase tracking-wider" style={{ color: accent }}>{p.organization.name}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  {p.code && <div className="flex items-center gap-1 text-white/20 text-[10px] font-sans mb-1"><Hash size={9} />{p.code}</div>}
+                  <p className="font-serif text-white font-semibold text-base leading-tight mb-1">{p.title}</p>
+                  {(p.neighborhood || p.city) && (
+                    <p className="text-white/30 text-xs font-sans mb-3 flex items-center gap-1">
+                      <MapPin size={10} />{p.neighborhood}{p.city ? `, ${p.city}` : ""}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-3 text-white/40 text-xs font-sans mb-3">
+                    {(p.features.suites || p.features.dormitorios) && (
+                      <span className="flex items-center gap-1"><BedDouble size={11} className="text-gold/50" />{p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}</span>
+                    )}
+                    {p.features.vagas && <span className="flex items-center gap-1"><Car size={11} className="text-gold/50" />{p.features.vagas}v</span>}
+                    {p.features.area_m2 && <span className="flex items-center gap-1"><Maximize2 size={11} className="text-gold/50" />{p.features.area_m2}m²</span>}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-gold text-base font-semibold">{formatPrice(p.price)}</span>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setExpanded(expanded === p.id ? null : p.id)}
+                        className="p-1.5 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors" title="Ver detalhes">
+                        {expanded === p.id ? <ChevronUp size={12} /> : <Eye size={12} />}
+                      </button>
+                      <button onClick={() => toggleListing(p.id)} disabled={pending}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs uppercase tracking-[0.1em] font-sans transition-all duration-200 ${
+                          isListed
+                            ? "bg-gold/10 border border-gold/30 text-gold hover:bg-red-900/20 hover:border-red-500/30 hover:text-red-400"
+                            : "bg-white/5 border border-white/10 text-white/50 hover:bg-gold/10 hover:border-gold/30 hover:text-gold"
+                        }`}>
+                        {isListed ? <><Check size={11} /> Adicionado</> : <><Plus size={11} /> Adicionar</>}
+                      </button>
+                    </div>
+                  </div>
+                  {expanded === p.id && (
+                    <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
+                      {p.description && <p className="text-white/40 text-xs font-sans leading-relaxed line-clamp-4">{p.description}</p>}
+                      <div className="grid grid-cols-2 gap-1 text-[11px] font-sans text-white/30">
+                        {p.features.area_total && <span>Área total: {p.features.area_total}m²</span>}
+                        {p.features.area_terreno && <span>Terreno: {p.features.area_terreno}m²</span>}
+                        {p.features.banheiros && <span>Banheiros: {p.features.banheiros}</span>}
+                        {p.features.dormitorios && <span>Dormitórios: {p.features.dormitorios}</span>}
+                      </div>
                       <a href={`/imovel/${p.slug}`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-colors text-xs font-sans">
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-colors text-xs font-sans">
                         <Eye size={11} /> Ver página pública
                       </a>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
+
             </div>
           )
         })}

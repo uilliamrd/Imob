@@ -117,15 +117,16 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
     <main className="min-h-screen bg-background">
 
       {/* ── Sticky top nav ─────────────────────────────────── */}
-      <nav className="sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-6 py-4 flex items-center justify-between">
+      <nav className="sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between h-14">
         <Link
           href={isConstrutora && org?.slug ? `/construtora/${org.slug}` : "/"}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-sans"
         >
-          <ArrowLeft size={14} />
-          {org?.name ?? "Início"}
+          <ArrowLeft size={16} />
+          <span className="hidden sm:inline">{org?.name ?? "Início"}</span>
         </Link>
-        <div className="flex items-center gap-4">
+        {/* Price + status — desktop only in nav */}
+        <div className="hidden lg:flex items-center gap-4">
           <span className={`text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider font-sans ${STATUS_COLOR[property.status] ?? ""}`}>
             {STATUS_LABEL[property.status] ?? property.status}
           </span>
@@ -133,12 +134,15 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
             {formatPrice(property.price)}
           </span>
         </div>
+        {/* Mobile: just the org name centered */}
+        <span className="lg:hidden font-sans text-sm text-foreground/70 truncate max-w-[160px]">{org?.name ?? ""}</span>
+        <div className="w-8 lg:hidden" />
       </nav>
 
-      {/* ── Construtora brand bar ──────────────────────────── */}
+      {/* ── Construtora brand bar — desktop only ──────────── */}
       {isConstrutora && (
         <div
-          className="px-6 py-3 flex items-center justify-between"
+          className="hidden lg:flex px-6 py-3 items-center justify-between"
           style={{ borderBottom: `1px solid ${accentColor}20`, backgroundColor: accentColor + "08" }}
         >
           <div className="flex items-center gap-3">
@@ -178,55 +182,118 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
           {/* ── Left: Details ──────────────────────────────── */}
           <div className="lg:col-span-2">
-            <p className="text-sm uppercase tracking-[0.3em] text-gold font-sans mb-3">
-              {property.neighborhood && `${property.neighborhood} · `}{property.city}
-            </p>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
+
+            {/* Location pill */}
+            {(property.neighborhood || property.city) && (
+              <div className="flex items-center gap-1.5 mb-3">
+                <MapPin size={13} className="text-gold flex-shrink-0" />
+                <span className="text-sm font-sans text-muted-foreground">
+                  {[property.neighborhood, property.city].filter(Boolean).join(", ")}
+                </span>
+              </div>
+            )}
+
+            <h1 className="font-serif text-3xl lg:text-5xl font-bold text-foreground mb-3 leading-tight">
               {property.title}
             </h1>
 
+            {/* Mobile: construtora info inline below title */}
+            {isConstrutora && org && (
+              <div className="lg:hidden flex items-center gap-2 mb-4">
+                {org.logo
+                  ? <Image src={org.logo} alt={org.name} width={60} height={16} className="h-4 w-auto object-contain opacity-60" />
+                  : <span className="text-xs font-sans text-muted-foreground">{org.name}</span>
+                }
+                {development && (
+                  <span className="text-xs font-sans text-muted-foreground/60">· {development.name}</span>
+                )}
+              </div>
+            )}
+
+            {/* Mobile: price block */}
+            <div className="lg:hidden bg-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between mb-5">
+              <div>
+                <p className="font-serif text-2xl font-bold text-foreground leading-none">{formatPrice(property.price)}</p>
+                <span className={`text-[10px] mt-1 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
+                  {STATUS_LABEL[property.status]}
+                </span>
+              </div>
+              {property.address && (
+                <p className="text-muted-foreground font-sans text-xs text-right max-w-[140px] leading-relaxed">
+                  {property.address}
+                </p>
+              )}
+            </div>
+
+            {/* Desktop: address + divider */}
             {property.address && (
-              <div className="flex items-center gap-2 text-muted-foreground mb-8">
+              <div className="hidden lg:flex items-center gap-2 text-muted-foreground mb-8">
                 <MapPin size={13} className="text-gold flex-shrink-0" />
                 <span className="font-sans text-sm">{property.address}</span>
               </div>
             )}
 
-            <div className="divider-gold mb-8 w-20" />
+            <div className="hidden lg:block divider-gold mb-8 w-20" />
 
-            {/* Key stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            {/* Stats — horizontal scroll on mobile, grid on desktop */}
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none mb-6 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0 lg:mb-10">
               {property.features.area_m2 && (
-                <div className="flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
-                  <Maximize2 size={18} className="text-gold" />
-                  <span className="font-serif text-2xl font-bold text-foreground">{property.features.area_m2}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">m² privativo</span>
-                </div>
+                <>
+                  {/* Mobile chip */}
+                  <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
+                    <Maximize2 size={14} className="text-gold" />
+                    <span className="font-serif text-lg font-bold text-foreground">{property.features.area_m2}</span>
+                    <span className="text-[10px] text-muted-foreground">m²</span>
+                  </div>
+                  {/* Desktop card */}
+                  <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
+                    <Maximize2 size={18} className="text-gold" />
+                    <span className="font-serif text-2xl font-bold text-foreground">{property.features.area_m2}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">m² privativo</span>
+                  </div>
+                </>
               )}
               {(property.features.suites || property.features.quartos) && (
-                <div className="flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
-                  <BedDouble size={18} className="text-gold" />
-                  <span className="font-serif text-2xl font-bold text-foreground">
-                    {property.features.suites ?? property.features.quartos}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {property.features.suites ? "suítes" : "quartos"}
-                  </span>
-                </div>
+                <>
+                  <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
+                    <BedDouble size={14} className="text-gold" />
+                    <span className="font-serif text-lg font-bold text-foreground">{property.features.suites ?? property.features.quartos}</span>
+                    <span className="text-[10px] text-muted-foreground">{property.features.suites ? "suítes" : "dorms"}</span>
+                  </div>
+                  <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
+                    <BedDouble size={18} className="text-gold" />
+                    <span className="font-serif text-2xl font-bold text-foreground">{property.features.suites ?? property.features.quartos}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{property.features.suites ? "suítes" : "quartos"}</span>
+                  </div>
+                </>
               )}
               {property.features.vagas && (
-                <div className="flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
-                  <Car size={18} className="text-gold" />
-                  <span className="font-serif text-2xl font-bold text-foreground">{property.features.vagas}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">vagas</span>
-                </div>
+                <>
+                  <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
+                    <Car size={14} className="text-gold" />
+                    <span className="font-serif text-lg font-bold text-foreground">{property.features.vagas}</span>
+                    <span className="text-[10px] text-muted-foreground">vagas</span>
+                  </div>
+                  <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
+                    <Car size={18} className="text-gold" />
+                    <span className="font-serif text-2xl font-bold text-foreground">{property.features.vagas}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">vagas</span>
+                  </div>
+                </>
               )}
               {property.features.andar && (
-                <div className="flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
-                  <Building2 size={18} className="text-gold" />
-                  <span className="font-serif text-2xl font-bold text-foreground">{property.features.andar}º</span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">andar</span>
-                </div>
+                <>
+                  <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
+                    <Building2 size={14} className="text-gold" />
+                    <span className="font-serif text-lg font-bold text-foreground">{property.features.andar}º</span>
+                    <span className="text-[10px] text-muted-foreground">andar</span>
+                  </div>
+                  <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
+                    <Building2 size={18} className="text-gold" />
+                    <span className="font-serif text-2xl font-bold text-foreground">{property.features.andar}º</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">andar</span>
+                  </div>
+                </>
               )}
             </div>
 
@@ -264,11 +331,11 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
             {/* Description */}
             {property.description && (
-              <div className="mb-10">
-                <h2 className="font-serif text-2xl font-semibold text-foreground mb-4">
+              <div className="bg-card lg:bg-transparent rounded-2xl lg:rounded-none p-5 lg:p-0 mb-3 lg:mb-10 border border-border lg:border-0">
+                <h2 className="font-serif text-xl lg:text-2xl font-semibold text-foreground mb-3">
                   Sobre o Imóvel
                 </h2>
-                <p className="text-muted-foreground font-sans leading-relaxed text-base">
+                <p className="text-muted-foreground font-sans leading-relaxed text-sm lg:text-base">
                   {property.description}
                 </p>
               </div>
@@ -276,18 +343,18 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
             {/* Tags */}
             {property.tags.length > 0 && (
-              <div>
-                <h2 className="font-serif text-2xl font-semibold text-foreground mb-6">
+              <div className="bg-card lg:bg-transparent rounded-2xl lg:rounded-none p-5 lg:p-0 mb-3 lg:mb-0 border border-border lg:border-0">
+                <h2 className="font-serif text-xl lg:text-2xl font-semibold text-foreground mb-4 lg:mb-6">
                   Diferenciais
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 lg:gap-3">
                   {property.tags.map((tag) => {
                     const info = getTagInfo(tag)
                     const Icon = info.icon
                     return (
-                      <div key={tag} className="flex items-center gap-2 px-4 py-2.5 rounded-full border border-gold/20 bg-card hover:border-gold/50 transition-colors">
-                        <Icon size={14} className="text-gold" />
-                        <span className="text-sm font-sans text-foreground">{info.label}</span>
+                      <div key={tag} className="flex items-center gap-1.5 lg:gap-2 px-3 lg:px-4 py-2 lg:py-2.5 rounded-full border border-gold/20 bg-background lg:bg-card hover:border-gold/50 transition-colors">
+                        <Icon size={13} className="text-gold" />
+                        <span className="text-xs lg:text-sm font-sans text-foreground">{info.label}</span>
                       </div>
                     )
                   })}
