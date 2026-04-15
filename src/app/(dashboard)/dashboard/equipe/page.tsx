@@ -34,7 +34,7 @@ export default async function EquipePage() {
     : { data: [] }
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="px-4 py-6 lg:p-8 max-w-4xl">
       <div className="flex items-end justify-between mb-10">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans mb-2">Organização</p>

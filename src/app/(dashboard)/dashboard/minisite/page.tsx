@@ -31,7 +31,7 @@ export default async function MinisitePage() {
     null
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="px-4 py-6 lg:p-8 max-w-4xl">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <Monitor size={18} className="text-gold" />

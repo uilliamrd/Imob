@@ -87,7 +87,7 @@ export default async function DashboardPage() {
     ]
 
     return (
-      <div className="p-8 max-w-6xl">
+      <div className="px-4 py-6 lg:p-8 max-w-6xl">
         <div className="mb-10">
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans mb-2">{ROLE_WELCOME[role]}</p>
           <h1 className="font-serif text-4xl font-bold text-white">
@@ -184,7 +184,7 @@ export default async function DashboardPage() {
   const recentList = (recentProperties ?? []) as Array<Pick<Property, "id" | "title" | "slug" | "price" | "neighborhood" | "city" | "images" | "status" | "org_id">>
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="px-4 py-6 lg:p-8 max-w-5xl">
       <div className="mb-10">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans mb-2">{ROLE_WELCOME[role]}</p>
         <h1 className="font-serif text-4xl font-bold text-white">

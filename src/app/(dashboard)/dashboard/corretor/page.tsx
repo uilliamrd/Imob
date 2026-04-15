@@ -21,7 +21,7 @@ export default async function CorretorPage() {
     .order("updated_at", { ascending: false })
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="px-4 py-6 lg:p-8 max-w-5xl">
       <div className="mb-10">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans mb-2">Corretor</p>
         <h1 className="font-serif text-4xl font-bold text-white">

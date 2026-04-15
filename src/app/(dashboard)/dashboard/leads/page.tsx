@@ -32,7 +32,7 @@ export default async function LeadsPage() {
   const { data: leads } = await query
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="px-4 py-6 lg:p-8 max-w-5xl">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <MessageSquare size={18} className="text-gold" />

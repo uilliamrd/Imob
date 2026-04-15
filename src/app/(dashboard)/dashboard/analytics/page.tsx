@@ -30,7 +30,7 @@ export default async function AnalyticsPage() {
 
   if (!orgId) {
     return (
-      <div className="p-8 max-w-6xl">
+      <div className="px-4 py-6 lg:p-8 max-w-6xl">
         <p className="text-white/30 font-sans text-sm">Você não está vinculado a nenhuma organização.</p>
       </div>
     )
@@ -112,7 +112,7 @@ export default async function AnalyticsPage() {
   const maxPropLeads = topProperties[0]?.leads ?? 1
 
   return (
-    <div className="p-8 max-w-6xl">
+    <div className="px-4 py-6 lg:p-8 max-w-6xl">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <BarChart3 size={18} className="text-gold" />

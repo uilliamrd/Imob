@@ -31,7 +31,7 @@ export default async function LancamentosPage() {
   const lancamentos = (developments ?? []) as Development[]
 
   return (
-    <div className="p-8 max-w-6xl">
+    <div className="px-4 py-6 lg:p-8 max-w-6xl">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <Flame size={18} className="text-orange-400" />

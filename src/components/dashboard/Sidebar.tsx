@@ -105,7 +105,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
     null
 
   return (
-    <aside className="w-64 min-h-screen bg-[#111111] border-r border-white/5 flex flex-col">
+    <aside className="hidden lg:flex w-64 min-h-screen bg-[#111111] border-r border-white/5 flex-col">
       {/* Brand */}
       <div className="px-6 py-8 border-b border-white/5">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold/50 font-sans mb-1">

@@ -26,7 +26,7 @@ export default async function UsuariosPage() {
   const orgOptions = (orgs ?? []).map((o) => ({ id: o.id, name: o.name, type: o.type }))
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="px-4 py-6 lg:p-8 max-w-5xl">
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
           <Users size={18} className="text-gold" />

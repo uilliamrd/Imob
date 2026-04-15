@@ -169,7 +169,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-4 lg:px-6 py-6 lg:py-12">
 
         {/* ── Bento Gallery ──────────────────────────────────── */}
         <BentoGallery images={property.images} title={property.title} />
@@ -296,8 +296,8 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
             )}
           </div>
 
-          {/* ── Right: Sticky contact card ─────────────────── */}
-          <div className="lg:col-span-1">
+          {/* ── Right: Sticky contact card — desktop only ──── */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-24 bg-[#fdf8f2] border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans mb-1">
                 Valor
@@ -338,6 +338,26 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile CTA bar ───────────────────────────── */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="font-serif text-xl font-bold text-foreground leading-none">{formatPrice(property.price)}</p>
+          <p className={`text-[10px] mt-0.5 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-1.5 py-0.5 rounded-full border`}>
+            {STATUS_LABEL[property.status]}
+          </p>
+        </div>
+        <a
+          href={`https://wa.me/${fallbackWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá! Tenho interesse no imóvel: ${property.title}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-5 py-3 bg-gold text-graphite rounded-xl text-sm font-sans uppercase tracking-[0.1em] font-semibold flex-shrink-0"
+        >
+          Tenho Interesse
+        </a>
+      </div>
+      {/* spacer so footer doesn't hide behind CTA bar on mobile */}
+      <div className="lg:hidden h-20" />
 
       <Footer orgName={orgName} whatsapp={fallbackWhatsapp} website={org?.website} />
 

@@ -80,7 +80,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 80 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-6 right-6 z-50"
+          className="fixed bottom-24 lg:bottom-6 right-4 lg:right-6 z-50"
         >
           <AnimatePresence mode="wait">
             {isOpen ? (
@@ -90,7 +90,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                className="bg-[#1a1a1a] border border-[rgba(201,169,110,0.2)] rounded-2xl p-6 w-72 shadow-2xl relative overflow-hidden"
+                className="bg-[#1a1a1a] border border-[rgba(201,169,110,0.2)] rounded-2xl p-6 w-[calc(100vw-2rem)] max-w-72 shadow-2xl relative overflow-hidden"
               >
                 <button
                   onClick={() => setIsOpen(false)}
