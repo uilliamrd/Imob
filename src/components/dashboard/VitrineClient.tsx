@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X, Eye, ChevronDown, ChevronUp, MapPin, Hash } from "lucide-react"
 import type { Property, UserRole } from "@/types/database"
@@ -17,11 +18,12 @@ interface Props {
   userId: string
   orgId: string | null
   role: UserRole
+  initialSearch?: string
 }
 
-export function VitrineClient({ properties, listedIds: initial, userId, orgId, role }: Props) {
+export function VitrineClient({ properties, listedIds: initial, userId, orgId, role, initialSearch = "" }: Props) {
   const [listed, setListed] = useState(initial)
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState(initialSearch)
   const [filterDorms, setFilterDorms] = useState<number | null>(null)
   const [filterMin, setFilterMin] = useState("")
   const [filterMax, setFilterMax] = useState("")
@@ -133,10 +135,17 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
             <div key={p.id} className={`bg-[#161616] border rounded-2xl overflow-hidden transition-all duration-200 ${
               isListed ? "border-gold/30" : "border-white/5 hover:border-white/10"
             }`}>
+              {/* Construtora accent bar */}
+              {p.organization?.type === "construtora" && (
+                <div
+                  className="h-0.5 w-full"
+                  style={{ backgroundColor: p.organization.brand_colors?.primary ?? "#C4A052" }}
+                />
+              )}
               {/* Thumbnail */}
               <div className="relative aspect-video bg-[#111]">
                 {p.images?.[0] ? (
-                  <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                  <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="text-white/10 text-xs font-sans">Sem foto</span>
@@ -145,6 +154,18 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
                 {isListed && (
                   <div className="absolute top-2 right-2 bg-gold text-graphite text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-sans">
                     No portfólio
+                  </div>
+                )}
+                {/* Construtora badge */}
+                {p.organization?.type === "construtora" && (
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
+                    {p.organization.logo ? (
+                      <Image src={p.organization.logo} alt={p.organization.name} width={48} height={12} className="h-3 w-auto object-contain" />
+                    ) : (
+                      <span className="text-[10px] font-sans uppercase tracking-wider" style={{ color: p.organization.brand_colors?.primary ?? "#C4A052" }}>
+                        {p.organization.name}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import Image from "next/image"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { InviteTeamClient } from "@/components/dashboard/InviteTeamClient"
@@ -72,7 +73,7 @@ export default async function EquipePage() {
           <div key={m.id} className="px-6 py-4 flex items-center gap-4 hover:bg-white/[0.02] transition-colors">
             <div className="flex-shrink-0">
               {m.avatar_url ? (
-                <img src={m.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                <Image src={m.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-white/10" />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                   <User size={16} className="text-white/30" />

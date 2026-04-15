@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { Search, X, Plus, Check, Maximize2, BedDouble, Car, Hash, Building2 } from "lucide-react"
 import type { Property, Development } from "@/types/database"
@@ -154,7 +155,7 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
             return (
               <div key={p.id} className="px-6 py-4 flex items-center gap-4 hover:bg-white/[0.02]">
                 {p.images[0] ? (
-                  <img src={p.images[0]} alt="" className="w-16 h-11 rounded-lg object-cover border border-white/10 flex-shrink-0" />
+                  <Image src={p.images[0]} alt="" width={64} height={44} className="w-16 h-11 rounded-lg object-cover border border-white/10 flex-shrink-0" />
                 ) : (
                   <div className="w-16 h-11 rounded-lg bg-white/5 flex-shrink-0 flex items-center justify-center">
                     <span className="font-serif text-white/20 text-xl">R</span>

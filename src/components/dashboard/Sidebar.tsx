@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
@@ -117,7 +118,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
       <div className="px-6 py-5 border-b border-white/5">
         <div className="flex items-center gap-3">
           {userAvatar ? (
-            <img src={userAvatar} alt={userName} className="w-9 h-9 rounded-full object-cover border border-gold/20" />
+            <Image src={userAvatar} alt={userName} width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-gold/20" />
           ) : (
             <div className="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center border border-gold/30">
               <span className="text-gold font-serif font-bold text-sm">

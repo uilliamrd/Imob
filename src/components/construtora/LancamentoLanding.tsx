@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 import { useState } from "react"
@@ -76,7 +77,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
               </Link>
             )}
           </div>
-          {org?.logo && <img src={org.logo} alt={org.name} className="h-8 object-contain opacity-70" />}
+          {org?.logo && <Image src={org.logo} alt={org.name} width={120} height={32} className="h-8 w-auto object-contain opacity-70" />}
         </div>
 
         <motion.div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6"

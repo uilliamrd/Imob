@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import {
@@ -111,7 +112,7 @@ function PropertyPicker({
             return (
               <div key={p.id} className="px-6 py-3 flex items-center gap-4 hover:bg-white/[0.02]">
                 {p.images?.[0]
-                  ? <img src={p.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-white/10" />
+                  ? <Image src={p.images[0]} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-white/10" />
                   : <div className="w-10 h-10 rounded-lg bg-white/5 flex-shrink-0 border border-white/5" />
                 }
                 <div className="flex-1 min-w-0">
@@ -190,6 +191,7 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
   }
 
   async function deleteSelection(id: string) {
+    if (!window.confirm("Excluir esta seleção? Esta ação não pode ser desfeita.")) return
     setDeleting(id)
     const supabase = createClient()
     await supabase.from("selections").delete().eq("id", id)

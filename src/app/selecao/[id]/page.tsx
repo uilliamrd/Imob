@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { Footer } from "@/components/landing/Footer"
@@ -99,7 +100,7 @@ export default async function SelecaoPage({ params }: PageProps) {
         {corretor && (
           <div className="bg-[#fdf8f2] border border-[rgba(201,169,110,0.25)] rounded-2xl p-6 mb-12 flex items-center gap-5">
             {corrPhoto ? (
-              <img src={corrPhoto} alt={corrName} className="w-16 h-16 rounded-full object-cover border-2 border-gold/30 flex-shrink-0" />
+              <Image src={corrPhoto} alt={corrName} width={64} height={64} className="w-16 h-16 rounded-full object-cover border-2 border-gold/30 flex-shrink-0" />
             ) : (
               <div className="w-16 h-16 rounded-full border-2 border-gold/30 flex items-center justify-center bg-gold/10 flex-shrink-0">
                 <User size={24} className="text-gold/60" />

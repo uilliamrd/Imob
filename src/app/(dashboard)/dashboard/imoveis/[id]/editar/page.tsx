@@ -20,20 +20,23 @@ export default async function EditarImovelPage({ params }: PageProps) {
     { data: developments },
     { data: bairros },
     { data: logradouros },
+    { data: allOrgs },
   ] = await Promise.all([
     admin.from("properties").select("*").eq("id", id).single(),
     admin.from("profiles").select("organization_id, role").eq("id", user.id).single(),
     admin.from("developments").select("*").order("name"),
     admin.from("bairros").select("*").order("name"),
     admin.from("logradouros").select("*").order("name"),
+    admin.from("organizations").select("id, name, type").order("name"),
   ])
 
   if (!data) notFound()
 
   const property = data as Property
+  const isAdmin = profile?.role === "admin"
 
   // Ownership check: non-admins can only edit their own org's properties
-  if (profile?.role !== "admin" && property.org_id !== profile?.organization_id) {
+  if (!isAdmin && property.org_id !== profile?.organization_id) {
     redirect("/dashboard/imoveis")
   }
 
@@ -51,6 +54,8 @@ export default async function EditarImovelPage({ params }: PageProps) {
       <PropertyForm
         propertyId={id}
         orgId={profile?.organization_id}
+        isAdmin={isAdmin}
+        construtoras={isAdmin ? ((allOrgs ?? []) as { id: string; name: string; type: string }[]) : []}
         developments={(developments ?? []) as Development[]}
         bairros={(bairros ?? []) as { id: string; name: string; city: string; state: string }[]}
         logradouros={(logradouros ?? []) as { id: string; type: string; name: string; bairro_id: string | null; city: string; cep: string | null }[]}
@@ -75,6 +80,7 @@ export default async function EditarImovelPage({ params }: PageProps) {
           logradouro_id:  property.logradouro_id,
           code:           property.code,
           features:       property.features,
+          org_id:         property.org_id,
         }}
       />
     </div>

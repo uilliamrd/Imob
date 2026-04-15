@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Building2, Edit, ExternalLink } from "lucide-react"
 import { OrgEditModal } from "@/components/dashboard/OrgEditModal"
 import type { Organization } from "@/types/database"
@@ -19,7 +20,7 @@ export function AdminOrgsClient({ orgs }: AdminOrgsClientProps) {
           <div key={org.id} className="px-6 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
             <div className="flex items-center gap-4">
               {org.logo ? (
-                <img src={org.logo} alt="" className="w-10 h-10 rounded-lg object-contain bg-white/5 p-1" />
+                <Image src={org.logo} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-contain bg-white/5 p-1" />
               ) : (
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
                   <Building2 size={16} className="text-white/30" />

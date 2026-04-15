@@ -30,6 +30,7 @@ interface InitialData {
   neighborhood?: string | null; city?: string | null; address?: string | null
   cep?: string | null; categoria?: string | null; tipo_negocio?: string
   bairro_id?: string | null; logradouro_id?: string | null
+  org_id?: string | null
   features?: {
     suites?: number; quartos?: number; dormitorios?: number; dependencias?: number
     livings?: number; vagas?: number; numero_vaga?: string; tipo_vaga?: string
@@ -42,10 +43,14 @@ interface InitialData {
   }
 }
 
+interface OrgOption { id: string; name: string; type: string }
+
 interface PropertyFormProps {
   initialData?: InitialData
   propertyId?: string
   orgId?: string | null
+  isAdmin?: boolean
+  construtoras?: OrgOption[]
   developments?: Development[]
   bairros?: Bairro[]
   logradouros?: Logradouro[]
@@ -55,11 +60,14 @@ const TABS = ["Dados Principais", "Identificação", "Fotos", "Diferenciais"]
 
 function numStr(v?: number) { return v != null ? String(v) : "" }
 
-export function PropertyForm({ initialData, propertyId, orgId, developments = [], bairros = [], logradouros = [] }: PropertyFormProps) {
+export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, construtoras = [], developments = [], bairros = [], logradouros = [] }: PropertyFormProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(0)
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState<string | null>(null)
+
+  // Admin org transfer — track selected org for PATCH
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(initialData?.org_id ?? orgId ?? null)
 
   // ── Identificação
   const [title, setTitle]       = useState(initialData?.title ?? "")
@@ -262,7 +270,12 @@ export function PropertyForm({ initialData, propertyId, orgId, developments = []
 
     const url = propertyId ? `/api/admin/properties/${propertyId}` : "/api/admin/properties"
     const method = propertyId ? "PATCH" : "POST"
-    if (!propertyId) Object.assign(payload, { org_id: orgId ?? null })
+    if (!propertyId) {
+      Object.assign(payload, { org_id: selectedOrgId ?? orgId ?? null })
+    } else if (isAdmin && selectedOrgId !== undefined) {
+      // Admin can transfer ownership via PATCH
+      Object.assign(payload, { org_id: selectedOrgId })
+    }
 
     const res = await fetch(url, {
       method,
@@ -353,6 +366,39 @@ export function PropertyForm({ initialData, propertyId, orgId, developments = []
               </select>
             </div>
           </div>
+
+          {/* Admin: ownership transfer */}
+          {isAdmin && construtoras.length > 0 && (
+            <div className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-white/30 font-sans mb-3 pb-3 border-b border-white/5">
+                Vinculação à Construtora
+              </p>
+              <div>
+                <label className={lc}>Organização / Construtora</label>
+                <select
+                  value={selectedOrgId ?? ""}
+                  onChange={(e) => {
+                    const val = e.target.value || null
+                    setSelectedOrgId(val)
+                    // Auto-publish when linked to a construtora
+                    const isConstrutora = construtoras.find((c) => c.id === val)?.type === "construtora"
+                    if (isConstrutora) setVis("publico")
+                  }}
+                  className={ic}
+                >
+                  <option value="">— Sem organização —</option>
+                  {construtoras.map((o) => (
+                    <option key={o.id} value={o.id}>{o.name}</option>
+                  ))}
+                </select>
+                {selectedOrgId && construtoras.find((c) => c.id === selectedOrgId)?.type === "construtora" && (
+                  <p className="text-xs font-sans text-emerald-400/70 mt-1.5">
+                    Imóvel vinculado à construtora — visibilidade será definida como Público.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Localização via Locais */}
           <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">

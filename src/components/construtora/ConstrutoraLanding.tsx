@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import Image from "next/image"
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, Building2, Flame, CheckCircle, MapPin } from "lucide-react"
@@ -73,7 +74,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
           <div className="flex items-center gap-3">
             {org.logo
-              ? <img src={org.logo} alt={org.name} className="h-10 object-contain" />
+              ? <Image src={org.logo} alt={org.name} width={160} height={40} className="h-10 w-auto object-contain" />
               : <span className="font-serif text-white text-xl font-bold">{org.name}</span>
             }
           </div>
@@ -199,9 +200,9 @@ function SobreSection({ org, whatsapp, waMsgDefault }: { org: Organization; what
         </div>
         <div className="flex flex-col items-center lg:items-end gap-10">
           {org.about_image
-            ? <img src={org.about_image} alt="Sobre" className="w-full max-w-sm rounded-2xl object-cover aspect-square" />
+            ? <Image src={org.about_image} alt="Sobre" width={384} height={384} className="w-full max-w-sm rounded-2xl object-cover aspect-square" />
             : org.logo
-            ? <img src={org.logo} alt={org.name} className="max-h-24 object-contain opacity-80" />
+            ? <Image src={org.logo} alt={org.name} width={240} height={96} className="max-h-24 w-auto object-contain opacity-80" />
             : null
           }
           <a href={`https://wa.me/${whatsapp}?text=${waMsgDefault}`} target="_blank" rel="noopener noreferrer"
@@ -230,7 +231,7 @@ function PortfolioSection({ developments }: { developments: Development[] }) {
           {developments.map((dev) => (
             <div key={dev.id} className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden group hover:border-gold/30 transition-all duration-300">
               {dev.cover_image
-                ? <img src={dev.cover_image} alt={dev.name} className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" />
+                ? <Image src={dev.cover_image} alt={dev.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 : <div className="w-full aspect-video bg-gradient-to-br from-[#222] to-[#2a2a2a] flex items-center justify-center"><Building2 size={32} className="text-white/10" /></div>
               }
               <div className="p-5">
@@ -456,7 +457,7 @@ function LancamentosSection({ developments, whatsapp, waMsgLanc }:
         {developments.map((dev, i) => (
           <div key={dev.id} className={`mb-8 rounded-3xl overflow-hidden border border-white/10 bg-[#111] grid grid-cols-1 lg:grid-cols-2 ${i % 2 === 1 ? "lg:grid-flow-dense" : ""}`}>
             {dev.cover_image
-              ? <img src={dev.cover_image} alt={dev.name} className={`w-full aspect-video lg:aspect-auto object-cover ${i % 2 === 1 ? "lg:col-start-2" : ""}`} />
+              ? <Image src={dev.cover_image} alt={dev.name} fill className={`object-cover ${i % 2 === 1 ? "lg:col-start-2" : ""}`} />
               : <div className={`w-full aspect-video lg:aspect-auto bg-gradient-to-br from-[#1a1a1a] to-[#222] flex items-center justify-center ${i % 2 === 1 ? "lg:col-start-2" : ""}`}>
                   <Building2 size={48} className="text-white/10" />
                 </div>

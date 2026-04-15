@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, Expand } from 'lucide-react'
 
@@ -32,7 +33,7 @@ export function BentoGallery({ images, title }: BentoGalleryProps) {
           onClick={() => setLightbox(0)}
           whileHover="hover"
         >
-          <img src={placeholders[0]} alt={title + ' - 1'} className="w-full h-full object-cover" />
+          <Image src={placeholders[0]} alt={title + ' - 1'} fill className="object-cover" />
           <motion.div
             className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center"
           >
@@ -49,7 +50,7 @@ export function BentoGallery({ images, title }: BentoGalleryProps) {
             whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.2 }}
           >
-            <img src={src} alt={title + ' - ' + (i + 2)} className="w-full h-full object-cover" />
+            <Image src={src} alt={title + ' - ' + (i + 2)} fill className="object-cover" />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-300" />
             {i === 3 && images.length > 5 && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

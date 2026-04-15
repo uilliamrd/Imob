@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Copy, Check, Link2, ExternalLink } from "lucide-react"
 import { BorderBeam } from "@/components/magicui/border-beam"
@@ -67,7 +68,7 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
           <BorderBeam size={250} duration={14} colorFrom="#C9A96E" colorTo="#E0C896" />
           <div className="flex items-center gap-4">
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-14 h-14 rounded-full object-cover border-2 border-gold/30" />
+              <Image src={profile.avatar_url} alt="" width={56} height={56} className="w-14 h-14 rounded-full object-cover border-2 border-gold/30" />
             ) : (
               <div className="w-14 h-14 rounded-full bg-gold/10 border-2 border-gold/30 flex items-center justify-center">
                 <span className="font-serif text-2xl font-bold text-gold">

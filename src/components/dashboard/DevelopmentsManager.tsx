@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin, Images, Code2, ExternalLink } from "lucide-react"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
@@ -230,7 +231,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
               onClick={() => isExpanded ? setExpanded(null) : startEdit(dev)}>
               <div className="flex items-center gap-3">
                 {dev.cover_image
-                  ? <img src={dev.cover_image} alt="" className="w-10 h-10 rounded-lg object-cover border border-white/10" />
+                  ? <Image src={dev.cover_image} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
                   : <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center"><Building2 size={16} className="text-white/20" /></div>
                 }
                 <div>

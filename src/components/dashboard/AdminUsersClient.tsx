@@ -182,16 +182,26 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
                         className={inputClass} />
                     </div>
                     <div>
-                      <label className={labelClass}><Phone size={10} className="inline mr-1" />WhatsApp</label>
+                      <label className={labelClass}>
+                        <Phone size={10} className="inline mr-1" />WhatsApp
+                        {(draft.role === "corretor" || draft.role === "imobiliaria") && (
+                          <span className="ml-1 text-red-400" title="Obrigatório para este papel">*</span>
+                        )}
+                      </label>
                       <input type="text" value={draft.whatsapp ?? ""} placeholder="5511999999999"
                         onChange={(e) => setField(u.id, "whatsapp", e.target.value || null)}
-                        className={inputClass} />
+                        className={`${inputClass}${(draft.role === "corretor" || draft.role === "imobiliaria") && !draft.whatsapp ? " border-red-500/40 focus:border-red-500/70" : ""}`} />
                     </div>
                     <div>
-                      <label className={labelClass}><Star size={10} className="inline mr-1" />CRECI</label>
+                      <label className={labelClass}>
+                        <Star size={10} className="inline mr-1" />CRECI
+                        {(draft.role === "corretor" || draft.role === "imobiliaria") && (
+                          <span className="ml-1 text-red-400" title="Obrigatório para este papel">*</span>
+                        )}
+                      </label>
                       <input type="text" value={draft.creci ?? ""} placeholder="Ex: 12345-F"
                         onChange={(e) => setField(u.id, "creci", e.target.value || null)}
-                        className={inputClass} />
+                        className={`${inputClass}${(draft.role === "corretor" || draft.role === "imobiliaria") && !draft.creci ? " border-red-500/40 focus:border-red-500/70" : ""}`} />
                     </div>
                     <div>
                       <label className={labelClass}>Bio / Apresentação</label>

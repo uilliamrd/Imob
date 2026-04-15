@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  images: {
+    remotePatterns: [
+      // Supabase Storage (all projects) + any other https source
+      { protocol: "https", hostname: "**" },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin"
+import Image from "next/image"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { DevelopmentsManager } from "@/components/dashboard/DevelopmentsManager"
@@ -52,7 +53,7 @@ export default async function LancamentosPage() {
             <div key={dev.id} className="bg-[#161616] border border-white/5 rounded-2xl overflow-hidden hover:border-orange-500/20 transition-colors group">
               <div className="aspect-video bg-[#111] relative">
                 {dev.cover_image
-                  ? <img src={dev.cover_image} alt={dev.name} className="w-full h-full object-cover" />
+                  ? <Image src={dev.cover_image} alt={dev.name} fill className="object-cover" />
                   : <div className="w-full h-full flex items-center justify-center"><Flame size={32} className="text-white/10" /></div>
                 }
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />

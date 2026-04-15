@@ -17,18 +17,26 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const adminClient = createAdminClient()
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("full_name, avatar_url, role")
+    .select("full_name, avatar_url, role, organization_id")
     .eq("id", user.id)
     .single()
+
+  const orgId = profile?.organization_id ?? null
+  let orgSlug: string | null = null
+  if (orgId) {
+    const { data: org } = await adminClient
+      .from("organizations")
+      .select("slug")
+      .eq("id", orgId)
+      .single()
+    orgSlug = org?.slug ?? null
+  }
 
   const safeProfile = {
     full_name: profile?.full_name ?? user.email ?? "Usuário",
     avatar_url: profile?.avatar_url ?? null,
     role: (profile?.role ?? "corretor") as UserRole,
-    org_id: null as string | null,
-    organization: null as null,
   }
-  const orgSlug: string | null = null
 
   return (
     <div className="flex min-h-screen bg-[#0D0D0D]">

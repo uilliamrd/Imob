@@ -1,8 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { MessageCircle, X, Phone, User, ArrowRight } from "lucide-react"
+
+const COOKIE_NAME = "corretor_ref"
+
+function getCorretorRef(): string | null {
+  if (typeof window === "undefined") return null
+  const params = new URLSearchParams(window.location.search)
+  const fromUrl = params.get("ref")
+  if (fromUrl) return fromUrl
+  const match = document.cookie.match(new RegExp(`(?:^|; )${COOKIE_NAME}=([^;]*)`))
+  return match ? decodeURIComponent(match[1]) : null
+}
 
 interface LeadCaptureFormProps {
   propertyId: string
@@ -33,6 +44,20 @@ export function LeadCaptureForm({
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
 
+  // Resolve corretor WhatsApp from ref param or cookie — overrides orgWhatsapp
+  const [resolvedWhatsapp, setResolvedWhatsapp] = useState(orgWhatsapp)
+  const [resolvedRefId, setResolvedRefId] = useState(refId ?? null)
+
+  useEffect(() => {
+    const ref = getCorretorRef()
+    if (!ref) return
+    setResolvedRefId(ref)
+    fetch(`/api/corretor/${ref}`)
+      .then((r) => r.json())
+      .then((data) => { if (data?.whatsapp) setResolvedWhatsapp(data.whatsapp) })
+      .catch(() => {})
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim() || !phone.trim()) return
@@ -47,9 +72,9 @@ export function LeadCaptureForm({
           phone: phone.trim(),
           property_id: propertyId,
           property_slug: propertySlug,
-          ref_id: refId ?? null,
+          ref_id: resolvedRefId ?? null,
           org_id: orgId,
-          source: source ?? (refId ? "minisite" : "imovel"),
+          source: source ?? (resolvedRefId ? "minisite" : "imovel"),
         }),
       })
     } catch {
@@ -59,7 +84,7 @@ export function LeadCaptureForm({
     setSent(true)
     setLoading(false)
 
-    const whatsappNumber = formatWhatsappNumber(orgWhatsapp)
+    const whatsappNumber = formatWhatsappNumber(resolvedWhatsapp)
     const msg = encodeURIComponent(
       `Olá! Me chamo ${name.trim()} e tenho interesse no imóvel: ${propertyTitle}.`
     )

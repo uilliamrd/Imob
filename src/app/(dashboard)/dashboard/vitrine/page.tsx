@@ -1,26 +1,34 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { VitrineClient } from "@/components/dashboard/VitrineClient"
 import { Globe } from "lucide-react"
 import type { Property, UserRole } from "@/types/database"
 
-export default async function VitrinePage() {
+interface PageProps {
+  searchParams: Promise<{ search?: string }>
+}
+
+export default async function VitrinePage({ searchParams }: PageProps) {
+  const { search } = await searchParams
   const user = await requireAuth(["imobiliaria", "corretor"])
   const supabase = await createClient()
+  const admin = createAdminClient()
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, org_id")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single()
 
   const role = (profile?.role ?? "corretor") as UserRole
+  const orgId = profile?.organization_id ?? null
 
-  // All public properties from the system
-  const { data: properties } = await supabase
+  // Use admin client so the org join bypasses RLS and construtora badges always load
+  const { data: properties } = await admin
     .from("properties")
-    .select("*")
+    .select("*, organization:organizations(id, name, type, logo, slug, brand_colors)")
     .eq("visibility", "publico")
     .order("created_at", { ascending: false })
 
@@ -28,7 +36,7 @@ export default async function VitrinePage() {
   const { data: listed } = await supabase
     .from("property_listings")
     .select("property_id")
-    .eq(role === "imobiliaria" ? "org_id" : "user_id", role === "imobiliaria" ? (profile?.org_id ?? "") : user.id)
+    .eq(role === "imobiliaria" ? "org_id" : "user_id", role === "imobiliaria" ? (orgId ?? "") : user.id)
 
   const listedIds = new Set((listed ?? []).map((l) => l.property_id))
 
@@ -52,8 +60,9 @@ export default async function VitrinePage() {
         properties={(properties ?? []) as Property[]}
         listedIds={listedIds}
         userId={user.id}
-        orgId={profile?.org_id ?? null}
+        orgId={orgId}
         role={role}
+        initialSearch={search ?? ""}
       />
     </div>
   )

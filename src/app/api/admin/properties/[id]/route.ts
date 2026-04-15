@@ -81,6 +81,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
   }
 
+  // Auto-publish when transferring to a construtora
+  if (body.org_id) {
+    const { data: targetOrg } = await auth.admin
+      .from("organizations")
+      .select("type")
+      .eq("id", body.org_id)
+      .single()
+    if (targetOrg?.type === "construtora") {
+      body.visibility = "publico"
+    }
+  }
+
   const { error } = await auth.admin.from("properties").update({
     ...body,
     updated_at: new Date().toISOString(),

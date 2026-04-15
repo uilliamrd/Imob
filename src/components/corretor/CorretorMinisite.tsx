@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, ChevronUp, User } from 'lucide-react'
 import type { Profile } from '@/types/database'
@@ -101,7 +102,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
                 <div className="flex items-center gap-4 mb-5">
                   <div className="relative">
                     {photo ? (
-                      <img src={photo} alt={name} className="w-14 h-14 rounded-full object-cover border-2 border-gold/40" />
+                      <Image src={photo} alt={name} width={56} height={56} className="w-14 h-14 rounded-full object-cover border-2 border-gold/40" />
                     ) : (
                       <div className="w-14 h-14 rounded-full border-2 border-gold/40 flex items-center justify-center bg-white/10">
                         <User size={24} className="text-gold/60" />
@@ -143,7 +144,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
               >
                 <div className="relative">
                   {photo ? (
-                    <img src={photo} alt={name} className="w-10 h-10 rounded-full object-cover border border-gold/30" />
+                    <Image src={photo} alt={name} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gold/30" />
                   ) : (
                     <div className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center bg-white/5">
                       <User size={18} className="text-gold/60" />

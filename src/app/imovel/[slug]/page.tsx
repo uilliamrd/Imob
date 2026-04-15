@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { BentoGallery } from "@/components/property/BentoGallery"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { LeadCaptureForm } from "@/components/property/LeadCaptureForm"
 import { Footer } from "@/components/landing/Footer"
 import { getTagInfo } from "@/lib/tag-icons"
-import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft } from "lucide-react"
-import type { Property, Organization } from "@/types/database"
+import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink } from "lucide-react"
+import type { Property, Organization, Development } from "@/types/database"
 import Link from "next/link"
 
 // ── Fallback mock (dev only) ─────────────────────────────────────────────────
@@ -35,23 +37,56 @@ function formatPrice(price: number) {
   return "R$ " + price.toLocaleString("pt-BR")
 }
 
-async function getProperty(slug: string): Promise<{ property: Property; org: Organization | null }> {
+async function getProperty(slug: string): Promise<{
+  property: Property
+  org: Organization | null
+  development: Development | null
+  adminWhatsapp: string | null
+}> {
   try {
     const supabase = await createClient()
+    const admin = createAdminClient()
+
     const { data } = await supabase
       .from("properties")
       .select("*, organization:organizations(*)")
       .eq("slug", slug)
       .single()
 
-    if (!data) return { property: MOCK, org: null }
+    if (!data) return { property: MOCK, org: null, development: null, adminWhatsapp: null }
 
     const { organization, ...rest } = data as Property & { organization: Organization }
-    return { property: rest as Property, org: organization ?? null }
+    const property = rest as Property
+
+    // Fetch development if linked
+    let development: Development | null = null
+    if (property.development_id) {
+      const { data: dev } = await admin
+        .from("developments")
+        .select("id, name, address, neighborhood, city, cover_image")
+        .eq("id", property.development_id)
+        .single()
+      development = (dev as Development | null) ?? null
+    }
+
+    // Admin WhatsApp as last-resort fallback
+    const { data: adminProfile } = await admin
+      .from("profiles")
+      .select("whatsapp")
+      .eq("role", "admin")
+      .not("whatsapp", "is", null)
+      .limit(1)
+      .maybeSingle()
+
+    return {
+      property,
+      org: organization ?? null,
+      development,
+      adminWhatsapp: adminProfile?.whatsapp ?? null,
+    }
   } catch {
-    // Supabase not configured yet — use mock
-    if (slug === MOCK.slug) return { property: MOCK, org: null }
-    return { property: MOCK, org: null }
+    if (slug === MOCK.slug) return { property: MOCK, org: null, development: null, adminWhatsapp: null }
+    return { property: MOCK, org: null, development: null, adminWhatsapp: null }
   }
 }
 
@@ -67,11 +102,15 @@ const STATUS_COLOR: Record<string, string> = {
 export default async function ImovelPage({ params, searchParams }: PageProps) {
   const { slug } = await params
   const { ref } = await searchParams
-  const { property, org } = await getProperty(slug)
+  const { property, org, development, adminWhatsapp } = await getProperty(slug)
 
   if (!property) notFound()
 
-  const orgWhatsapp = org?.whatsapp ?? "5521999999999"
+  const isConstrutora = org?.type === "construtora"
+  const accentColor = isConstrutora ? (org?.brand_colors?.primary ?? "#C4A052") : "#C4A052"
+
+  // WhatsApp priority: corretor (via ref/cookie, resolved client-side) > org > admin > fallback
+  const fallbackWhatsapp = org?.whatsapp ?? adminWhatsapp ?? "5521999999999"
   const orgName = org?.name ?? "Consultor Especialista"
 
   return (
@@ -79,7 +118,10 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
       {/* ── Sticky top nav ─────────────────────────────────── */}
       <nav className="sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-sans">
+        <Link
+          href={isConstrutora && org?.slug ? `/construtora/${org.slug}` : "/"}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-sans"
+        >
           <ArrowLeft size={14} />
           {org?.name ?? "Início"}
         </Link>
@@ -92,6 +134,40 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
           </span>
         </div>
       </nav>
+
+      {/* ── Construtora brand bar ──────────────────────────── */}
+      {isConstrutora && (
+        <div
+          className="px-6 py-3 flex items-center justify-between"
+          style={{ borderBottom: `1px solid ${accentColor}20`, backgroundColor: accentColor + "08" }}
+        >
+          <div className="flex items-center gap-3">
+            {org?.logo ? (
+              <Image src={org.logo} alt={org.name} width={120} height={28} className="h-7 w-auto object-contain" />
+            ) : (
+              <div className="flex items-center gap-2">
+                <Building2 size={14} style={{ color: accentColor }} />
+                <span className="font-serif text-sm font-semibold text-foreground">{org?.name}</span>
+              </div>
+            )}
+            {development && (
+              <>
+                <span className="text-foreground/20 text-sm">·</span>
+                <span className="text-sm font-sans text-foreground/60">{development.name}</span>
+              </>
+            )}
+          </div>
+          {isConstrutora && org?.slug && (
+            <a
+              href={`/construtora/${org.slug}`}
+              className="flex items-center gap-1.5 text-xs font-sans uppercase tracking-[0.15em] transition-colors"
+              style={{ color: accentColor + "99" }}
+            >
+              Ver todos os imóveis <ExternalLink size={11} />
+            </a>
+          )}
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-6 py-12">
 
@@ -154,6 +230,38 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
               )}
             </div>
 
+            {/* Empreendimento block — construtora properties */}
+            {isConstrutora && development && (
+              <div className="mb-10 rounded-2xl border overflow-hidden" style={{ borderColor: accentColor + "25" }}>
+                {development.cover_image && (
+                  <div className="h-40 overflow-hidden relative">
+                    <Image src={development.cover_image} alt={development.name} fill className="object-cover" />
+                  </div>
+                )}
+                <div className="p-5" style={{ backgroundColor: accentColor + "06" }}>
+                  <p className="text-xs uppercase tracking-[0.2em] font-sans mb-1" style={{ color: accentColor }}>
+                    Empreendimento
+                  </p>
+                  <h3 className="font-serif text-xl font-bold text-foreground mb-1">{development.name}</h3>
+                  {(development.neighborhood || development.city) && (
+                    <p className="text-muted-foreground text-sm font-sans flex items-center gap-1">
+                      <MapPin size={12} style={{ color: accentColor }} />
+                      {[development.neighborhood, development.city].filter(Boolean).join(", ")}
+                    </p>
+                  )}
+                  {org?.slug && (
+                    <a
+                      href={`/construtora/${org.slug}`}
+                      className="inline-flex items-center gap-1.5 mt-3 text-xs font-sans uppercase tracking-[0.15em] transition-opacity hover:opacity-80"
+                      style={{ color: accentColor }}
+                    >
+                      Ver todos os imóveis do empreendimento <ExternalLink size={10} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Description */}
             {property.description && (
               <div className="mb-10">
@@ -212,7 +320,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                 propertySlug={property.slug}
                 propertyTitle={property.title}
                 orgId={property.org_id}
-                orgWhatsapp={orgWhatsapp}
+                orgWhatsapp={fallbackWhatsapp}
                 refId={ref}
               />
 
@@ -231,11 +339,11 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
         </div>
       </div>
 
-      <Footer orgName={orgName} whatsapp={orgWhatsapp} website={org?.website} />
+      <Footer orgName={orgName} whatsapp={fallbackWhatsapp} website={org?.website} />
 
-      {/* Floating corretor minisite — swaps contact if ?ref= present */}
+      {/* Floating corretor minisite — resolves corretor from ref/cookie, falls back to org/admin WA */}
       <CorretorMinisite
-        defaultWhatsapp={orgWhatsapp}
+        defaultWhatsapp={fallbackWhatsapp}
         defaultName={orgName}
         defaultPhoto={org?.logo ?? undefined}
       />

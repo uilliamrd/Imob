@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { motion, type Variants } from "framer-motion"
 import { useInView } from "framer-motion"
 import { useRef } from "react"
@@ -49,7 +50,7 @@ export function AboutSection({ orgName, portfolioDesc, logo }: AboutSectionProps
           {/* Right column: logo + stats */}
           <div className="flex flex-col items-center lg:items-end gap-12">
             {logo && (
-              <img src={logo} alt={orgName} className="max-h-20 object-contain" />
+              <Image src={logo} alt={orgName} width={160} height={80} className="max-h-20 w-auto object-contain" />
             )}
             <div className="grid grid-cols-3 gap-8 w-full">
               {[

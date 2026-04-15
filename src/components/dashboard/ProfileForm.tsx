@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import Image from "next/image"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { Save, User } from "lucide-react"
 
@@ -34,21 +34,22 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({
+    const res = await fetch(`/api/profiles/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         full_name: fullName,
         whatsapp,
         creci,
         bio,
         avatar_url: avatarUrls[0] ?? null,
-      })
-      .eq("id", userId)
+      }),
+    })
 
-    if (error) {
-      setError(error.message)
+    if (!res.ok) {
+      const d = await res.json()
+      setError(d.error ?? "Erro ao salvar")
     } else {
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
@@ -71,7 +72,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
         <div className="flex items-center gap-6">
           <div className="w-20 h-20 rounded-full border-2 border-gold/20 overflow-hidden flex-shrink-0 bg-white/5 flex items-center justify-center">
             {avatarUrls[0] ? (
-              <img src={avatarUrls[0]} alt="Avatar" className="w-full h-full object-cover" />
+              <Image src={avatarUrls[0]} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
             ) : (
               <User size={28} className="text-white/20" />
             )}

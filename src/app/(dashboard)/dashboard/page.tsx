@@ -1,14 +1,16 @@
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import Image from "next/image"
 import { redirect } from "next/navigation"
 import { NumberTicker } from "@/components/magicui/number-ticker"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import {
   Home, TrendingUp, Link2, DollarSign, ArrowRight,
   MessageSquare, BookOpen, ExternalLink, Globe,
+  Building2, Search, Clock, MapPin,
 } from "lucide-react"
 import Link from "next/link"
-import type { UserRole } from "@/types/database"
+import type { UserRole, Organization, Property } from "@/types/database"
 
 const ROLE_WELCOME: Record<UserRole, string> = {
   admin:       "Painel de Controle",
@@ -137,13 +139,26 @@ export default async function DashboardPage() {
   const [
     { count: totalLeads },
     { count: myProperties },
+    { data: construtoras },
   ] = await Promise.all([
-    orgId
-      ? adminClient.from("leads").select("*", { count: "exact", head: true }).eq("org_id", orgId)
-      : adminClient.from("leads").select("*", { count: "exact", head: true }).eq("org_id", user.id),
+    adminClient.from("leads").select("*", { count: "exact", head: true })
+      .eq(orgId ? "org_id" : "ref_id", orgId ?? user.id),
     adminClient.from("properties").select("*", { count: "exact", head: true })
       .eq("created_by", user.id).eq("status", "disponivel"),
+    adminClient.from("organizations")
+      .select("id, name, slug, logo, brand_colors")
+      .eq("type", "construtora")
+      .not("slug", "is", null),
   ])
+
+  const { data: recentProperties } = role === "corretor"
+    ? await adminClient
+        .from("properties")
+        .select("id, title, slug, price, neighborhood, city, images, status, org_id")
+        .eq("visibility", "publico")
+        .order("created_at", { ascending: false })
+        .limit(6)
+    : { data: null }
 
   const stats2 = [
     { label: "Imóveis Ativos",  value: myProperties ?? 0, icon: Home,           raw: true as const },
@@ -165,6 +180,9 @@ export default async function DashboardPage() {
           { href: "/dashboard/corretor",  title: "Meus Links",       desc: "Links rastreáveis para imóveis" },
         ]
 
+  const construtorasList = (construtoras ?? []) as Array<Organization & { id: string; name: string; slug: string | null; logo: string | null; brand_colors: Organization["brand_colors"] }>
+  const recentList = (recentProperties ?? []) as Array<Pick<Property, "id" | "title" | "slug" | "price" | "neighborhood" | "city" | "images" | "status" | "org_id">>
+
   return (
     <div className="p-8 max-w-5xl">
       <div className="mb-10">
@@ -185,13 +203,35 @@ export default async function DashboardPage() {
               Adicione WhatsApp e CRECI para que apareçam no seu minisite.
             </p>
           </div>
-          <Link href="/dashboard/configuracoes"
+          <Link href="/dashboard/minisite"
             className="flex items-center gap-2 px-4 py-2 border border-gold/30 text-gold text-xs uppercase tracking-wider font-sans hover:bg-gold/10 transition-colors rounded-lg flex-shrink-0">
             Completar <ArrowRight size={12} />
           </Link>
         </div>
       )}
 
+      {/* Quick search — corretor only */}
+      {role === "corretor" && (
+        <form action="/dashboard/vitrine" method="GET" className="mb-8">
+          <div className="relative">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+            <input
+              name="search"
+              type="text"
+              placeholder="Buscar imóvel por bairro, tipo, nome..."
+              className="w-full bg-[#161616] border border-white/10 text-white placeholder-white/20 pl-12 pr-36 py-4 rounded-2xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+            />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-gold text-graphite text-xs uppercase tracking-[0.15em] font-sans rounded-xl hover:bg-gold-light transition-colors"
+            >
+              Buscar
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-10">
         {stats2.map((stat) => {
           const Icon = stat.icon
@@ -207,14 +247,105 @@ export default async function DashboardPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Construtoras Parceiras */}
+      {construtorasList.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 size={14} className="text-gold/60" />
+            <p className="text-xs uppercase tracking-[0.25em] text-gold/60 font-sans">Construtoras Parceiras</p>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {construtorasList.map((org) => {
+              const accent = org.brand_colors?.primary ?? "#C4A052"
+              return (
+                <a
+                  key={org.id}
+                  href={`/construtora/${org.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-4 py-3 hover:border-white/15 transition-colors group"
+                >
+                  {org.logo ? (
+                    <Image src={org.logo} alt={org.name} width={80} height={24} className="h-6 w-auto object-contain" />
+                  ) : (
+                    <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: accent + "20" }}>
+                      <Building2 size={12} style={{ color: accent }} />
+                    </div>
+                  )}
+                  <span className="text-white/70 text-sm font-sans group-hover:text-white transition-colors whitespace-nowrap">{org.name}</span>
+                  <ExternalLink size={11} className="text-white/20 group-hover:text-gold/50 transition-colors" />
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Quick links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
         {quickLinks.map((l) => (
           <QuickLink key={l.href} href={l.href} title={l.title} desc={l.desc} />
         ))}
       </div>
 
+      {/* Recém Adicionados — corretor only */}
+      {role === "corretor" && recentList.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Clock size={14} className="text-gold/60" />
+              <p className="text-xs uppercase tracking-[0.25em] text-gold/60 font-sans">Recém Adicionados</p>
+            </div>
+            <Link href="/dashboard/vitrine" className="text-white/30 hover:text-gold text-xs font-sans transition-colors">
+              Ver todos →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {recentList.map((p) => (
+              <a
+                key={p.id}
+                href={`/imovel/${p.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group bg-[#161616] border border-white/5 rounded-xl overflow-hidden hover:border-gold/20 transition-colors"
+              >
+                <div className="aspect-video bg-[#111] relative overflow-hidden">
+                  {p.images?.[0] ? (
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Home size={20} className="text-white/10" />
+                    </div>
+                  )}
+                  <div className={`absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded-full border font-sans uppercase tracking-wider ${
+                    p.status === "disponivel" ? "text-emerald-400 bg-emerald-900/40 border-emerald-700/40" :
+                    p.status === "reserva"    ? "text-amber-400 bg-amber-900/40 border-amber-700/40" :
+                                               "text-zinc-400 bg-zinc-800 border-zinc-700/40"
+                  }`}>
+                    {p.status === "disponivel" ? "Disponível" : p.status === "reserva" ? "Reserva" : "Vendido"}
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="font-serif text-white text-sm font-semibold leading-tight line-clamp-1">{p.title}</p>
+                  {(p.neighborhood || p.city) && (
+                    <p className="text-white/30 text-xs font-sans mt-1 flex items-center gap-1">
+                      <MapPin size={9} />{p.neighborhood ?? p.city}
+                    </p>
+                  )}
+                  <p className="text-gold text-sm font-sans font-medium mt-2">
+                    {p.price >= 1_000_000
+                      ? `R$ ${(p.price / 1_000_000).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 })} Mi`
+                      : `R$ ${p.price.toLocaleString("pt-BR")}`}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Minisite CTA */}
-      <div className="mt-6 bg-[#161616] border border-gold/10 rounded-2xl p-6 flex items-center justify-between gap-4">
+      <div className="bg-[#161616] border border-gold/10 rounded-2xl p-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-gold/10"><Globe size={16} className="text-gold" /></div>
           <div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { PlusCircle, Eye, Edit, Maximize2, BedDouble, Car, Hash, Search, ListPlus, Trash2, ExternalLink } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -148,7 +149,7 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
             <div key={p.id} className="bg-[#161616] border border-white/5 rounded-2xl overflow-hidden group hover:border-gold/20 transition-all duration-300">
               <div className="aspect-video bg-gradient-to-br from-[#1a1a1a] to-[#222] relative overflow-hidden">
                 {p.images[0] ? (
-                  <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/10">
                     <span className="font-serif text-4xl">R</span>

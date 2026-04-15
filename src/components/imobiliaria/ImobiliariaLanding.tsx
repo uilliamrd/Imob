@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { BedDouble, Car, Maximize2, MessageCircle, Search, MapPin, Hash } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
@@ -61,7 +62,7 @@ export function ImobiliariaLanding({ org, properties, refId, whatsapp }: Props) 
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
           {org.logo && (
-            <img src={org.logo} alt={org.name} className="h-16 mx-auto mb-8 object-contain" />
+            <Image src={org.logo} alt={org.name} width={240} height={64} className="h-16 w-auto mx-auto mb-8 object-contain" />
           )}
           <p className="text-xs uppercase tracking-[0.4em] mb-4 font-sans" style={{ color: brandColor }}>
             Imobiliária
@@ -99,7 +100,9 @@ export function ImobiliariaLanding({ org, properties, refId, whatsapp }: Props) 
               )}
             </div>
             {org.about_image && (
-              <img src={org.about_image} alt="Sobre" className="rounded-2xl object-cover w-full aspect-square" />
+              <div className="relative w-full aspect-square rounded-2xl overflow-hidden">
+                <Image src={org.about_image} alt="Sobre" fill className="object-cover" />
+              </div>
             )}
           </div>
         </section>
@@ -155,7 +158,7 @@ export function ImobiliariaLanding({ org, properties, refId, whatsapp }: Props) 
               >
                 <div className="aspect-video relative overflow-hidden bg-[#111]">
                   {p.images[0] ? (
-                    <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <span className="font-serif text-4xl text-white/10">R</span>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { ChevronDown, ChevronUp, Building2, Check, Clock, X } from "lucide-react"
 import type { Property, Development } from "@/types/database"
@@ -130,7 +131,7 @@ export function DisponibilidadeClient({ developments, properties: initial }: Pro
             >
               <div className="flex items-center gap-3">
                 {dev.cover_image
-                  ? <img src={dev.cover_image} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/10" />
+                  ? <Image src={dev.cover_image} alt="" width={36} height={36} className="w-9 h-9 rounded-lg object-cover border border-white/10" />
                   : <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center"><Building2 size={15} className="text-white/20" /></div>
                 }
                 <div className="text-left">
