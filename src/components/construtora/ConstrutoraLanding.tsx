@@ -241,7 +241,7 @@ function PortfolioSection({ developments }: { developments: Development[] }) {
                 </div>
                 <h3 className="font-serif text-lg font-semibold text-white mb-1">{dev.name}</h3>
                 {(dev.neighborhood || dev.city) && (
-                  <p className="flex items-center gap-1 text-white/30 text-xs font-sans">
+                  <p className="flex items-center gap-1 text-white/55 text-xs font-sans">
                     <MapPin size={10} />{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}
                   </p>
                 )}
@@ -469,7 +469,7 @@ function LancamentosSection({ developments, whatsapp, waMsgLanc }:
               </div>
               <h3 className="font-serif text-3xl font-bold text-white mb-3">{dev.name}</h3>
               {(dev.neighborhood || dev.city) && (
-                <p className="flex items-center gap-1.5 text-white/40 text-sm font-sans mb-4">
+                <p className="flex items-center gap-1.5 text-white/60 text-sm font-sans mb-4">
                   <MapPin size={12} />{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}
                 </p>
               )}

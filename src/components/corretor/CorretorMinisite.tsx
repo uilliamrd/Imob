@@ -113,13 +113,13 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
                   <div>
                     <p className="font-serif text-white font-semibold text-base">{name}</p>
                     <p className="text-xs text-gold/80 font-sans uppercase tracking-wider">Consultor Especialista</p>
-                    {creci && <p className="text-[10px] text-white/30 font-sans mt-0.5">CRECI {creci}</p>}
+                    {creci && <p className="text-[10px] text-white/60 font-sans mt-0.5">CRECI {creci}</p>}
                   </div>
                 </div>
 
                 <div className="divider-gold opacity-20 mb-4" />
 
-                <p className="text-white/60 text-xs font-sans leading-relaxed mb-5">
+                <p className="text-white/75 text-xs font-sans leading-relaxed mb-5">
                   Estou disponível para apresentar este imóvel e esclarecer todas as suas dúvidas.
                 </p>
 

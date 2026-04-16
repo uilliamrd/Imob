@@ -33,6 +33,8 @@ export interface Profile {
   creci: string | null
   organization_id: string | null
   is_active: boolean
+  slug: string | null
+  last_lead_at: string | null
   organization?: Organization
 }
 

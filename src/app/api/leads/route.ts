@@ -64,6 +64,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  // Rodízio: se não há ref_id, atribuir automaticamente ao corretor com maior score na org
+  if (newLead && !ref_id) {
+    let effectiveOrgId = org_id ?? null
+
+    // Se não veio org_id, tentar buscar pelo property
+    if (!effectiveOrgId && property_id) {
+      const { data: prop } = await supabase
+        .from('properties')
+        .select('org_id')
+        .eq('id', property_id)
+        .maybeSingle()
+      effectiveOrgId = prop?.org_id ?? null
+    }
+
+    if (effectiveOrgId) {
+      const { data: topCorretor } = await supabase
+        .from('corretor_scores')
+        .select('id')
+        .eq('organization_id', effectiveOrgId)
+        .order('score', { ascending: false })
+        .order('last_lead_at', { ascending: true, nullsFirst: true })
+        .limit(1)
+        .maybeSingle()
+
+      if (topCorretor?.id) {
+        await supabase
+          .from('leads')
+          .update({ ref_id: topCorretor.id })
+          .eq('id', newLead.id)
+        await supabase
+          .from('profiles')
+          .update({ last_lead_at: new Date().toISOString() })
+          .eq('id', topCorretor.id)
+      }
+    }
+  }
+
   // Detecção de conflito: mesmo telefone já foi captado por outro corretor
   if (newLead && ref_id) {
     const normalizedPhone = phone.trim()

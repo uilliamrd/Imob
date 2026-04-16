@@ -16,10 +16,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const admin = createAdminClient()
 
   // Whitelist updatable fields
-  const { full_name, whatsapp, creci, bio, avatar_url } = body
+  const { full_name, whatsapp, creci, bio, avatar_url, slug } = body
   const { error } = await admin
     .from("profiles")
-    .update({ full_name, whatsapp, creci, bio, avatar_url })
+    .update({ full_name, whatsapp, creci, bio, avatar_url, slug: slug ?? null })
     .eq("id", id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

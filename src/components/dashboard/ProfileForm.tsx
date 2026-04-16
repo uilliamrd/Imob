@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { ImageUpload } from "@/components/ui/ImageUpload"
-import { Save, User } from "lucide-react"
+import { Save, User, Link as LinkIcon } from "lucide-react"
 
 interface ProfileFormProps {
   userId: string
@@ -14,7 +14,19 @@ interface ProfileFormProps {
     creci: string
     bio: string
     avatar_url: string
+    slug?: string
   }
+}
+
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
 }
 
 export function ProfileForm({ userId, initialData }: ProfileFormProps) {
@@ -23,12 +35,22 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
   const [whatsapp, setWhatsapp] = useState(initialData.whatsapp)
   const [creci, setCreci] = useState(initialData.creci)
   const [bio, setBio] = useState(initialData.bio)
+  const [slug, setSlug] = useState(initialData.slug ?? "")
   const [avatarUrls, setAvatarUrls] = useState<string[]>(
     initialData.avatar_url ? [initialData.avatar_url] : []
   )
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  function handleNameChange(name: string) {
+    setFullName(name)
+    if (!slug) setSlug(toSlug(name))
+  }
+
+  function handleSlugChange(val: string) {
+    setSlug(val.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"))
+  }
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -44,6 +66,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
         creci,
         bio,
         avatar_url: avatarUrls[0] ?? null,
+        slug: slug || null,
       }),
     })
 
@@ -98,7 +121,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
         <div>
           <label className={labelClass}>Nome Completo *</label>
           <input required type="text" value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            onChange={(e) => handleNameChange(e.target.value)}
             placeholder="João Silva" className={inputClass} />
         </div>
 
@@ -126,6 +149,27 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
             onChange={(e) => setBio(e.target.value)}
             placeholder="Especialista em imóveis de alto padrão..."
             rows={3} className={inputClass + " resize-none"} />
+        </div>
+
+        {/* Slug / URL do minisite */}
+        <div>
+          <label className={labelClass}>URL do Minisite</label>
+          <div className="flex items-center gap-0">
+            <span className="flex items-center gap-1.5 px-3 py-3 bg-muted/30 border border-border border-r-0 rounded-l-lg text-xs font-sans text-muted-foreground/60 whitespace-nowrap">
+              <LinkIcon size={11} />
+              /corretor/
+            </span>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder="joao-silva"
+              className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-r-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+            />
+          </div>
+          <p className="text-muted-foreground/50 text-xs font-sans mt-1">
+            Apenas letras minúsculas, números e hífens. Único por corretor.
+          </p>
         </div>
       </section>
 

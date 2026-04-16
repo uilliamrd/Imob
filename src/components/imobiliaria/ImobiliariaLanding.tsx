@@ -71,10 +71,10 @@ export function ImobiliariaLanding({ org, properties, refId, whatsapp }: Props) 
             {org.name}
           </h1>
           {org.hero_tagline && (
-            <p className="text-white/50 font-sans text-lg mt-4 max-w-xl mx-auto">{org.hero_tagline}</p>
+            <p className="text-white/80 font-sans text-lg mt-4 max-w-xl mx-auto">{org.hero_tagline}</p>
           )}
           <div className="mt-6 h-px w-16 mx-auto" style={{ backgroundColor: brandColor + "60" }} />
-          <p className="text-white/40 font-sans text-sm mt-4">
+          <p className="text-white/60 font-sans text-sm mt-4">
             {forSale.length} imóveis disponíveis
           </p>
         </div>
@@ -176,11 +176,11 @@ export function ImobiliariaLanding({ org, properties, refId, whatsapp }: Props) 
                   )}
                   <h3 className="font-serif text-lg font-semibold text-white mb-1 truncate">{p.title}</h3>
                   {p.neighborhood && (
-                    <p className="text-white/30 text-xs font-sans mb-3 flex items-center gap-1">
+                    <p className="text-white/55 text-xs font-sans mb-3 flex items-center gap-1">
                       <MapPin size={10} />{p.neighborhood}, {p.city}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 text-white/40 text-xs font-sans mb-4">
+                  <div className="flex items-center gap-3 text-white/60 text-xs font-sans mb-4">
                     {p.features.area_m2 && <span className="flex items-center gap-1"><Maximize2 size={11} />{p.features.area_m2}m²</span>}
                     {(p.features.suites || p.features.dormitorios) && (
                       <span className="flex items-center gap-1">

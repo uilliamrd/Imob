@@ -206,13 +206,13 @@ export function CorretorLanding({ profile, orgName, properties, featuredIds = ne
                       </h3>
 
                       {(property.neighborhood || property.city) && (
-                        <p className="flex items-center gap-1 text-white/30 text-xs font-sans mb-3">
+                        <p className="flex items-center gap-1 text-white/55 text-xs font-sans mb-3">
                           <MapPin size={10} />
                           {property.neighborhood}{property.city ? `, ${property.city}` : ""}
                         </p>
                       )}
 
-                      <div className="flex items-center gap-4 text-white/40 text-xs font-sans mb-4">
+                      <div className="flex items-center gap-4 text-white/60 text-xs font-sans mb-4">
                         {property.features.area_m2 && (
                           <span className="flex items-center gap-1">
                             <Maximize2 size={11} className="text-gold/50" />
@@ -287,7 +287,7 @@ export function CorretorLanding({ profile, orgName, properties, featuredIds = ne
             Pronto para <span className="italic" style={{ color: "#C9A96E" }}>encontrar seu imóvel?</span>
           </h2>
           {profile.bio && (
-            <p className="text-white/30 font-sans max-w-md mx-auto mb-8 text-sm">{profile.bio}</p>
+            <p className="text-white/65 font-sans max-w-md mx-auto mb-8 text-sm">{profile.bio}</p>
           )}
           <a
             href={waUrl}

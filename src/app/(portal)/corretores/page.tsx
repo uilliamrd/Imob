@@ -8,7 +8,7 @@ export default async function CorretoresPage() {
 
   const { data: profiles } = await admin
     .from("profiles")
-    .select("id, full_name, avatar_url, creci, bio, organization:organizations(id, name)")
+    .select("id, full_name, avatar_url, creci, bio, slug, organization:organizations(id, name)")
     .eq("role", "corretor")
     .eq("is_active", true)
     .order("full_name")
@@ -19,6 +19,7 @@ export default async function CorretoresPage() {
     avatar_url: string | null
     creci: string | null
     bio: string | null
+    slug: string | null
     organization: { id: string; name: string } | null
   }[]
 
@@ -43,7 +44,7 @@ export default async function CorretoresPage() {
           {corretores.map((c) => (
             <Link
               key={c.id}
-              href={`/corretor/${c.id}`}
+              href={`/corretor/${c.slug ?? c.id}`}
               className="group bg-card border border-border rounded-xl p-5 flex flex-col items-center text-center hover:border-gold/30 transition-all duration-300"
             >
               {/* Avatar */}

@@ -22,8 +22,8 @@ export default async function CorretorPage({ params, searchParams }: PageProps) 
   const [{ data: profile }, { data: listings }] = await Promise.all([
     admin
       .from("profiles")
-      .select("id, full_name, avatar_url, whatsapp, creci, bio, role, organization_id")
-      .eq("id", id)
+      .select("id, full_name, avatar_url, whatsapp, creci, bio, role, organization_id, slug")
+      .or(`id.eq.${id},slug.eq.${id}`)
       .eq("role", "corretor")
       .eq("is_active", true)
       .maybeSingle(),

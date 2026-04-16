@@ -23,6 +23,7 @@ import {
   BookOpen,
   Layers,
   ListChecks,
+  RotateCcw,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
@@ -52,6 +53,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/vitrine",        label: "Base de Imóveis",  icon: Globe,           roles: ["imobiliaria"] },
   { href: "/dashboard/catalogo",       label: "Meu Catálogo",     icon: ListChecks,      roles: ["imobiliaria"] },
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["imobiliaria"] },
+  { href: "/dashboard/rodizio",        label: "Rodízio",          icon: RotateCcw,       roles: ["imobiliaria", "admin"] },
   { href: "/dashboard/equipe",         label: "Minha Equipe",     icon: Users,           roles: ["imobiliaria"] },
   { href: "/dashboard/minisite",       label: "Meu Minisite",     icon: ExternalLink,    roles: ["imobiliaria"] },
   { href: "/dashboard/organizacao",    label: "Branding",         icon: Building2,       roles: ["imobiliaria"] },

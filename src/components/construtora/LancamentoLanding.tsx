@@ -99,7 +99,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
 
           {(development.neighborhood || development.city) && (
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex items-center gap-2 text-white/50 font-sans text-lg mt-4">
+              className="flex items-center gap-2 text-white/70 font-sans text-lg mt-4">
               <MapPin size={16} className="text-gold/60" />
               {development.neighborhood}{development.city ? `, ${development.city}` : ""}
             </motion.p>

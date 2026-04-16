@@ -13,7 +13,7 @@ export default async function MinisitePage() {
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("role, organization_id, full_name, whatsapp, creci, bio, avatar_url")
+    .select("role, organization_id, full_name, whatsapp, creci, bio, avatar_url, slug")
     .eq("id", user.id)
     .single()
 
@@ -25,9 +25,10 @@ export default async function MinisitePage() {
     ? await admin.from("organizations").select("*").eq("id", orgId).single()
     : { data: null }
 
+  const corretorSlugOrId = profile?.slug ?? user.id
   const minisiteUrl =
     role === "imobiliaria" && org?.slug ? `/imobiliaria/${org.slug}` :
-    role === "corretor" ? `/corretor/${user.id}` :
+    role === "corretor" ? `/corretor/${corretorSlugOrId}` :
     null
 
   return (
@@ -47,7 +48,7 @@ export default async function MinisitePage() {
 
       {/* URL card */}
       {minisiteUrl && (
-        <div className="bg-card border border-gold/20 rounded-2xl p-6 mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div className="bg-card border border-gold/20 rounded-2xl p-6 mb-4 flex items-center justify-between flex-wrap gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-gold/60 font-sans mb-1">Endereço do seu site</p>
             <p className="text-foreground/70 font-mono text-sm">{minisiteUrl}</p>
@@ -56,6 +57,14 @@ export default async function MinisitePage() {
             className="flex items-center gap-2 px-5 py-2.5 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
             <ExternalLink size={13} /> Abrir Site
           </a>
+        </div>
+      )}
+
+      {/* Warning: slug not set for corretor */}
+      {role === "corretor" && !profile?.slug && (
+        <div className="mb-8 px-4 py-3 bg-amber-900/10 border border-amber-700/30 rounded-xl text-amber-300/80 text-xs font-sans flex items-center gap-2">
+          <span className="text-amber-400">⚠</span>
+          Seu link ainda usa um ID interno. Defina um URL personalizado (ex: <span className="font-mono">joao-silva</span>) no formulário abaixo para ter um link com seu nome.
         </div>
       )}
 
@@ -136,6 +145,7 @@ export default async function MinisitePage() {
                 creci: profile?.creci ?? "",
                 bio: profile?.bio ?? "",
                 avatar_url: profile?.avatar_url ?? "",
+                slug: profile?.slug ?? "",
               }}
             />
           </div>
