@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Phone, Home, Clock, ChevronDown, MessageSquare } from "lucide-react"
-import type { Lead, LeadStatus } from "@/types/database"
+import { Phone, Home, Clock, ChevronDown, MessageSquare, AlertTriangle, X } from "lucide-react"
+import type { Lead, LeadStatus, LeadConflict } from "@/types/database"
 
 const STATUS_OPTIONS: { value: LeadStatus; label: string; cls: string }[] = [
   { value: "novo",        label: "Novo",        cls: "bg-blue-900/30 text-blue-300 border-blue-700/40" },
@@ -19,15 +19,34 @@ function statusLabel(status: LeadStatus) {
   return STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status
 }
 
+type ConflictItem = Pick<LeadConflict, "id" | "original_lead_id" | "acknowledged">
+
 interface Props {
   initialLeads: Lead[]
+  initialConflicts?: ConflictItem[]
 }
 
-export function LeadsClient({ initialLeads }: Props) {
+export function LeadsClient({ initialLeads, initialConflicts = [] }: Props) {
   const [leads, setLeads] = useState(initialLeads)
+  const [conflicts, setConflicts] = useState(initialConflicts)
   const [updating, setUpdating] = useState<string | null>(null)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [search, setSearch] = useState("")
+
+  const conflictedLeadIds = new Set(conflicts.map((c) => c.original_lead_id))
+
+  async function acknowledgeConflict(conflictId: string) {
+    const supabase = createClient()
+    await supabase.from("lead_conflicts").update({ acknowledged: true }).eq("id", conflictId)
+    setConflicts((prev) => prev.filter((c) => c.id !== conflictId))
+  }
+
+  async function acknowledgeAll() {
+    const supabase = createClient()
+    const ids = conflicts.map((c) => c.id)
+    await supabase.from("lead_conflicts").update({ acknowledged: true }).in("id", ids)
+    setConflicts([])
+  }
 
   const filtered = leads.filter(
     (l) =>
@@ -66,6 +85,29 @@ export function LeadsClient({ initialLeads }: Props) {
 
   return (
     <div>
+      {/* Banner de conflito */}
+      {conflicts.length > 0 && (
+        <div className="mb-6 flex items-start gap-3 p-4 bg-amber-900/15 border border-amber-700/40 rounded-xl">
+          <AlertTriangle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-amber-300 font-sans text-sm font-medium leading-snug">
+              {conflicts.length === 1
+                ? "1 dos seus clientes também foi captado por outro corretor."
+                : `${conflicts.length} dos seus clientes também foram captados por outro corretor.`}
+            </p>
+            <p className="text-amber-400/60 font-sans text-xs mt-0.5">
+              Verifique os leads marcados abaixo e entre em contato com seu cliente.
+            </p>
+          </div>
+          <button
+            onClick={acknowledgeAll}
+            className="flex-shrink-0 text-[10px] uppercase tracking-[0.15em] font-sans text-amber-400/70 hover:text-amber-300 border border-amber-700/40 hover:border-amber-600/60 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Reconhecer todos
+          </button>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
@@ -118,10 +160,26 @@ export function LeadsClient({ initialLeads }: Props) {
               Nenhum lead encontrado.
             </div>
           ) : (
-            filtered.map((lead) => (
-              <div key={lead.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors relative">
+            filtered.map((lead) => {
+              const isConflicted = conflictedLeadIds.has(lead.id)
+              const conflictItem = conflicts.find((c) => c.original_lead_id === lead.id)
+              return (
+              <div key={lead.id} className={`grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors relative ${isConflicted ? "bg-amber-900/5" : ""}`}>
+                {isConflicted && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500/50 rounded-full" />}
                 <div className="col-span-3">
-                  <p className="text-foreground/80 text-sm font-sans font-medium">{lead.name}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-foreground/80 text-sm font-sans font-medium">{lead.name}</p>
+                    {isConflicted && conflictItem && (
+                      <button
+                        onClick={() => acknowledgeConflict(conflictItem.id)}
+                        title="Reconhecer e dispensar aviso"
+                        className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-900/30 border border-amber-700/40 text-amber-400 rounded-full text-[9px] font-sans uppercase tracking-wide hover:bg-amber-900/50 transition-colors"
+                      >
+                        <AlertTriangle size={8} /> conflito
+                        <X size={7} className="ml-0.5 opacity-60" />
+                      </button>
+                    )}
+                  </div>
                   <a
                     href={`https://wa.me/${lead.phone.replace(/\D/g, "")}`}
                     target="_blank"
@@ -172,7 +230,7 @@ export function LeadsClient({ initialLeads }: Props) {
                   )}
                 </div>
               </div>
-            ))
+            )})
           )}
         </div>
       </div>

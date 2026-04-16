@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { LeadsClient } from "@/components/dashboard/LeadsClient"
 import { MessageSquare } from "lucide-react"
-import type { Lead } from "@/types/database"
+import type { Lead, LeadConflict } from "@/types/database"
 
 export default async function LeadsPage() {
   const user = await requireAuth(["imobiliaria", "corretor"])
@@ -29,7 +29,19 @@ export default async function LeadsPage() {
     query = query.eq("org_id", orgId)
   }
 
-  const { data: leads } = await query
+  // Conflitos não reconhecidos (apenas para corretores)
+  const [{ data: leads }, { data: rawConflicts }] = await Promise.all([
+    query,
+    role === "corretor"
+      ? supabase
+          .from("lead_conflicts")
+          .select("id, original_lead_id, acknowledged")
+          .eq("original_corretor_id", user.id)
+          .eq("acknowledged", false)
+      : Promise.resolve({ data: [] }),
+  ])
+
+  const conflicts = (rawConflicts ?? []) as Pick<LeadConflict, "id" | "original_lead_id" | "acknowledged">[]
 
   return (
     <div className="px-4 py-6 lg:p-8 max-w-5xl">
@@ -47,7 +59,10 @@ export default async function LeadsPage() {
         <div className="divider-gold mt-4 w-20" />
       </div>
 
-      <LeadsClient initialLeads={(leads ?? []) as Lead[]} />
+      <LeadsClient
+        initialLeads={(leads ?? []) as Lead[]}
+        initialConflicts={conflicts}
+      />
     </div>
   )
 }

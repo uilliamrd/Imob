@@ -45,19 +45,47 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient()
 
-  const { error } = await supabase.from('leads').insert({
-    name: name.trim(),
-    phone: phone.trim(),
-    property_id: property_id ?? null,
-    property_slug: property_slug ?? null,
-    ref_id: ref_id ?? null,
-    org_id: org_id ?? null,
-    source: source ?? 'imovel',
-    status: 'novo',
-  })
+  const { data: newLead, error } = await supabase
+    .from('leads')
+    .insert({
+      name: name.trim(),
+      phone: phone.trim(),
+      property_id: property_id ?? null,
+      property_slug: property_slug ?? null,
+      ref_id: ref_id ?? null,
+      org_id: org_id ?? null,
+      source: source ?? 'imovel',
+      status: 'novo',
+    })
+    .select("id")
+    .single()
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // Detecção de conflito: mesmo telefone já foi captado por outro corretor
+  if (newLead && ref_id) {
+    const normalizedPhone = phone.trim()
+    const { data: existing } = await supabase
+      .from('leads')
+      .select("id, ref_id")
+      .eq("phone", normalizedPhone)
+      .neq("ref_id", ref_id)
+      .not("ref_id", "is", null)
+      .neq("id", newLead.id)
+
+    if (existing && existing.length > 0) {
+      await supabase.from('lead_conflicts').insert(
+        existing.map((e) => ({
+          phone: normalizedPhone,
+          original_lead_id: e.id,
+          original_corretor_id: e.ref_id,
+          conflict_lead_id: newLead.id,
+        }))
+      )
+      // Ignora erros de inserção (ex: conflito duplicado pelo unique index)
+    }
   }
 
   return NextResponse.json({ ok: true }, { status: 201 })

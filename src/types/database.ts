@@ -161,6 +161,16 @@ export interface SelectionItem {
   property?: Property
 }
 
+export interface LeadConflict {
+  id: string
+  phone: string
+  original_lead_id: string
+  original_corretor_id: string
+  conflict_lead_id: string
+  acknowledged: boolean
+  created_at: string
+}
+
 export interface IngestLog {
   id: string
   status: 'success' | 'error'
