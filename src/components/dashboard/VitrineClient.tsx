@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
-import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X, Eye, ChevronDown, ChevronUp, MapPin, Hash } from "lucide-react"
+import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X, Eye, ChevronDown, ChevronUp, MapPin, Hash, StickyNote, Save, Loader2 } from "lucide-react"
+import { CopyDescriptionButton, DownloadPhotosButton } from "@/components/property/PropertyActions"
 import type { Property, UserRole } from "@/types/database"
 
 function formatPrice(price: number) {
@@ -19,9 +20,10 @@ interface Props {
   orgId: string | null
   role: UserRole
   initialSearch?: string
+  initialNotes?: Record<string, string>
 }
 
-export function VitrineClient({ properties, listedIds: initial, userId, orgId, role, initialSearch = "" }: Props) {
+export function VitrineClient({ properties, listedIds: initial, userId, orgId, role, initialSearch = "", initialNotes = {} }: Props) {
   const [listed, setListed] = useState(initial)
   const [search, setSearch] = useState(initialSearch)
   const [filterDorms, setFilterDorms] = useState<number | null>(null)
@@ -31,9 +33,39 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
   const [expanded, setExpanded] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
+  // Notes state
+  const [notes, setNotes] = useState<Record<string, string>>(initialNotes)
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({})
+  const [noteOpen, setNoteOpen] = useState<string | null>(null)
+  const [noteSaving, setNoteSaving] = useState<string | null>(null)
+
+  async function saveNote(propertyId: string) {
+    const note = noteDrafts[propertyId] ?? notes[propertyId] ?? ""
+    setNoteSaving(propertyId)
+    const res = await fetch(`/api/notes/${propertyId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note }),
+    })
+    if (res.ok) {
+      setNotes((prev) => ({ ...prev, [propertyId]: note }))
+      setNoteDrafts((prev) => { const n = { ...prev }; delete n[propertyId]; return n })
+      if (!note.trim()) setNoteOpen(null)
+    }
+    setNoteSaving(null)
+  }
+
+  function getDraftNote(propertyId: string) {
+    return propertyId in noteDrafts ? noteDrafts[propertyId] : (notes[propertyId] ?? "")
+  }
+
   const filtered = properties.filter((p) => {
     const q = search.toLowerCase()
-    const matchSearch = !q || p.title.toLowerCase().includes(q) || (p.neighborhood ?? "").toLowerCase().includes(q) || (p.city ?? "").toLowerCase().includes(q)
+    const matchSearch = !q ||
+      p.title.toLowerCase().includes(q) ||
+      (p.neighborhood ?? "").toLowerCase().includes(q) ||
+      (p.city ?? "").toLowerCase().includes(q) ||
+      (notes[p.id] ?? "").toLowerCase().includes(q)
     const matchDorms = filterDorms === null || (p.features.suites ?? p.features.dormitorios ?? 0) >= filterDorms
     const matchMin = !filterMin || p.price >= Number(filterMin.replace(/\D/g, ""))
     const matchMax = !filterMax || p.price <= Number(filterMax.replace(/\D/g, ""))
@@ -235,7 +267,14 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
                   <div className="flex items-center justify-between">
                     <span className="font-serif text-gold text-base font-semibold">{formatPrice(p.price)}</span>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setExpanded(expanded === p.id ? null : p.id)}
+                      <button
+                        onClick={() => { setNoteOpen(noteOpen === p.id ? null : p.id); setExpanded(null) }}
+                        className={`p-1.5 rounded-lg border transition-colors ${notes[p.id] ? "border-gold/30 text-gold/70 bg-gold/5" : "border-border text-muted-foreground hover:text-gold hover:border-gold/30"}`}
+                        title="Observações privadas"
+                      >
+                        <StickyNote size={12} />
+                      </button>
+                      <button onClick={() => { setExpanded(expanded === p.id ? null : p.id); setNoteOpen(null) }}
                         className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors" title="Ver detalhes">
                         {expanded === p.id ? <ChevronUp size={12} /> : <Eye size={12} />}
                       </button>
@@ -249,6 +288,47 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
                       </button>
                     </div>
                   </div>
+                  {/* Note indicator dot */}
+                  {notes[p.id] && noteOpen !== p.id && (
+                    <div className="mt-2 flex items-center gap-1.5 cursor-pointer" onClick={() => setNoteOpen(p.id)}>
+                      <StickyNote size={10} className="text-gold/60" />
+                      <span className="text-[10px] text-gold/60 font-sans line-clamp-1 italic">{notes[p.id]}</span>
+                    </div>
+                  )}
+
+                  {/* Note panel */}
+                  {noteOpen === p.id && (
+                    <div className="mt-3 pt-3 border-t border-border space-y-2">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <StickyNote size={10} className="text-gold/60" />
+                        <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">Observação privada</span>
+                      </div>
+                      <textarea
+                        value={getDraftNote(p.id)}
+                        onChange={(e) => setNoteDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                        placeholder="Anote informações privadas sobre este imóvel..."
+                        rows={3}
+                        className="w-full bg-muted/30 border border-border rounded-lg px-3 py-2 text-xs font-sans text-foreground placeholder-muted-foreground/40 focus:outline-none focus:border-gold/40 resize-none transition-colors"
+                      />
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={() => { setNoteOpen(null); setNoteDrafts((prev) => { const n = { ...prev }; delete n[p.id]; return n }) }}
+                          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors font-sans"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={() => saveNote(p.id)}
+                          disabled={noteSaving === p.id}
+                          className="flex items-center gap-1 px-3 py-1.5 bg-gold text-graphite rounded-lg text-[10px] font-sans uppercase tracking-wider disabled:opacity-50 hover:bg-gold-light transition-colors"
+                        >
+                          {noteSaving === p.id ? <Loader2 size={9} className="animate-spin" /> : <Save size={9} />}
+                          Salvar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {expanded === p.id && (
                     <div className="mt-3 pt-3 border-t border-border space-y-2">
                       {p.description && <p className="text-muted-foreground text-xs font-sans leading-relaxed line-clamp-4">{p.description}</p>}
@@ -258,10 +338,14 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
                         {p.features.banheiros && <span>Banheiros: {p.features.banheiros}</span>}
                         {p.features.dormitorios && <span>Dormitórios: {p.features.dormitorios}</span>}
                       </div>
-                      <a href={`/imovel/${p.slug}`} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors text-xs font-sans">
-                        <Eye size={11} /> Ver página pública
-                      </a>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <a href={`/imovel/${p.slug}`} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors text-xs font-sans">
+                          <Eye size={11} /> Ver página pública
+                        </a>
+                        <DownloadPhotosButton images={p.images ?? []} title={p.title} />
+                        <CopyDescriptionButton description={p.description} />
+                      </div>
                     </div>
                   )}
                 </div>

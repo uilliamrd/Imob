@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { LancamentoLanding } from "@/components/construtora/LancamentoLanding"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
+import { PrintButton } from "@/components/property/PrintButton"
 import type { Development, Organization, Property } from "@/types/database"
 
 interface PageProps {
@@ -46,6 +47,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
 
     return (
       <main>
+        <PrintButton />
         <LancamentoLanding
           development={development}
           org={org}

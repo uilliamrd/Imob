@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronUp, UserCheck, UserX, Phone, Star, Save, Mail, User } from "lucide-react"
+import { ChevronDown, ChevronUp, UserCheck, UserX, Phone, Star, Save, Mail, User, Trash2 } from "lucide-react"
 import type { UserRole } from "@/types/database"
 
 interface UserRow {
@@ -45,6 +45,7 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
   const [expanded, setExpanded] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [filterRole, setFilterRole] = useState<string>("all")
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   // Per-user edit state
   const [drafts, setDrafts] = useState<Record<string, Partial<UserRow>>>({})
@@ -97,6 +98,21 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
       setErrors((e) => ({ ...e, [u.id]: data.error ?? "Erro ao salvar." }))
     }
     setSaving(null)
+  }
+
+  async function deleteUser(u: UserRow) {
+    const name = u.full_name ?? u.email ?? "este usuário"
+    if (!window.confirm(`Excluir ${name}?\n\nEsta ação é irreversível e removerá o acesso permanentemente.`)) return
+    setDeleting(u.id)
+    const res = await fetch(`/api/admin/profiles/${u.id}`, { method: "DELETE" })
+    if (res.ok) {
+      setRows((prev) => prev.filter((r) => r.id !== u.id))
+      setExpanded(null)
+    } else {
+      const data = await res.json()
+      setErrors((e) => ({ ...e, [u.id]: data.error ?? "Erro ao excluir." }))
+    }
+    setDeleting(null)
   }
 
   async function toggleActive(u: UserRow) {
@@ -236,8 +252,9 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
                     </div>
                   </div>
 
-                  {/* Status + Save */}
+                  {/* Status + Save + Delete */}
                   <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
+                    <div className="flex items-center gap-2 flex-wrap">
                     <button type="button" disabled={isSaving}
                       onClick={() => toggleActive(u)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-sans transition-colors ${
@@ -249,6 +266,15 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
                         ? <><UserCheck size={14} /> Ativo — clique para desativar</>
                         : <><UserX size={14} /> Inativo — clique para ativar</>}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteUser(u)}
+                      disabled={deleting === u.id || isSaving}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-800/30 text-red-400/60 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/10 transition-colors text-xs font-sans disabled:opacity-40"
+                    >
+                      <Trash2 size={12} /> Excluir usuário
+                    </button>
+                    </div>
 
                     <div className="flex items-center gap-3">
                       {errors[u.id] && (

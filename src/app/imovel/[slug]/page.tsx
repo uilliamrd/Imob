@@ -3,6 +3,7 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { BentoGallery } from "@/components/property/BentoGallery"
+import { PropertyActions } from "@/components/property/PropertyActions"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { LeadCaptureForm } from "@/components/property/LeadCaptureForm"
 import { Footer } from "@/components/landing/Footer"
@@ -178,7 +179,14 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
         {/* ── Bento Gallery ──────────────────────────────────── */}
         <BentoGallery images={property.images} title={property.title} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-16">
+        {/* ── Action bar: download photos + copy description ── */}
+        <PropertyActions
+          images={property.images ?? []}
+          description={property.description}
+          title={property.title}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-4 lg:mt-16">
 
           {/* ── Left: Details ──────────────────────────────── */}
           <div className="lg:col-span-2">

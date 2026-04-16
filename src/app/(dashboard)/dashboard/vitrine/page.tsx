@@ -40,6 +40,16 @@ export default async function VitrinePage({ searchParams }: PageProps) {
 
   const listedIds = new Set((listed ?? []).map((l) => l.property_id))
 
+  // User's private notes (table created in migration_v6.sql)
+  let initialNotes: Record<string, string> = {}
+  try {
+    const { data: notesData } = await supabase
+      .from("property_notes")
+      .select("property_id, note")
+      .eq("user_id", user.id)
+    initialNotes = Object.fromEntries((notesData ?? []).map((n) => [n.property_id, n.note]))
+  } catch { /* migration_v6 not yet applied */ }
+
   return (
     <div className="px-4 py-6 lg:p-8 max-w-6xl">
       <div className="mb-10">
@@ -47,7 +57,7 @@ export default async function VitrinePage({ searchParams }: PageProps) {
           <Globe size={18} className="text-gold" />
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans">Curadoria</p>
         </div>
-        <h1 className="font-serif text-4xl font-bold text-white">
+        <h1 className="font-serif text-4xl font-bold text-foreground">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Base de Imóveis</AnimatedGradientText>
         </h1>
         <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
@@ -63,6 +73,7 @@ export default async function VitrinePage({ searchParams }: PageProps) {
         orgId={orgId}
         role={role}
         initialSearch={search ?? ""}
+        initialNotes={initialNotes}
       />
     </div>
   )

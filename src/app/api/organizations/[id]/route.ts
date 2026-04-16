@@ -66,3 +66,22 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ id: newOrg.id })
 }
+
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+
+  const admin = createAdminClient()
+  const { data: p } = await admin.from("profiles").select("role").eq("id", user.id).single()
+  if (p?.role !== "admin") return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+
+  const { id } = await params
+
+  // Unlink all users from this org first
+  await admin.from("profiles").update({ organization_id: null }).eq("organization_id", id)
+
+  const { error } = await admin.from("organizations").delete().eq("id", id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  return NextResponse.json({ ok: true })
+}
