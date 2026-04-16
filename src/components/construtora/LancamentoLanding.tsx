@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, MapPin, Flame, ArrowLeft, Hash } from "lucide-react"
+import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, MapPin, Flame, ArrowLeft, Hash, FileDown } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
 import type { Development, Organization, Property } from "@/types/database"
 
@@ -268,6 +268,36 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <div className="divider-gold opacity-20 mt-1" />
         </div>
       </section>
+
+      {/* ── DOCUMENTOS ───────────────────────────────────────── */}
+      {(development.documents?.length ?? 0) > 0 && (
+        <section className="py-16 px-6 bg-[#0d0d0d] border-t border-white/5">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8">
+              <p className="text-sm uppercase tracking-[0.3em] text-gold font-sans mb-3">Downloads</p>
+              <h2 className="font-serif text-3xl font-bold text-white">Documentos do Empreendimento</h2>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {development.documents.map((doc, i) => (
+                <a
+                  key={i}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-6 py-4 bg-white/[0.03] border border-white/10 hover:border-gold/40 hover:bg-gold/5 transition-all duration-300 group"
+                >
+                  <FileDown size={18} className="text-gold/60 group-hover:text-gold transition-colors flex-shrink-0" />
+                  <div>
+                    <p className="text-white/80 font-sans text-sm font-medium">{doc.name}</p>
+                    <p className="text-white/30 font-sans text-[10px] uppercase tracking-wider mt-0.5">{doc.type}</p>
+                  </div>
+                  <ArrowRight size={13} className="text-white/20 group-hover:text-gold/60 ml-2 transition-colors" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── CTA ───────────────────────────────────────────────── */}
       <section className="py-32 px-6 bg-[#0a0a0a] text-center">

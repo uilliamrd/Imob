@@ -50,6 +50,7 @@ export interface Development {
   images: string[]
   custom_page_html: string | null
   custom_page_type: 'html' | 'json' | null
+  documents: { name: string; url: string; type: string }[]
   created_at: string
 }
 
