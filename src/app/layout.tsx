@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
+import { ThemeProvider } from "@/components/ThemeProvider"
 import "./globals.css"
 
 const inter = Inter({
@@ -28,8 +29,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        {/* Prevent FOUC: apply saved theme class before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('theme');if(t!=='light')document.documentElement.classList.add('dark');})()`
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

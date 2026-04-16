@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import Image from "next/image"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { BottomNav } from "@/components/dashboard/BottomNav"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { ReactNode } from "react"
 import type { UserRole } from "@/types/database"
 
@@ -40,7 +41,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0D0D0D]">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar — desktop only */}
       <Sidebar
         role={safeProfile.role}
@@ -52,13 +53,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
       <main className="flex-1 overflow-auto min-w-0">
         {/* Mobile header — hidden on desktop */}
-        <div className="lg:hidden sticky top-0 z-40 bg-[#111]/90 backdrop-blur-xl border-b border-white/[0.06] px-4 h-14 flex items-center justify-between">
-          <div>
+        <div className="lg:hidden sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border px-4 h-14 flex items-center justify-between gap-3">
+          <div className="flex-1">
             <p className="text-[9px] uppercase tracking-[0.4em] text-gold/50 font-sans leading-none">RealState</p>
-            <h2 className="font-serif text-base font-bold text-white leading-tight">Intelligence</h2>
+            <h2 className="font-serif text-base font-bold text-foreground leading-tight">Intelligence</h2>
           </div>
+          <ThemeSwitch />
           {safeProfile.avatar_url ? (
-            <Image src={safeProfile.avatar_url} alt={safeProfile.full_name} width={32} height={32} className="w-8 h-8 rounded-full object-cover border border-gold/20" />
+            <Image src={safeProfile.avatar_url} alt={safeProfile.full_name} width={32} height={32} className="w-8 h-8 rounded-full object-cover border border-gold/20 flex-shrink-0" />
           ) : (
             <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center border border-gold/30 flex-shrink-0">
               <span className="text-gold font-serif font-bold text-xs">{safeProfile.full_name[0]?.toUpperCase()}</span>
