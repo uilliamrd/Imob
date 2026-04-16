@@ -28,9 +28,9 @@ export default async function VitrinePage({ searchParams }: PageProps) {
   // Use admin client so the org join bypasses RLS and construtora badges always load
   const { data: properties } = await admin
     .from("properties")
-    .select("*, organization:organizations(id, name, type, logo, slug, brand_colors)")
+    .select("*, organization:organizations(id, name, type, logo, slug, brand_colors), development:developments(id, name)")
     .eq("visibility", "publico")
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
 
   // IDs already in user's catalog
   const { data: listed } = await supabase

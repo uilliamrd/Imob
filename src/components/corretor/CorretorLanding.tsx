@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import {
   MessageCircle, Phone, Star, User, Building2,
-  ArrowRight, BedDouble, Car, Maximize2, MapPin,
+  ArrowRight, BedDouble, Car, Maximize2, MapPin, Flame,
 } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
 import type { Profile, Property } from "@/types/database"
@@ -20,18 +20,24 @@ interface Props {
   profile: Profile
   orgName: string | null
   properties: Property[]
+  featuredIds?: Set<string>
   refId?: string
 }
 
-export function CorretorLanding({ profile, orgName, properties, refId }: Props) {
+export function CorretorLanding({ profile, orgName, properties, featuredIds = new Set(), refId }: Props) {
   const [search, setSearch] = useState("")
   const refParam = refId ? `?ref=${refId}` : `?ref=${profile.id}`
+
+  // Featured properties sorted first in the grid
+  const sortedProperties = [...properties].sort(
+    (a, b) => (featuredIds.has(b.id) ? 1 : 0) - (featuredIds.has(a.id) ? 1 : 0)
+  )
 
   const whatsapp = profile.whatsapp?.replace(/\D/g, "") ?? ""
   const waMsg = encodeURIComponent(`Olá ${profile.full_name ?? ""}! Gostaria de saber mais sobre os imóveis disponíveis.`)
   const waUrl = whatsapp ? `https://wa.me/${whatsapp}?text=${waMsg}` : null
 
-  const filtered = properties.filter((p) => {
+  const filtered = sortedProperties.filter((p) => {
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -185,6 +191,12 @@ export function CorretorLanding({ profile, orgName, properties, refId }: Props) 
                           {property.status === "disponivel" ? "Disponível" : property.status === "reserva" ? "Reservado" : "Vendido"}
                         </span>
                       </div>
+                      {featuredIds.has(property.id) && (
+                        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 bg-[#C9A96E]/90 rounded-full">
+                          <Flame size={9} className="text-[#0a0a0a]" />
+                          <span className="text-[9px] font-sans text-[#0a0a0a] font-bold uppercase tracking-wider">Destaque</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Body */}

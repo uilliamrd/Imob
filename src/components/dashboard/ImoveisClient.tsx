@@ -37,6 +37,8 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
   const [search, setSearch]             = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
   const [filterCategoria, setCategoria] = useState("all")
+  const [filterDev, setFilterDev]       = useState("all")
+  const [filterOrg, setFilterOrg]       = useState("all")
   const [showPicker, setShowPicker] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
 
@@ -44,13 +46,32 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
   const canAddNew = true
   const canPickFromSystem = role === "imobiliaria" || role === "corretor"
 
+  // Derived filter options
+  const devOptions = Array.from(
+    new Map(
+      properties
+        .filter((p) => p.development)
+        .map((p) => [p.development!.id, p.development!] as [string, NonNullable<typeof p.development>])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+
+  const orgOptions = Array.from(
+    new Map(
+      properties
+        .filter((p) => p.organization)
+        .map((p) => [p.organization!.id, p.organization!] as [string, NonNullable<typeof p.organization>])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+
   const filtered = properties.filter((p) => {
     const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) ||
       (p.neighborhood ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (p.city ?? "").toLowerCase().includes(search.toLowerCase())
     const matchStatus    = filterStatus === "all" || p.status === filterStatus
     const matchCategoria = filterCategoria === "all" || (p as unknown as { categoria?: string }).categoria === filterCategoria
-    return matchSearch && matchStatus && matchCategoria
+    const matchDev = filterDev === "all" || p.development_id === filterDev
+    const matchOrg = filterOrg === "all" || p.org_id === filterOrg
+    return matchSearch && matchStatus && matchCategoria && matchDev && matchOrg
   })
 
   async function handleDelete(p: Property) {
@@ -114,6 +135,22 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           <option value="Galpão / Depósito">Galpão / Depósito</option>
           <option value="Sítio / Fazenda">Sítio / Fazenda</option>
         </select>
+
+        {devOptions.length > 0 && (
+          <select value={filterDev} onChange={(e) => setFilterDev(e.target.value)}
+            className="bg-card border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+            <option value="all">Todos os empreendimentos</option>
+            {devOptions.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+        )}
+
+        {orgOptions.length > 0 && (
+          <select value={filterOrg} onChange={(e) => setFilterOrg(e.target.value)}
+            className="bg-card border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+            <option value="all">Todas as construtoras</option>
+            {orgOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+          </select>
+        )}
 
         {minisiteSlug && (
           <a href={`/construtora/${minisiteSlug}`} target="_blank" rel="noopener noreferrer"

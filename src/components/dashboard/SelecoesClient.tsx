@@ -40,8 +40,27 @@ function PropertyPicker({
 }) {
   const [search, setSearch] = useState("")
   const [devFilter, setDevFilter] = useState("")
+  const [orgFilter, setOrgFilter] = useState("")
   const [adding, setAdding] = useState<string | null>(null)
   const [addedNow, setAddedNow] = useState<Set<string>>(new Set())
+
+  // Derive unique org options (construtoras and others with org_id)
+  const orgOptions = Array.from(
+    new Map(
+      allProperties
+        .filter((p) => p.organization)
+        .map((p) => [p.organization!.id, p.organization!] as [string, NonNullable<typeof p.organization>])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+
+  // Derive dev options from properties (org-filtered if org is selected)
+  const devOptions = Array.from(
+    new Map(
+      allProperties
+        .filter((p) => p.development && (!orgFilter || p.org_id === orgFilter))
+        .map((p) => [p.development!.id, p.development!] as [string, NonNullable<typeof p.development>])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
 
   const filtered = allProperties.filter((p) => {
     const q = search.toLowerCase()
@@ -51,7 +70,8 @@ function PropertyPicker({
       (p.city ?? "").toLowerCase().includes(q) ||
       String(p.code ?? "").includes(q)
     const matchDev = !devFilter || p.development_id === devFilter
-    return matchSearch && matchDev
+    const matchOrg = !orgFilter || p.org_id === orgFilter
+    return matchSearch && matchDev && matchOrg
   })
 
   async function handleAdd(property: Property) {
@@ -84,18 +104,25 @@ function PropertyPicker({
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground/60 transition-colors"><X size={18} /></button>
         </div>
 
-        <div className="px-6 py-3 border-b border-border flex gap-3">
-          <div className="relative flex-1">
+        <div className="px-6 py-3 border-b border-border flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-40">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Título, bairro, código..."
               className="w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 pl-9 pr-4 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
           </div>
-          {developments.length > 0 && (
+          {orgOptions.length > 0 && (
+            <select value={orgFilter} onChange={(e) => { setOrgFilter(e.target.value); setDevFilter("") }}
+              className="bg-muted/50 border border-border text-foreground/60 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50">
+              <option value="">Todas as construtoras</option>
+              {orgOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          )}
+          {devOptions.length > 0 && (
             <select value={devFilter} onChange={(e) => setDevFilter(e.target.value)}
               className="bg-muted/50 border border-border text-foreground/60 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50">
               <option value="">Todos os empreendimentos</option>
-              {developments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              {devOptions.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           )}
         </div>

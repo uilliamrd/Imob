@@ -29,7 +29,26 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
   const [filterDorms, setFilterDorms] = useState<number | null>(null)
   const [filterMin, setFilterMin] = useState("")
   const [filterMax, setFilterMax] = useState("")
+  const [filterDev, setFilterDev] = useState("")
+  const [filterOrg, setFilterOrg] = useState("")
   const [showFilters, setShowFilters] = useState(false)
+
+  // Derived filter options
+  const devOptions = Array.from(
+    new Map(
+      properties
+        .filter((p) => p.development)
+        .map((p) => [p.development!.id, p.development!] as [string, NonNullable<typeof p.development>])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+
+  const orgOptions = Array.from(
+    new Map(
+      properties
+        .filter((p) => p.organization)
+        .map((p) => [p.organization!.id, p.organization!] as [string, NonNullable<typeof p.organization>])
+    ).values()
+  ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
   const [expanded, setExpanded] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -69,7 +88,9 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
     const matchDorms = filterDorms === null || (p.features.suites ?? p.features.dormitorios ?? 0) >= filterDorms
     const matchMin = !filterMin || p.price >= Number(filterMin.replace(/\D/g, ""))
     const matchMax = !filterMax || p.price <= Number(filterMax.replace(/\D/g, ""))
-    return matchSearch && matchDorms && matchMin && matchMax
+    const matchDev = !filterDev || p.development_id === filterDev
+    const matchOrg = !filterOrg || p.org_id === filterOrg
+    return matchSearch && matchDorms && matchMin && matchMax && matchDev && matchOrg
   })
 
   async function toggleListing(propertyId: string) {
@@ -94,7 +115,7 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
     })
   }
 
-  const activeFilters = (filterDorms !== null ? 1 : 0) + (filterMin ? 1 : 0) + (filterMax ? 1 : 0)
+  const activeFilters = (filterDorms !== null ? 1 : 0) + (filterMin ? 1 : 0) + (filterMax ? 1 : 0) + (filterDev ? 1 : 0) + (filterOrg ? 1 : 0)
 
   return (
     <div>
@@ -123,7 +144,7 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
 
       {/* Advanced filters */}
       {showFilters && (
-        <div className="bg-card border border-border rounded-xl p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">Dormitórios mín.</label>
             <div className="flex gap-1">
@@ -147,8 +168,28 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
             <input type="text" placeholder="R$ 99.999.999" value={filterMax} onChange={(e) => setFilterMax(e.target.value)}
               className="w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-1.5 rounded font-sans text-sm focus:outline-none focus:border-gold/40" />
           </div>
+          {devOptions.length > 0 && (
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">Empreendimento</label>
+              <select value={filterDev} onChange={(e) => setFilterDev(e.target.value)}
+                className="w-full bg-muted/50 border border-border text-foreground/70 px-3 py-1.5 rounded font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors">
+                <option value="">Todos</option>
+                {devOptions.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+          )}
+          {orgOptions.length > 0 && (
+            <div>
+              <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">Construtora</label>
+              <select value={filterOrg} onChange={(e) => setFilterOrg(e.target.value)}
+                className="w-full bg-muted/50 border border-border text-foreground/70 px-3 py-1.5 rounded font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors">
+                <option value="">Todas</option>
+                {orgOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+            </div>
+          )}
           <div className="flex items-end">
-            <button onClick={() => { setFilterDorms(null); setFilterMin(""); setFilterMax("") }}
+            <button onClick={() => { setFilterDorms(null); setFilterMin(""); setFilterMax(""); setFilterDev(""); setFilterOrg("") }}
               className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground/60 text-xs font-sans transition-colors">
               <X size={12} /> Limpar filtros
             </button>

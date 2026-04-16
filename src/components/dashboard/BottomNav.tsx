@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Globe, MessageSquare, ExternalLink, Home,
   Flame, BarChart3, Users, Building2, BookOpen, Link2,
   ClipboardList, MoreHorizontal, X, Settings, LogOut,
-  Database, Layers, MapPin,
+  Database, Layers, MapPin, ListChecks,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
@@ -23,16 +23,16 @@ interface NavItemDef {
 
 const PRIMARY: Record<UserRole, NavItemDef[]> = {
   corretor: [
-    { href: "/dashboard",          label: "Início",   icon: LayoutDashboard },
-    { href: "/dashboard/vitrine",  label: "Imóveis",  icon: Globe },
-    { href: "/dashboard/leads",    label: "Leads",    icon: MessageSquare },
-    { href: "/dashboard/minisite", label: "Minisite", icon: ExternalLink },
+    { href: "/dashboard",           label: "Início",   icon: LayoutDashboard },
+    { href: "/dashboard/vitrine",   label: "Imóveis",  icon: Globe },
+    { href: "/dashboard/catalogo",  label: "Catálogo", icon: ListChecks },
+    { href: "/dashboard/leads",     label: "Leads",    icon: MessageSquare },
   ],
   imobiliaria: [
-    { href: "/dashboard",          label: "Início",   icon: LayoutDashboard },
-    { href: "/dashboard/vitrine",  label: "Imóveis",  icon: Globe },
-    { href: "/dashboard/leads",    label: "Leads",    icon: MessageSquare },
-    { href: "/dashboard/equipe",   label: "Equipe",   icon: Users },
+    { href: "/dashboard",           label: "Início",   icon: LayoutDashboard },
+    { href: "/dashboard/vitrine",   label: "Imóveis",  icon: Globe },
+    { href: "/dashboard/catalogo",  label: "Catálogo", icon: ListChecks },
+    { href: "/dashboard/leads",     label: "Leads",    icon: MessageSquare },
   ],
   construtora: [
     { href: "/dashboard",                label: "Início",    icon: LayoutDashboard },
@@ -51,12 +51,14 @@ const PRIMARY: Record<UserRole, NavItemDef[]> = {
 const SECONDARY: Record<UserRole, NavItemDef[]> = {
   corretor: [
     { href: "/dashboard/selecoes",  label: "Seleções",   icon: BookOpen },
+    { href: "/dashboard/minisite",  label: "Minisite",   icon: ExternalLink },
     { href: "/dashboard/corretor",  label: "Meus Links", icon: Link2 },
   ],
   imobiliaria: [
-    { href: "/dashboard/minisite",      label: "Minisite",   icon: ExternalLink },
-    { href: "/dashboard/organizacao",   label: "Branding",   icon: Building2 },
-    { href: "/dashboard/configuracoes", label: "Config",     icon: Settings },
+    { href: "/dashboard/equipe",        label: "Equipe",   icon: Users },
+    { href: "/dashboard/minisite",      label: "Minisite", icon: ExternalLink },
+    { href: "/dashboard/organizacao",   label: "Branding", icon: Building2 },
+    { href: "/dashboard/configuracoes", label: "Config",   icon: Settings },
   ],
   construtora: [
     { href: "/dashboard/disponibilidade", label: "Disponib.", icon: ClipboardList },

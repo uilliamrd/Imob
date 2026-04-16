@@ -9,12 +9,17 @@ interface PageProps {
   searchParams: Promise<{ ref?: string }>
 }
 
+interface ListingRow {
+  is_featured: boolean
+  property: Property | null
+}
+
 export default async function CorretorPage({ params, searchParams }: PageProps) {
   const { id } = await params
   const { ref } = await searchParams
   const admin = createAdminClient()
 
-  const [{ data: profile }, { data: properties }] = await Promise.all([
+  const [{ data: profile }, { data: listings }] = await Promise.all([
     admin
       .from("profiles")
       .select("id, full_name, avatar_url, whatsapp, creci, bio, role, organization_id")
@@ -23,14 +28,25 @@ export default async function CorretorPage({ params, searchParams }: PageProps) 
       .eq("is_active", true)
       .maybeSingle(),
     admin
-      .from("properties")
-      .select("*")
-      .eq("created_by", id)
-      .eq("visibility", "publico")
+      .from("property_listings")
+      .select("is_featured, property:properties(*)")
+      .eq("user_id", id)
+      .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false }),
   ])
 
   if (!profile) notFound()
+
+  // Filter to public properties only
+  const publicListings = ((listings ?? []) as unknown as ListingRow[]).filter(
+    (l): l is ListingRow & { property: Property } =>
+      l.property !== null && l.property.visibility === "publico"
+  )
+
+  const properties = publicListings.map((l) => l.property)
+  const featuredIds = new Set(
+    publicListings.filter((l) => l.is_featured).map((l) => l.property.id)
+  )
 
   // Fetch org name if the corretor belongs to one
   let orgName: string | null = null
@@ -48,7 +64,8 @@ export default async function CorretorPage({ params, searchParams }: PageProps) 
       <CorretorLanding
         profile={profile as Profile}
         orgName={orgName}
-        properties={(properties ?? []) as Property[]}
+        properties={properties}
+        featuredIds={featuredIds}
         refId={ref}
       />
       <Footer

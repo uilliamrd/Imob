@@ -18,7 +18,7 @@ export default async function SelecoesPage() {
         property:properties(id, title, slug, price, neighborhood, city, images, status, development_id)
       )
     `).eq("corretor_id", user.id).order("created_at", { ascending: false }),
-    admin.from("properties").select("*").eq("visibility", "publico").order("updated_at", { ascending: false }),
+    admin.from("properties").select("*, organization:organizations(id, name, type), development:developments(id, name)").eq("visibility", "publico").order("updated_at", { ascending: false }),
     admin.from("developments").select("id, name").order("name"),
   ])
 

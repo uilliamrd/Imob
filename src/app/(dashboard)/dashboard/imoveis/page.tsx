@@ -21,25 +21,27 @@ export default async function ImoveisPage() {
   let listedIds: string[] = []
   let minisiteSlug: string | null = null
 
+  const PROP_SELECT = "*, organization:organizations(id, name, type), development:developments(id, name)"
+
   if (role === "admin") {
     const { data } = await admin
-      .from("properties").select("*").order("updated_at", { ascending: false })
+      .from("properties").select(PROP_SELECT).order("updated_at", { ascending: false })
     properties = (data ?? []) as Property[]
   } else if (role === "construtora") {
     const [{ data: props }, { data: org }] = await Promise.all([
-      admin.from("properties").select("*").eq("org_id", orgId!).order("updated_at", { ascending: false }),
+      admin.from("properties").select(PROP_SELECT).eq("org_id", orgId!).order("updated_at", { ascending: false }),
       orgId ? admin.from("organizations").select("slug").eq("id", orgId).single() : { data: null },
     ])
     properties = (props ?? []) as Property[]
     minisiteSlug = org?.slug ?? null
   } else {
     const ownFilter = role === "imobiliaria"
-      ? admin.from("properties").select("*").eq("org_id", orgId ?? "").order("updated_at", { ascending: false })
-      : admin.from("properties").select("*").eq("created_by", user.id).order("updated_at", { ascending: false })
+      ? admin.from("properties").select(PROP_SELECT).eq("org_id", orgId ?? "").order("updated_at", { ascending: false })
+      : admin.from("properties").select(PROP_SELECT).eq("created_by", user.id).order("updated_at", { ascending: false })
 
     const listingFilter = role === "imobiliaria"
-      ? admin.from("property_listings").select("property_id, property:properties(*)").eq("org_id", orgId ?? "")
-      : admin.from("property_listings").select("property_id, property:properties(*)").eq("user_id", user.id)
+      ? admin.from("property_listings").select(`property_id, property:properties(${PROP_SELECT})`).eq("org_id", orgId ?? "")
+      : admin.from("property_listings").select(`property_id, property:properties(${PROP_SELECT})`).eq("user_id", user.id)
 
     const [{ data: own }, { data: listings }] = await Promise.all([ownFilter, listingFilter])
 

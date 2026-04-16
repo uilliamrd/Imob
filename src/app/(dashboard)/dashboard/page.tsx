@@ -7,8 +7,9 @@ import { AnimatedGradientText } from "@/components/magicui/animated-gradient-tex
 import {
   Home, TrendingUp, Link2, DollarSign, ArrowRight,
   BookOpen, ExternalLink, Globe,
-  Building2, Search, Clock, MapPin,
+  Building2, Clock, MapPin,
   Users, MessageSquare, BedDouble, Car, Maximize2,
+  ListChecks,
 } from "lucide-react"
 import Link from "next/link"
 import type { UserRole, Organization, Property, PropertyFeatures } from "@/types/database"
@@ -194,11 +195,14 @@ export default async function DashboardPage() {
 
   const [
     { count: myProperties },
+    { count: catalogCount },
     { data: construtoras },
     { data: constrRecent },
   ] = await Promise.all([
     adminClient.from("properties").select("*", { count: "exact", head: true })
-      .eq("created_by", user.id).eq("status", "disponivel"),
+      .eq("created_by", user.id),
+    supabase.from("property_listings").select("*", { count: "exact", head: true })
+      .eq(role === "imobiliaria" ? "org_id" : "user_id", role === "imobiliaria" ? (orgId ?? "") : user.id),
     adminClient.from("organizations")
       .select("id, name, slug, logo, brand_colors")
       .eq("type", "construtora")
@@ -210,6 +214,10 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false })
       .limit(6),
   ])
+
+  const { count: selectionsCount } = role === "corretor"
+    ? await supabase.from("selections").select("*", { count: "exact", head: true }).eq("corretor_id", user.id)
+    : { count: 0 }
 
   const { data: recentProperties } = role === "corretor"
     ? await adminClient
@@ -224,15 +232,15 @@ export default async function DashboardPage() {
     role === "imobiliaria"
       ? [
           { href: "/dashboard/vitrine",   title: "Base de Imóveis",  desc: "Todos os imóveis",           icon: Globe          },
-          { href: "/dashboard/minisite",  title: "Meu Minisite",     desc: "Visualizar e editar site",   icon: ExternalLink   },
+          { href: "/dashboard/catalogo",  title: "Meu Catálogo",     desc: "Imóveis para seu minisite",  icon: ListChecks     },
           { href: "/dashboard/equipe",    title: "Minha Equipe",     desc: "Gerenciar corretores",       icon: Users          },
           { href: "/dashboard/leads",     title: "Leads",            desc: "Contatos recebidos",         icon: MessageSquare  },
         ]
       : [
           { href: "/dashboard/vitrine",   title: "Base de Imóveis",  desc: "Todos os imóveis",           icon: Globe          },
-          { href: "/dashboard/minisite",  title: "Meu Minisite",     desc: "Editar seu minisite",        icon: ExternalLink   },
+          { href: "/dashboard/catalogo",  title: "Meu Catálogo",     desc: "Imóveis para seu minisite",  icon: ListChecks     },
           { href: "/dashboard/selecoes",  title: "Seleções",         desc: "Curadoria para clientes",    icon: BookOpen       },
-          { href: "/dashboard/corretor",  title: "Meus Links",       desc: "Links rastreáveis",          icon: Link2          },
+          { href: "/dashboard/leads",     title: "Leads",            desc: "Contatos recebidos",         icon: MessageSquare  },
         ]
 
   const construtorasList = (construtoras ?? []) as Array<Organization & { id: string; name: string; slug: string | null; logo: string | null; brand_colors: Organization["brand_colors"] }>
@@ -268,45 +276,50 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── Quick search ───────────────────────────────────── */}
-      {role === "corretor" && (
-        <form action="/dashboard/vitrine" method="GET" className="mb-6">
-          <div className="relative">
-            <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
-            <input
-              name="search"
-              type="text"
-              placeholder="Buscar imóvel por bairro, tipo, nome..."
-              className="w-full bg-card border border-border text-foreground placeholder-muted-foreground/40 pl-11 pr-32 py-3.5 rounded-2xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors shadow-sm dark:shadow-none"
-            />
-            <button
-              type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-gold text-graphite text-xs uppercase tracking-[0.15em] font-sans rounded-xl hover:bg-gold-light transition-colors"
-            >
-              Buscar
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* ── KPI Hero — Imóveis Ativos ──────────────────────── */}
-      <div className="bg-gradient-to-br from-gold/15 via-gold/5 to-transparent border border-gold/25 rounded-2xl p-6 mb-5 relative overflow-hidden">
+      {/* ── KPI Hero — Catálogo ────────────────────────────── */}
+      <div className="bg-gradient-to-br from-gold/15 via-gold/5 to-transparent border border-gold/25 rounded-2xl p-6 mb-4 relative overflow-hidden">
         <div className="absolute -top-6 -right-6 w-32 h-32 bg-gold/8 rounded-full blur-2xl pointer-events-none" />
         <div className="relative">
           <div className="flex items-start justify-between mb-4">
             <div className="p-2.5 bg-gold/15 rounded-xl border border-gold/20">
-              <Home size={20} className="text-gold" />
+              <ListChecks size={20} className="text-gold" />
             </div>
-            <Link href="/dashboard/vitrine"
+            <Link href="/dashboard/catalogo"
               className="flex items-center gap-1 text-xs font-sans text-gold/60 hover:text-gold transition-colors">
-              Ver base <ArrowRight size={10} />
+              Ver catálogo <ArrowRight size={10} />
             </Link>
           </div>
           <p className="font-serif text-5xl font-bold text-foreground mb-1">
-            <NumberTicker value={myProperties ?? 0} suffix="" duration={1500} />
+            <NumberTicker value={catalogCount ?? 0} suffix="" duration={1500} />
           </p>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans">
-            Imóveis Ativos no Portfólio
+            Imóveis no Catálogo
+          </p>
+        </div>
+      </div>
+
+      {/* ── Mini stats — Cadastrados + Links ───────────────── */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <div className="p-2 rounded-lg bg-muted/50 w-fit mb-3">
+            <Home size={14} className="text-muted-foreground" />
+          </div>
+          <p className="font-serif text-2xl font-bold text-foreground mb-0.5">
+            <NumberTicker value={myProperties ?? 0} suffix="" duration={1200} />
+          </p>
+          <p className="text-muted-foreground text-[10px] font-sans uppercase tracking-wider">
+            Imóveis Cadastrados
+          </p>
+        </div>
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <div className="p-2 rounded-lg bg-muted/50 w-fit mb-3">
+            <Link2 size={14} className="text-muted-foreground" />
+          </div>
+          <p className="font-serif text-2xl font-bold text-foreground mb-0.5">
+            <NumberTicker value={selectionsCount ?? 0} suffix="" duration={1200} />
+          </p>
+          <p className="text-muted-foreground text-[10px] font-sans uppercase tracking-wider">
+            Links Compartilhados
           </p>
         </div>
       </div>
