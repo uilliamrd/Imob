@@ -28,8 +28,8 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
 
   const requiresCreci = CRECI_ROLES.includes(role)
 
-  const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2"
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -69,7 +69,7 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
         <div>
           <label className={labelClass}>Nome Completo</label>
           <div className="relative">
-            <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
               placeholder="Nome do usuário" className={inputClass + " pl-9"} />
           </div>
@@ -79,7 +79,7 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
         <div>
           <label className={labelClass}>Email *</label>
           <div className="relative">
-            <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="email@exemplo.com" className={inputClass + " pl-9"} />
           </div>
@@ -89,7 +89,7 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
         <div>
           <label className={labelClass}>Senha *</label>
           <div className="relative">
-            <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input required type="password" value={password} onChange={(e) => setPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres" minLength={6} className={inputClass + " pl-9"} />
           </div>
@@ -105,7 +105,7 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
                 <option key={r} value={r}>{ROLE_LABELS[r]}</option>
               ))}
             </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
             WhatsApp {requiresCreci && <span className="text-gold/60">*</span>}
           </label>
           <div className="relative">
-            <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)}
               required={requiresCreci}
               placeholder="5511999999999" className={inputClass + " pl-9"} />
@@ -128,7 +128,7 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
             CRECI {requiresCreci && <span className="text-gold/60">*</span>}
           </label>
           <div className="relative">
-            <Star size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Star size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={creci} onChange={(e) => setCreci(e.target.value)}
               required={requiresCreci}
               placeholder="Ex: 12345-F" className={inputClass + " pl-9"} />
@@ -146,13 +146,13 @@ export function InviteUserForm({ orgs }: { orgs: OrgOption[] }) {
                 <option key={org.id} value={org.id}>{org.name} ({org.type})</option>
               ))}
             </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           </div>
         </div>
       </div>
 
       {requiresCreci && (
-        <p className="text-white/30 text-xs font-sans">
+        <p className="text-muted-foreground text-xs font-sans">
           <span className="text-gold/60">*</span> WhatsApp e CRECI são obrigatórios para corretores e imobiliárias.
         </p>
       )}

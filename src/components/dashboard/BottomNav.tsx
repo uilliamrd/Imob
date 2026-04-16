@@ -12,6 +12,7 @@ import {
   Database, Layers, MapPin,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { UserRole } from "@/types/database"
 
 interface NavItemDef {
@@ -108,7 +109,7 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
   return (
     <>
       {/* Bottom Nav Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#111]/95 backdrop-blur-xl border-t border-white/[0.07] safe-bottom">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-sidebar/95 backdrop-blur-xl border-t border-sidebar-border safe-bottom">
         <div className="flex items-stretch h-16">
           {primary.map((item) => {
             const Icon = item.icon
@@ -117,16 +118,11 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors"
+                className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors relative"
                 onClick={() => setOpen(false)}
               >
-                <Icon
-                  size={20}
-                  className={active ? "text-gold" : "text-white/35"}
-                />
-                <span
-                  className={`text-[10px] font-sans leading-none ${active ? "text-gold" : "text-white/35"}`}
-                >
+                <Icon size={20} className={active ? "text-gold" : "text-sidebar-foreground/35"} />
+                <span className={`text-[10px] font-sans leading-none ${active ? "text-gold" : "text-sidebar-foreground/35"}`}>
                   {item.label}
                 </span>
                 {active && (
@@ -144,9 +140,9 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
             {open ? (
               <X size={20} className="text-gold" />
             ) : (
-              <MoreHorizontal size={20} className="text-white/35" />
+              <MoreHorizontal size={20} className="text-sidebar-foreground/35" />
             )}
-            <span className={`text-[10px] font-sans leading-none ${open ? "text-gold" : "text-white/35"}`}>
+            <span className={`text-[10px] font-sans leading-none ${open ? "text-gold" : "text-sidebar-foreground/35"}`}>
               Mais
             </span>
           </button>
@@ -175,26 +171,29 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="lg:hidden fixed bottom-16 left-0 right-0 z-50 bg-[#161616] border-t border-white/[0.07] rounded-t-2xl pb-2"
+              className="lg:hidden fixed bottom-16 left-0 right-0 z-50 bg-sidebar border-t border-sidebar-border rounded-t-2xl pb-2"
             >
               {/* Handle */}
               <div className="flex justify-center pt-3 pb-4">
-                <div className="w-10 h-1 bg-white/20 rounded-full" />
+                <div className="w-10 h-1 bg-sidebar-foreground/20 rounded-full" />
               </div>
 
-              {/* User info */}
-              <div className="px-5 pb-4 flex items-center gap-3 border-b border-white/5 mb-2">
-                {userAvatar ? (
-                  <Image src={userAvatar} alt={userName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gold/20" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center border border-gold/30">
-                    <span className="text-gold font-serif font-bold">{userName[0]?.toUpperCase()}</span>
+              {/* User info + theme switch */}
+              <div className="px-5 pb-4 flex items-center justify-between border-b border-sidebar-border mb-2">
+                <div className="flex items-center gap-3">
+                  {userAvatar ? (
+                    <Image src={userAvatar} alt={userName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gold/20" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center border border-gold/30">
+                      <span className="text-gold font-serif font-bold">{userName[0]?.toUpperCase()}</span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sidebar-foreground/90 text-sm font-sans font-medium">{userName}</p>
+                    <p className="text-gold/50 text-[10px] uppercase tracking-wider font-sans">{role}</p>
                   </div>
-                )}
-                <div>
-                  <p className="text-white/90 text-sm font-sans font-medium">{userName}</p>
-                  <p className="text-gold/50 text-[10px] uppercase tracking-wider font-sans">{role}</p>
                 </div>
+                <ThemeSwitch />
               </div>
 
               {/* Secondary nav items */}
@@ -208,7 +207,9 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
                       href={item.href}
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                        active ? "bg-gold/15 text-gold" : "text-white/60 hover:bg-white/5 hover:text-white/90"
+                        active
+                          ? "bg-gold/15 text-gold"
+                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground/90"
                       }`}
                     >
                       <Icon size={16} />
@@ -234,7 +235,7 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
                 {/* Sign out */}
                 <button
                   onClick={handleSignOut}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/30 hover:text-red-400 hover:bg-red-900/10 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sidebar-foreground/30 hover:text-red-400 hover:bg-red-900/10 transition-colors"
                 >
                   <LogOut size={16} />
                   <span className="text-sm font-sans">Sair</span>

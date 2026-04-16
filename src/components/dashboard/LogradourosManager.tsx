@@ -33,8 +33,8 @@ export function LogradourosManager({
   const [search, setSearch]   = useState("")
   const [error, setError]     = useState<string | null>(null)
 
-  const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5"
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5"
   const bairroMap  = Object.fromEntries(bairros.map((b) => [b.id, b.name]))
 
   const filtered = rows.filter((l) =>
@@ -110,7 +110,7 @@ export function LogradourosManager({
       <div className="flex gap-3">
         <input type="text" placeholder="Buscar logradouro, bairro ou cidade..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
+          className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
         <button onClick={() => setShowNew(!showNew)}
           className="flex items-center gap-2 px-4 py-2 border border-gold/30 text-gold hover:bg-gold/10 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg flex-shrink-0">
           <Plus size={13} /> Novo Logradouro
@@ -119,10 +119,10 @@ export function LogradourosManager({
 
       {/* New form */}
       {showNew && (
-        <div className="bg-[#111] border border-gold/20 rounded-xl p-4 space-y-3">
+        <div className="bg-muted/50 border border-gold/20 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-gold text-sm font-sans font-medium">Novo Logradouro</p>
-            <button type="button" onClick={() => setShowNew(false)}><X size={13} className="text-white/30" /></button>
+            <button type="button" onClick={() => setShowNew(false)}><X size={13} className="text-muted-foreground" /></button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
@@ -163,12 +163,12 @@ export function LogradourosManager({
 
       {/* List */}
       {filtered.length === 0 && (
-        <p className="text-white/20 text-sm font-sans py-6 text-center">
+        <p className="text-muted-foreground/50 text-sm font-sans py-6 text-center">
           {rows.length === 0 ? "Nenhum logradouro cadastrado ainda." : "Nenhum resultado para a busca."}
         </p>
       )}
 
-      <div className="divide-y divide-white/[0.04] border border-white/5 rounded-xl overflow-hidden">
+      <div className="divide-y divide-white/[0.04] border border-border rounded-xl overflow-hidden">
         {filtered.map((l) => {
           const isExp = expanded === l.id
           const form  = editForms[l.id] ?? l
@@ -182,10 +182,10 @@ export function LogradourosManager({
                   }}>
                   <Building size={13} className="text-gold/40 flex-shrink-0" />
                   <div>
-                    <p className="text-white/80 text-sm font-sans">
-                      <span className="text-white/30">{l.type} </span>{l.name}
+                    <p className="text-foreground/80 text-sm font-sans">
+                      <span className="text-muted-foreground">{l.type} </span>{l.name}
                     </p>
-                    <p className="text-white/25 text-xs font-sans">
+                    <p className="text-muted-foreground/60 text-xs font-sans">
                       {l.bairro_id && bairroMap[l.bairro_id] ? `${bairroMap[l.bairro_id]}` : ""}
                       {l.city ? (l.bairro_id && bairroMap[l.bairro_id] ? `, ${l.city}` : l.city) : ""}
                       {l.cep ? ` · ${l.cep}` : ""}
@@ -193,17 +193,17 @@ export function LogradourosManager({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => remove(l.id)} className="text-white/15 hover:text-red-400 transition-colors p-1">
+                  <button onClick={() => remove(l.id)} className="text-muted-foreground/40 hover:text-red-400 transition-colors p-1">
                     <X size={13} />
                   </button>
                   {isExp
-                    ? <ChevronUp size={13} className="text-white/20 cursor-pointer" onClick={() => setExpanded(null)} />
-                    : <ChevronDown size={13} className="text-white/20 cursor-pointer" onClick={() => { setEditForms((p) => ({ ...p, [l.id]: { ...l } })); setExpanded(l.id) }} />}
+                    ? <ChevronUp size={13} className="text-muted-foreground/50 cursor-pointer" onClick={() => setExpanded(null)} />
+                    : <ChevronDown size={13} className="text-muted-foreground/50 cursor-pointer" onClick={() => { setEditForms((p) => ({ ...p, [l.id]: { ...l } })); setExpanded(l.id) }} />}
                 </div>
               </div>
 
               {isExp && (
-                <div className="px-4 pb-4 pt-2 bg-white/[0.01] border-t border-white/5">
+                <div className="px-4 pb-4 pt-2 bg-white/[0.01] border-t border-border">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                     <div>
                       <label className={labelClass}>Tipo</label>

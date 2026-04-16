@@ -29,30 +29,30 @@ export default async function AdminPage() {
       </div>
 
       {/* Organizations list */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl mb-8">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+      <div className="bg-card border border-border rounded-2xl mb-8">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between">
           <h2 className="font-serif text-xl font-semibold text-white">Organizações Cadastradas</h2>
-          <span className="text-white/30 text-xs font-sans">{orgs?.length ?? 0} registros</span>
+          <span className="text-muted-foreground text-xs font-sans">{orgs?.length ?? 0} registros</span>
         </div>
         <AdminOrgsClient orgs={(orgs ?? []) as Parameters<typeof AdminOrgsClient>[0]["orgs"]} />
       </div>
 
       {/* Locais shortcut */}
       <Link href="/dashboard/locais"
-        className="group flex items-center justify-between bg-[#161616] border border-white/5 hover:border-gold/20 rounded-2xl px-6 py-5 mb-8 transition-colors">
+        className="group flex items-center justify-between bg-card border border-border hover:border-gold/20 rounded-2xl px-6 py-5 mb-8 transition-colors">
         <div className="flex items-center gap-3">
           <MapPin size={16} className="text-gold" />
           <div>
             <p className="font-serif text-lg font-semibold text-white">Locais</p>
-            <p className="text-white/30 text-xs font-sans mt-0.5">Empreendimentos, bairros e logradouros cadastrados no sistema</p>
+            <p className="text-muted-foreground text-xs font-sans mt-0.5">Empreendimentos, bairros e logradouros cadastrados no sistema</p>
           </div>
         </div>
-        <ArrowRight size={16} className="text-white/20 group-hover:text-gold transition-colors" />
+        <ArrowRight size={16} className="text-muted-foreground/50 group-hover:text-gold transition-colors" />
       </Link>
 
       {/* New org */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+      <div className="bg-card border border-border rounded-2xl">
+        <div className="px-6 py-5 border-b border-border flex items-center gap-2">
           <PlusCircle size={16} className="text-gold" />
           <h2 className="font-serif text-xl font-semibold text-white">Nova Organização</h2>
         </div>

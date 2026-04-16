@@ -43,7 +43,7 @@ export default async function EquipePage() {
           </h1>
           <div className="divider-gold mt-4 w-20" />
         </div>
-        <div className="flex items-center gap-2 text-white/30">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <Users size={16} />
           <span className="text-sm font-sans">{members?.length ?? 0} membros</span>
         </div>
@@ -57,8 +57,8 @@ export default async function EquipePage() {
       )}
 
       {!myProfile?.organization_id && (
-        <div className="bg-[#161616] border border-gold/10 rounded-2xl p-6 mb-8">
-          <p className="text-white/50 font-sans text-sm">
+        <div className="bg-card border border-gold/10 rounded-2xl p-6 mb-8">
+          <p className="text-muted-foreground font-sans text-sm">
             Você ainda não está vinculado a uma organização.{" "}
             <a href="/dashboard/organizacao" className="text-gold hover:text-gold-light transition-colors">
               Criar ou entrar em uma organização →
@@ -68,37 +68,37 @@ export default async function EquipePage() {
       )}
 
       {/* Members list */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl divide-y divide-white/5">
+      <div className="bg-card border border-border rounded-2xl divide-y divide-white/5">
         {(members ?? []).map((m) => (
           <div key={m.id} className="px-6 py-4 flex items-center gap-4 hover:bg-white/[0.02] transition-colors">
             <div className="flex-shrink-0">
               {m.avatar_url ? (
-                <Image src={m.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                <Image src={m.avatar_url} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-border" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                  <User size={16} className="text-white/30" />
+                <div className="w-10 h-10 rounded-full bg-muted/50 border border-border flex items-center justify-center">
+                  <User size={16} className="text-muted-foreground" />
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white/90 text-sm font-sans font-medium truncate">
+              <p className="text-foreground/90 text-sm font-sans font-medium truncate">
                 {m.full_name ?? "Sem nome"}
                 {m.id === user.id && <span className="text-gold/50 text-xs ml-2">(você)</span>}
               </p>
               <div className="flex items-center gap-3 mt-0.5">
                 {m.creci && (
-                  <span className="text-white/30 text-xs font-sans">CRECI {m.creci}</span>
+                  <span className="text-muted-foreground text-xs font-sans">CRECI {m.creci}</span>
                 )}
                 {m.whatsapp && (
                   <a href={`https://wa.me/${m.whatsapp.replace(/\D/g, "")}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="text-white/20 text-xs font-sans hover:text-gold transition-colors">
+                    className="text-muted-foreground/50 text-xs font-sans hover:text-gold transition-colors">
                     {m.whatsapp}
                   </a>
                 )}
               </div>
             </div>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider font-sans flex-shrink-0 ${ROLE_COLORS[m.role] ?? "border-white/10 text-white/30"}`}>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider font-sans flex-shrink-0 ${ROLE_COLORS[m.role] ?? "border-border text-muted-foreground"}`}>
               {ROLE_LABELS[m.role] ?? m.role}
             </span>
           </div>
@@ -107,7 +107,7 @@ export default async function EquipePage() {
         {(!members || members.length === 0) && (
           <div className="px-6 py-12 text-center">
             <Users size={24} className="text-white/10 mx-auto mb-3" />
-            <p className="text-white/20 font-sans text-sm">Nenhum membro na equipe ainda.</p>
+            <p className="text-muted-foreground/50 font-sans text-sm">Nenhum membro na equipe ainda.</p>
           </div>
         )}
       </div>

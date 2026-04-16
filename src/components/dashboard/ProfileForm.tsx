@@ -58,23 +58,23 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
     setLoading(false)
   }
 
-  const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2"
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
 
       {/* Avatar */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-white border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
           Foto de Perfil
         </h2>
         <div className="flex items-center gap-6">
-          <div className="w-20 h-20 rounded-full border-2 border-gold/20 overflow-hidden flex-shrink-0 bg-white/5 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full border-2 border-gold/20 overflow-hidden flex-shrink-0 bg-muted/50 flex items-center justify-center">
             {avatarUrls[0] ? (
               <Image src={avatarUrls[0]} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
             ) : (
-              <User size={28} className="text-white/20" />
+              <User size={28} className="text-muted-foreground/50" />
             )}
           </div>
           <div className="flex-1">
@@ -90,8 +90,8 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
       </section>
 
       {/* Info */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-5">
-        <h2 className="font-serif text-lg font-semibold text-white border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
           Informações Pessoais
         </h2>
 
@@ -108,7 +108,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
             <input type="tel" value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
               placeholder="+55 11 99999-9999" className={inputClass} />
-            <p className="text-white/20 text-xs font-sans mt-1">
+            <p className="text-muted-foreground/50 text-xs font-sans mt-1">
               Usado no minisite quando alguém acessar via seu link
             </p>
           </div>

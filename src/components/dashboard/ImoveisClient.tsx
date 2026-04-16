@@ -88,20 +88,20 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
       {/* Top bar */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <div className="relative flex-1 min-w-48">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input type="text" placeholder="Buscar por título ou bairro..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#161616] border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
+            className="w-full bg-card border border-border text-white placeholder-muted-foreground/40 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
         </div>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-          className="bg-[#161616] border border-white/10 text-white/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+          className="bg-card border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
           <option value="all">Todos os status</option>
           <option value="disponivel">Disponível</option>
           <option value="reserva">Reservado</option>
           <option value="vendido">Vendido</option>
         </select>
         <select value={filterCategoria} onChange={(e) => setCategoria(e.target.value)}
-          className="bg-[#161616] border border-white/10 text-white/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+          className="bg-card border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
           <option value="all">Todas as categorias</option>
           <option value="Apartamento">Apartamento</option>
           <option value="Casa">Casa</option>
@@ -117,7 +117,7 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
 
         {minisiteSlug && (
           <a href={`/construtora/${minisiteSlug}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
+            className="flex items-center gap-2 px-4 py-2.5 border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
             <ExternalLink size={14} /> Meu Minisite
           </a>
         )}
@@ -146,7 +146,7 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           const isOwn = p.created_by === userId
 
           return (
-            <div key={p.id} className="bg-[#161616] border border-white/5 rounded-2xl overflow-hidden group hover:border-gold/20 transition-all duration-300">
+            <div key={p.id} className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-gold/20 transition-all duration-300">
               <div className="aspect-video bg-gradient-to-br from-[#1a1a1a] to-[#222] relative overflow-hidden">
                 {p.images[0] ? (
                   <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -167,16 +167,16 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
 
               <div className="p-5">
                 {p.code && (
-                  <div className="flex items-center gap-1 text-white/20 text-[10px] font-sans mb-1">
+                  <div className="flex items-center gap-1 text-muted-foreground/50 text-[10px] font-sans mb-1">
                     <Hash size={9} /><span>{p.code}</span>
                   </div>
                 )}
                 <h3 className="font-serif text-lg font-semibold text-white mb-1 truncate">{p.title}</h3>
                 {p.neighborhood && (
-                  <p className="text-white/30 text-xs font-sans mb-3">{p.neighborhood}, {p.city}</p>
+                  <p className="text-muted-foreground text-xs font-sans mb-3">{p.neighborhood}, {p.city}</p>
                 )}
 
-                <div className="flex items-center gap-3 text-white/40 text-xs font-sans mb-3">
+                <div className="flex items-center gap-3 text-muted-foreground text-xs font-sans mb-3">
                   {p.features.area_m2 && (
                     <span className="flex items-center gap-1"><Maximize2 size={11} />{p.features.area_m2}m²</span>
                   )}
@@ -207,18 +207,18 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
                   <p className="font-serif text-xl font-bold text-white">{formatPrice(p.price)}</p>
                   <div className="flex gap-2">
                     <Link href={`/imovel/${p.slug}`} target="_blank"
-                      className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors">
+                      className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
                       <Eye size={14} />
                     </Link>
                     {(isAdmin || isOwn) && (
                       <Link href={`/dashboard/imoveis/${p.id}/editar`}
-                        className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors">
+                        className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
                         <Edit size={14} />
                       </Link>
                     )}
                     {(isAdmin || isOwn || isListed) && (
                       <button onClick={() => handleDelete(p)} disabled={deleting === p.id}
-                        className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-red-400 hover:border-red-900/50 transition-colors disabled:opacity-40">
+                        className="p-2 rounded-lg border border-border text-muted-foreground hover:text-red-400 hover:border-red-900/50 transition-colors disabled:opacity-40">
                         <Trash2 size={14} />
                       </button>
                     )}
@@ -231,7 +231,7 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
 
         {filtered.length === 0 && (
           <div className="col-span-3 py-20 text-center">
-            <p className="text-white/20 font-sans mb-4">Nenhum imóvel encontrado.</p>
+            <p className="text-muted-foreground/50 font-sans mb-4">Nenhum imóvel encontrado.</p>
             {canAddNew && (
               <Link href="/dashboard/imoveis/novo" className="text-gold text-sm font-sans hover:text-gold-light transition-colors">
                 Cadastrar primeiro imóvel →

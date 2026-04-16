@@ -32,7 +32,7 @@ export default async function DisponibilidadePage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Disponibilidade</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Marque unidades como Disponível, Reservada ou Vendida por empreendimento.
         </p>
         <div className="divider-gold mt-4 w-20" />

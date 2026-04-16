@@ -75,10 +75,10 @@ export function LeadsClient({ initialLeads }: Props) {
         ].map((s) => {
           const Icon = s.icon
           return (
-            <div key={s.label} className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={14} className={s.color} />
-                <p className="text-white/30 text-xs uppercase tracking-wider font-sans">{s.label}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider font-sans">{s.label}</p>
               </div>
               <p className="font-serif text-3xl font-bold text-white">{s.value}</p>
             </div>
@@ -93,18 +93,18 @@ export function LeadsClient({ initialLeads }: Props) {
           placeholder="Filtrar por nome, telefone ou imóvel..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#161616] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+          className="w-full bg-card border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+      <div className="bg-card border border-border rounded-2xl">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between">
           <h2 className="font-serif text-xl font-semibold text-white">Mensagens Recebidas</h2>
-          <span className="text-white/20 text-xs font-sans">{filtered.length} leads</span>
+          <span className="text-muted-foreground/50 text-xs font-sans">{filtered.length} leads</span>
         </div>
 
-        <div className="grid grid-cols-12 gap-4 px-6 py-3 text-[10px] uppercase tracking-[0.2em] text-white/20 font-sans border-b border-white/5">
+        <div className="grid grid-cols-12 gap-4 px-6 py-3 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 font-sans border-b border-border">
           <span className="col-span-3">Contato</span>
           <span className="col-span-3">Imóvel</span>
           <span className="col-span-2">Origem</span>
@@ -114,37 +114,37 @@ export function LeadsClient({ initialLeads }: Props) {
 
         <div className="divide-y divide-white/[0.04]">
           {filtered.length === 0 ? (
-            <div className="py-16 text-center text-white/20 font-sans text-sm">
+            <div className="py-16 text-center text-muted-foreground/50 font-sans text-sm">
               Nenhum lead encontrado.
             </div>
           ) : (
             filtered.map((lead) => (
               <div key={lead.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors relative">
                 <div className="col-span-3">
-                  <p className="text-white/80 text-sm font-sans font-medium">{lead.name}</p>
+                  <p className="text-foreground/80 text-sm font-sans font-medium">{lead.name}</p>
                   <a
                     href={`https://wa.me/${lead.phone.replace(/\D/g, "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/30 hover:text-gold text-xs font-sans flex items-center gap-1 mt-0.5 transition-colors"
+                    className="text-muted-foreground hover:text-gold text-xs font-sans flex items-center gap-1 mt-0.5 transition-colors"
                   >
                     <Phone size={9} />{lead.phone}
                   </a>
                 </div>
 
                 <div className="col-span-3">
-                  <p className="text-white/50 text-xs font-sans flex items-center gap-1">
+                  <p className="text-muted-foreground text-xs font-sans flex items-center gap-1">
                     <Home size={9} className="text-gold/40 flex-shrink-0" />
                     <span className="truncate">{lead.property?.title ?? lead.property_slug ?? "—"}</span>
                   </p>
                 </div>
 
                 <div className="col-span-2">
-                  <span className="text-white/30 text-xs font-sans capitalize">{lead.source}</span>
+                  <span className="text-muted-foreground text-xs font-sans capitalize">{lead.source}</span>
                 </div>
 
                 <div className="col-span-2">
-                  <span className="text-white/25 text-xs font-sans">{formatDate(lead.created_at)}</span>
+                  <span className="text-muted-foreground/60 text-xs font-sans">{formatDate(lead.created_at)}</span>
                 </div>
 
                 <div className="col-span-2 relative">
@@ -158,12 +158,12 @@ export function LeadsClient({ initialLeads }: Props) {
                   </button>
 
                   {openDropdown === lead.id && (
-                    <div className="absolute top-8 left-0 z-20 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl min-w-[130px]">
+                    <div className="absolute top-8 left-0 z-20 bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-2xl min-w-[130px]">
                       {STATUS_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
                           onClick={() => updateStatus(lead.id, opt.value)}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-sans hover:bg-white/5 transition-colors ${lead.status === opt.value ? "text-gold" : "text-white/60"}`}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-sans hover:bg-muted/50 transition-colors ${lead.status === opt.value ? "text-gold" : "text-foreground/60"}`}
                         >
                           {opt.label}
                         </button>

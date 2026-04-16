@@ -41,7 +41,7 @@ export default async function LeadsPage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Leads</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Mensagens recebidas pelas páginas de imóveis, minisite e links de referência.
         </p>
         <div className="divider-gold mt-4 w-20" />

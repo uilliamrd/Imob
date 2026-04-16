@@ -82,34 +82,34 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col mx-4">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <h2 className="font-serif text-xl font-semibold text-white">Adicionar Imóvel do Sistema</h2>
-          <button onClick={onClose} className="text-white/30 hover:text-white/70 transition-colors">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground/70 transition-colors">
             <X size={18} />
           </button>
         </div>
 
         {/* Search area */}
-        <div className="px-6 py-4 border-b border-white/5 space-y-3">
+        <div className="px-6 py-4 border-b border-border space-y-3">
           {/* Search by development */}
           <div className="relative">
-            <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" placeholder="Buscar por empreendimento (nome do prédio/condomínio)..."
               value={searchDev}
               onChange={(e) => { setSearchDev(e.target.value); searchDevelopments(e.target.value) }}
-              className="w-full bg-[#111] border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+              className="w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
             />
             {/* Dev autocomplete */}
             {devResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden z-10 shadow-xl">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-border rounded-xl overflow-hidden z-10 shadow-xl">
                 {devResults.map((dev) => (
                   <button key={dev.id} type="button" onClick={() => loadUnitsForDev(dev)}
-                    className="w-full text-left px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
-                    <p className="text-white/90 text-sm font-sans">{dev.name}</p>
+                    className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border last:border-0">
+                    <p className="text-foreground/90 text-sm font-sans">{dev.name}</p>
                     {(dev.neighborhood || dev.city) && (
-                      <p className="text-white/30 text-xs font-sans">{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}</p>
+                      <p className="text-muted-foreground text-xs font-sans">{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}</p>
                     )}
                   </button>
                 ))}
@@ -119,12 +119,12 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
 
           {/* Filter by unit */}
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" placeholder="Filtrar por nº do apto, quadra/lote ou título..."
               value={searchApto}
               onChange={(e) => searchByApto(e.target.value)}
               onFocus={() => { if (selectedDev && results.length === 0) loadUnitsForDev(selectedDev) }}
-              className="w-full bg-[#111] border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+              className="w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
             />
           </div>
 
@@ -133,7 +133,7 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
               <Building2 size={11} />
               <span>Empreendimento: <strong>{selectedDev.name}</strong></span>
               <button onClick={() => { setSelectedDev(null); setSearchDev(""); setResults([]) }}
-                className="ml-1 text-white/30 hover:text-white/60">
+                className="ml-1 text-muted-foreground hover:text-foreground/60">
                 <X size={11} />
               </button>
             </div>
@@ -142,9 +142,9 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
 
         {/* Results */}
         <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-          {loading && <div className="px-6 py-8 text-center text-white/30 text-sm font-sans">Buscando...</div>}
+          {loading && <div className="px-6 py-8 text-center text-muted-foreground text-sm font-sans">Buscando...</div>}
           {!loading && results.length === 0 && (
-            <div className="px-6 py-10 text-center text-white/20 text-sm font-sans">
+            <div className="px-6 py-10 text-center text-muted-foreground/50 text-sm font-sans">
               {selectedDev
                 ? "Nenhum imóvel encontrado neste empreendimento."
                 : "Busque por um empreendimento para ver os imóveis disponíveis."}
@@ -155,18 +155,18 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
             return (
               <div key={p.id} className="px-6 py-4 flex items-center gap-4 hover:bg-white/[0.02]">
                 {p.images[0] ? (
-                  <Image src={p.images[0]} alt="" width={64} height={44} className="w-16 h-11 rounded-lg object-cover border border-white/10 flex-shrink-0" />
+                  <Image src={p.images[0]} alt="" width={64} height={44} className="w-16 h-11 rounded-lg object-cover border border-border flex-shrink-0" />
                 ) : (
-                  <div className="w-16 h-11 rounded-lg bg-white/5 flex-shrink-0 flex items-center justify-center">
-                    <span className="font-serif text-white/20 text-xl">R</span>
+                  <div className="w-16 h-11 rounded-lg bg-muted/50 flex-shrink-0 flex items-center justify-center">
+                    <span className="font-serif text-muted-foreground/50 text-xl">R</span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    {p.code && <span className="text-white/20 text-[10px] font-sans flex items-center gap-0.5"><Hash size={9}/>{p.code}</span>}
-                    <p className="text-white/90 text-sm font-sans truncate font-medium">{p.title}</p>
+                    {p.code && <span className="text-muted-foreground/50 text-[10px] font-sans flex items-center gap-0.5"><Hash size={9}/>{p.code}</span>}
+                    <p className="text-foreground/90 text-sm font-sans truncate font-medium">{p.title}</p>
                   </div>
-                  <div className="flex items-center gap-3 text-white/30 text-xs font-sans mt-0.5">
+                  <div className="flex items-center gap-3 text-muted-foreground text-xs font-sans mt-0.5">
                     {p.features.numero_apto && <span>Apto {p.features.numero_apto}</span>}
                     {p.neighborhood && <span>{p.neighborhood}</span>}
                     {p.features.area_m2 && <span className="flex items-center gap-0.5"><Maximize2 size={9}/>{p.features.area_m2}m²</span>}
@@ -193,9 +193,9 @@ export function PropertyPickerModal({ onClose, onAdd, alreadyAdded, orgId, userI
           })}
         </div>
 
-        <div className="px-6 py-4 border-t border-white/5 flex justify-between items-center">
-          <p className="text-white/20 text-xs font-sans">{results.length > 0 ? `${results.length} imóvel(is) encontrado(s)` : ""}</p>
-          <button onClick={onClose} className="text-white/30 text-sm font-sans hover:text-white/60 transition-colors">Fechar</button>
+        <div className="px-6 py-4 border-t border-border flex justify-between items-center">
+          <p className="text-muted-foreground/50 text-xs font-sans">{results.length > 0 ? `${results.length} imóvel(is) encontrado(s)` : ""}</p>
+          <button onClick={onClose} className="text-muted-foreground text-sm font-sans hover:text-foreground/60 transition-colors">Fechar</button>
         </div>
       </div>
     </div>

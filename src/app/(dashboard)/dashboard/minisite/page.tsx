@@ -47,10 +47,10 @@ export default async function MinisitePage() {
 
       {/* URL card */}
       {minisiteUrl && (
-        <div className="bg-[#161616] border border-gold/20 rounded-2xl p-6 mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div className="bg-card border border-gold/20 rounded-2xl p-6 mb-8 flex items-center justify-between flex-wrap gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-gold/60 font-sans mb-1">Endereço do seu site</p>
-            <p className="text-white/70 font-mono text-sm">{minisiteUrl}</p>
+            <p className="text-foreground/70 font-mono text-sm">{minisiteUrl}</p>
           </div>
           <a href={minisiteUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 px-5 py-2.5 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
@@ -61,11 +61,11 @@ export default async function MinisitePage() {
 
       {/* Iframe preview */}
       {minisiteUrl && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl overflow-hidden mb-8">
-          <div className="px-6 py-4 border-b border-white/5 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-8">
+          <div className="px-6 py-4 border-b border-border flex items-center gap-2">
             <Monitor size={14} className="text-gold" />
-            <p className="text-white/60 text-sm font-sans">Pré-visualização</p>
-            <span className="text-white/20 text-xs font-sans ml-auto">
+            <p className="text-foreground/60 text-sm font-sans">Pré-visualização</p>
+            <span className="text-muted-foreground/50 text-xs font-sans ml-auto">
               Pode demorar alguns segundos para carregar
             </span>
           </div>
@@ -82,8 +82,8 @@ export default async function MinisitePage() {
 
       {/* For imobiliaria: org edit form */}
       {role === "imobiliaria" && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl">
-          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-2xl">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-2">
             <Edit3 size={16} className="text-gold" />
             <h2 className="font-serif text-xl font-semibold text-white">Personalizar</h2>
           </div>
@@ -107,7 +107,7 @@ export default async function MinisitePage() {
               />
             ) : (
               <div className="text-center py-8">
-                <p className="text-white/30 font-sans text-sm mb-4">
+                <p className="text-muted-foreground font-sans text-sm mb-4">
                   Você ainda não está vinculado a uma organização.
                 </p>
                 <Link href="/dashboard/organizacao"
@@ -122,8 +122,8 @@ export default async function MinisitePage() {
 
       {/* For corretor: profile form inline (replaces Configurações) */}
       {role === "corretor" && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl">
-          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-2xl">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-2">
             <Edit3 size={16} className="text-gold" />
             <h2 className="font-serif text-xl font-semibold text-white">Meu Perfil</h2>
           </div>
@@ -143,8 +143,8 @@ export default async function MinisitePage() {
       )}
 
       {!minisiteUrl && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl p-8 text-center">
-          <p className="text-white/30 font-sans text-sm">
+        <div className="bg-card border border-border rounded-2xl p-8 text-center">
+          <p className="text-muted-foreground font-sans text-sm">
             Nenhum minisite disponível. Configure seu perfil primeiro.
           </p>
         </div>

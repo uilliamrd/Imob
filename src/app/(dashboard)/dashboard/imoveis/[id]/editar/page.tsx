@@ -47,7 +47,7 @@ export default async function EditarImovelPage({ params }: PageProps) {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Editar Imóvel</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2">{property.title}</p>
+        <p className="text-muted-foreground font-sans text-sm mt-2">{property.title}</p>
         <div className="divider-gold mt-4 w-20" />
       </div>
 

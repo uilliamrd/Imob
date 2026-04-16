@@ -27,7 +27,7 @@ export default async function CorretorPage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Meus Links</AnimatedGradientText>
         </h1>
-        <p className="text-white/40 font-sans text-sm mt-2">
+        <p className="text-muted-foreground font-sans text-sm mt-2">
           Compartilhe imóveis com seu link personalizado. Quando alguém acessar via seu link, seus dados de contato substituem os da construtora.
         </p>
         <div className="divider-gold mt-4 w-20" />

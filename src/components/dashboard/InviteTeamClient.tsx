@@ -62,18 +62,18 @@ export function InviteTeamClient({ orgId }: InviteTeamClientProps) {
   }
 
   return (
-    <div className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-5">
-      <h2 className="font-serif text-lg font-semibold text-white border-b border-white/5 pb-4">
+    <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+      <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
         Convidar Membro
       </h2>
 
       {/* Invite link */}
       <div>
-        <p className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans mb-2">
+        <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans mb-2">
           Link de Convite
         </p>
         <div className="flex gap-2">
-          <div className="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-3 font-mono text-xs text-white/30 truncate">
+          <div className="flex-1 bg-muted/50 border border-border rounded-lg px-4 py-3 font-mono text-xs text-muted-foreground truncate">
             {joinUrl}
           </div>
           <button
@@ -88,7 +88,7 @@ export function InviteTeamClient({ orgId }: InviteTeamClientProps) {
             {copied ? <><Check size={12} /> Copiado</> : <><Copy size={12} /> Copiar</>}
           </button>
         </div>
-        <p className="text-white/20 text-xs font-sans mt-2">
+        <p className="text-muted-foreground/50 text-xs font-sans mt-2">
           Compartilhe este link. Quem se cadastrar via ele entrará automaticamente na sua equipe.
         </p>
       </div>
@@ -97,7 +97,7 @@ export function InviteTeamClient({ orgId }: InviteTeamClientProps) {
 
       {/* Add by user ID */}
       <form onSubmit={handleInvite}>
-        <p className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans mb-2">
+        <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans mb-2">
           Adicionar por ID de Usuário
         </p>
         <div className="flex gap-2">
@@ -106,7 +106,7 @@ export function InviteTeamClient({ orgId }: InviteTeamClientProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="UUID do usuário..."
-            className="flex-1 bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-mono text-xs focus:outline-none focus:border-gold/50 transition-colors"
+            className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-mono text-xs focus:outline-none focus:border-gold/50 transition-colors"
           />
           <button
             type="submit"

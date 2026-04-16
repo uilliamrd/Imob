@@ -50,7 +50,7 @@ export default async function VitrinePage({ searchParams }: PageProps) {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Base de Imóveis</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Base completa de imóveis disponíveis no sistema. Adicione ao seu portfólio para exibir no minisite.
         </p>
         <div className="divider-gold mt-4 w-20" />

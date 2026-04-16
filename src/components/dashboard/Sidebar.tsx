@@ -24,6 +24,7 @@ import {
   Layers,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { UserRole } from "@/types/database"
 
 interface NavItem {
@@ -97,7 +98,6 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
     construtora: "Construtora",
   }
 
-  // "Ver meu site" link per role
   const minisiteHref =
     role === "construtora" && orgSlug ? `/construtora/${orgSlug}` :
     role === "imobiliaria" && orgSlug ? `/imobiliaria/${orgSlug}` :
@@ -105,17 +105,17 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
     null
 
   return (
-    <aside className="hidden lg:flex w-64 min-h-screen bg-[#111111] border-r border-white/5 flex-col">
+    <aside className="hidden lg:flex w-64 min-h-screen bg-sidebar border-r border-sidebar-border flex-col">
       {/* Brand */}
-      <div className="px-6 py-8 border-b border-white/5">
+      <div className="px-6 py-8 border-b border-sidebar-border">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold/50 font-sans mb-1">
           RealState
         </p>
-        <h2 className="font-serif text-xl font-bold text-white">Intelligence</h2>
+        <h2 className="font-serif text-xl font-bold text-sidebar-foreground">Intelligence</h2>
       </div>
 
       {/* User info */}
-      <div className="px-6 py-5 border-b border-white/5">
+      <div className="px-6 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           {userAvatar ? (
             <Image src={userAvatar} alt={userName} width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-gold/20" />
@@ -127,14 +127,14 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
             </div>
           )}
           <div className="overflow-hidden">
-            <p className="text-white/90 text-sm font-sans font-medium truncate">{userName}</p>
+            <p className="text-sidebar-foreground/90 text-sm font-sans font-medium truncate">{userName}</p>
             <p className="text-gold/60 text-[10px] uppercase tracking-wider">{roleLabels[role]}</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {visibleItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
           const Icon = item.icon
@@ -146,7 +146,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative group ${
                   isActive
                     ? "bg-gold/15 text-gold"
-                    : "text-white/40 hover:text-white/80 hover:bg-white/5"
+                    : "text-sidebar-foreground/40 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent"
                 }`}
               >
                 {isActive && (
@@ -162,7 +162,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
 
       {/* Ver meu site */}
       {minisiteHref && (
-        <div className="px-3 pb-3">
+        <div className="px-3 pb-2">
           <a href={minisiteHref} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-gold/20 text-gold/70 hover:text-gold hover:border-gold/50 hover:bg-gold/5 transition-colors w-full text-sm font-sans">
             <ExternalLink size={16} />
@@ -171,11 +171,16 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
         </div>
       )}
 
+      {/* Theme switch */}
+      <div className="px-3 pb-2 flex">
+        <ThemeSwitch />
+      </div>
+
       {/* Sign out */}
       <div className="px-3 pb-6">
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-900/10 transition-colors w-full text-sm font-sans"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/30 hover:text-red-400 hover:bg-red-900/10 transition-colors w-full text-sm font-sans"
         >
           <LogOut size={16} />
           Sair

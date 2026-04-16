@@ -37,8 +37,8 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
   const [editCustomHtml, setEditCustomHtml] = useState<Record<string, string>>({})
   const [editCustomType, setEditCustomType] = useState<Record<string, "html" | "json" | null>>({})
 
-  const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5"
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5"
 
   async function createDev() {
     if (!newForm.name.trim()) return
@@ -112,10 +112,10 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
 
       {/* ── New form ─────────────────────────────────────────── */}
       {showNew && (
-        <div className="bg-[#111] border border-gold/20 rounded-2xl p-5 space-y-4">
+        <div className="bg-muted/50 border border-gold/20 rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-gold text-sm font-sans font-medium">Novo Empreendimento</p>
-            <button type="button" onClick={() => setShowNew(false)}><X size={14} className="text-white/30" /></button>
+            <button type="button" onClick={() => setShowNew(false)}><X size={14} className="text-muted-foreground" /></button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -177,7 +177,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
               <label className={labelClass}>
                 <span className="flex items-center gap-1.5"><Code2 size={11} /> Página de Vendas Customizada (opcional)</span>
               </label>
-              <p className="text-white/20 text-xs font-sans mb-2">
+              <p className="text-muted-foreground/50 text-xs font-sans mb-2">
                 Substitui o layout padrão do lançamento. As páginas das unidades continuam no modelo do sistema.
               </p>
               <CustomPageEditor
@@ -194,14 +194,14 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                 onChange={(e) => setNewForm({ ...newForm, is_lancamento: e.target.checked })}
                 className="w-4 h-4 rounded accent-amber-500" />
               <Flame size={13} className="text-amber-400" />
-              <span className="text-xs font-sans text-white/50">Lançamento</span>
+              <span className="text-xs font-sans text-muted-foreground">Lançamento</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={newForm.is_delivered}
                 onChange={(e) => setNewForm({ ...newForm, is_delivered: e.target.checked })}
                 className="w-4 h-4 rounded accent-emerald-500" />
               <CheckCircle size={13} className="text-emerald-400" />
-              <span className="text-xs font-sans text-white/50">Entregue (portfólio)</span>
+              <span className="text-xs font-sans text-muted-foreground">Entregue (portfólio)</span>
             </label>
           </div>
 
@@ -214,7 +214,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
 
       {/* ── List ─────────────────────────────────────────────── */}
       {devs.length === 0 && !showNew && (
-        <p className="text-white/20 text-sm font-sans py-4 text-center">Nenhum empreendimento cadastrado ainda.</p>
+        <p className="text-muted-foreground/50 text-sm font-sans py-4 text-center">Nenhum empreendimento cadastrado ainda.</p>
       )}
 
       {devs.map((dev) => {
@@ -225,18 +225,18 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
         const customType = dev.id in editCustomType ? editCustomType[dev.id] : (dev.custom_page_type ?? null)
 
         return (
-          <div key={dev.id} className="bg-[#111] border border-white/5 rounded-2xl overflow-hidden">
+          <div key={dev.id} className="bg-muted/50 border border-border rounded-2xl overflow-hidden">
             {/* Row header */}
             <div className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-white/[0.02]"
               onClick={() => isExpanded ? setExpanded(null) : startEdit(dev)}>
               <div className="flex items-center gap-3">
                 {dev.cover_image
-                  ? <Image src={dev.cover_image} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
-                  : <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center"><Building2 size={16} className="text-white/20" /></div>
+                  ? <Image src={dev.cover_image} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-border" />
+                  : <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center"><Building2 size={16} className="text-muted-foreground/50" /></div>
                 }
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-white/90 text-sm font-sans font-medium">{dev.name}</p>
+                    <p className="text-foreground/90 text-sm font-sans font-medium">{dev.name}</p>
                     {dev.is_lancamento && <Flame size={11} className="text-amber-400" />}
                     {dev.is_delivered && <CheckCircle size={11} className="text-emerald-400" />}
                     {dev.custom_page_html && (
@@ -245,13 +245,13 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                       </span>
                     )}
                     {(dev.images?.length ?? 0) > 0 && (
-                      <span className="text-[10px] text-white/20 font-sans flex items-center gap-0.5">
+                      <span className="text-[10px] text-muted-foreground/50 font-sans flex items-center gap-0.5">
                         <Images size={9} /> {dev.images.length}
                       </span>
                     )}
                   </div>
                   {(dev.neighborhood || dev.city) && (
-                    <p className="text-white/30 text-xs font-sans flex items-center gap-1">
+                    <p className="text-muted-foreground text-xs font-sans flex items-center gap-1">
                       <MapPin size={9} />{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}
                     </p>
                   )}
@@ -260,20 +260,20 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
               <div className="flex items-center gap-3">
                 <a href={`/lancamento/${dev.id}`} target="_blank" rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-white/20 hover:text-gold transition-colors p-1" title="Ver página pública">
+                  className="text-muted-foreground/50 hover:text-gold transition-colors p-1" title="Ver página pública">
                   <ExternalLink size={14} />
                 </a>
                 <button type="button" onClick={(e) => { e.stopPropagation(); deleteDev(dev.id) }}
-                  className="text-white/20 hover:text-red-400 transition-colors p-1">
+                  className="text-muted-foreground/50 hover:text-red-400 transition-colors p-1">
                   <X size={14} />
                 </button>
-                {isExpanded ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />}
+                {isExpanded ? <ChevronUp size={14} className="text-muted-foreground" /> : <ChevronDown size={14} className="text-muted-foreground" />}
               </div>
             </div>
 
             {/* Edit panel */}
             {isExpanded && (
-              <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-4">
+              <div className="px-5 pb-5 border-t border-border pt-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className={labelClass}>Nome</label>
@@ -329,7 +329,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                     <label className={labelClass}>
                       <span className="flex items-center gap-1.5"><Code2 size={11} /> Página de Vendas Customizada (opcional)</span>
                     </label>
-                    <p className="text-white/20 text-xs font-sans mb-2">
+                    <p className="text-muted-foreground/50 text-xs font-sans mb-2">
                       Substitui o layout padrão do lançamento. As páginas das unidades continuam no modelo do sistema.
                     </p>
                     <CustomPageEditor
@@ -349,14 +349,14 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                       onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], is_lancamento: e.target.checked } }))}
                       className="w-4 h-4 rounded accent-amber-500" />
                     <Flame size={13} className="text-amber-400" />
-                    <span className="text-xs font-sans text-white/50">Lançamento</span>
+                    <span className="text-xs font-sans text-muted-foreground">Lançamento</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={!!form.is_delivered}
                       onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], is_delivered: e.target.checked } }))}
                       className="w-4 h-4 rounded accent-emerald-500" />
                     <CheckCircle size={13} className="text-emerald-400" />
-                    <span className="text-xs font-sans text-white/50">Entregue (portfólio)</span>
+                    <span className="text-xs font-sans text-muted-foreground">Entregue (portfólio)</span>
                   </label>
                 </div>
 

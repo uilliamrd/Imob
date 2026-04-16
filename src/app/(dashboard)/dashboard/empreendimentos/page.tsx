@@ -25,17 +25,17 @@ export default async function EmpreendimentosPage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Empreendimentos</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Cadastre empreendimentos com galeria de fotos e página de vendas customizada.
         </p>
         <div className="divider-gold mt-4 w-20" />
       </div>
 
-      <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+      <div className="bg-card border border-border rounded-2xl">
+        <div className="px-6 py-5 border-b border-border flex items-center gap-2">
           <Layers size={16} className="text-gold" />
           <h2 className="font-serif text-xl font-semibold text-white">Empreendimentos</h2>
-          <span className="ml-auto text-white/20 text-xs font-sans">{developments?.length ?? 0} cadastrados</span>
+          <span className="ml-auto text-muted-foreground/50 text-xs font-sans">{developments?.length ?? 0} cadastrados</span>
         </div>
         <div className="p-6">
           <DevelopmentsManager

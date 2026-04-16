@@ -105,8 +105,8 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
     setLoading(false)
   }
 
-  const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2"
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
   const landingSlug = slugify(name)
   const minisitePath = type === "imobiliaria" ? `/imobiliaria/${landingSlug}` : `/construtora/${landingSlug}`
 
@@ -114,8 +114,8 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
     <form onSubmit={handleSubmit} className="space-y-6">
 
       {/* Logo */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-4">
-        <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <div className="flex items-center gap-2 border-b border-border pb-4">
           <Image size={15} className="text-gold" />
           <h2 className="font-serif text-lg font-semibold text-white">Logo</h2>
         </div>
@@ -124,8 +124,8 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       </section>
 
       {/* Basic info */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-5">
-        <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div className="flex items-center gap-2 border-b border-border pb-4">
           <Globe size={15} className="text-gold" />
           <h2 className="font-serif text-lg font-semibold text-white">Informações Gerais</h2>
         </div>
@@ -153,16 +153,16 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
 
         {/* Admin-only: Lançamentos toggle */}
         {isAdmin && (
-          <div className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-[#111]">
+          <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/50">
             <div className="flex items-center gap-3">
-              <Flame size={16} className={hasLancamentos ? "text-gold" : "text-white/20"} />
+              <Flame size={16} className={hasLancamentos ? "text-gold" : "text-muted-foreground/50"} />
               <div>
-                <p className="text-white/80 text-sm font-sans font-medium">Plano com Lançamentos</p>
-                <p className="text-white/30 text-xs font-sans">Ativa a seção de Lançamentos no minisite (max 5)</p>
+                <p className="text-foreground/80 text-sm font-sans font-medium">Plano com Lançamentos</p>
+                <p className="text-muted-foreground text-xs font-sans">Ativa a seção de Lançamentos no minisite (max 5)</p>
               </div>
             </div>
             <button type="button" onClick={() => setHasLancamentos(!hasLancamentos)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${hasLancamentos ? "bg-gold" : "bg-white/10"}`}>
+              className={`w-12 h-6 rounded-full transition-colors relative ${hasLancamentos ? "bg-gold" : "bg-muted"}`}>
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${hasLancamentos ? "left-7" : "left-1"}`} />
             </button>
           </div>
@@ -170,8 +170,8 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       </section>
 
       {/* Hero section */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-5">
-        <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div className="flex items-center gap-2 border-b border-border pb-4">
           <FileText size={15} className="text-gold" />
           <h2 className="font-serif text-lg font-semibold text-white">Seção Hero (Topo do Site)</h2>
         </div>
@@ -188,8 +188,8 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       </section>
 
       {/* About section */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-5">
-        <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <div className="flex items-center gap-2 border-b border-border pb-4">
           <FileText size={15} className="text-gold" />
           <h2 className="font-serif text-lg font-semibold text-white">Seção Sobre</h2>
         </div>
@@ -207,17 +207,17 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       </section>
 
       {/* Brand color */}
-      <section className="bg-[#161616] border border-white/5 rounded-2xl p-6 space-y-4">
-        <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <div className="flex items-center gap-2 border-b border-border pb-4">
           <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: brandColor }} />
           <h2 className="font-serif text-lg font-semibold text-white">Cor do Minisite</h2>
         </div>
         <div className="flex items-center gap-4">
           <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)}
-            className="w-12 h-12 rounded-lg cursor-pointer bg-transparent border border-white/10 p-1" />
+            className="w-12 h-12 rounded-lg cursor-pointer bg-transparent border border-border p-1" />
           <div>
-            <p className="text-white/60 text-sm font-sans">Cor de destaque do minisite</p>
-            <p className="text-white/20 text-xs font-sans font-mono mt-0.5">{brandColor}</p>
+            <p className="text-foreground/60 text-sm font-sans">Cor de destaque do minisite</p>
+            <p className="text-muted-foreground/50 text-xs font-sans font-mono mt-0.5">{brandColor}</p>
           </div>
           <div className="flex gap-2 ml-auto flex-wrap">
             {["#C4A052","#E8C96B","#B8860B","#1E3A5F","#2D6A4F","#9B2226","#6B21A8"].map((c) => (
@@ -231,12 +231,12 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
 
       {/* Landing page link */}
       {name && (
-        <section className="bg-[#161616] border border-gold/10 rounded-2xl p-6">
+        <section className="bg-card border border-gold/10 rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-gold/60 font-sans mb-1">Minisite Publicado</p>
-              <p className="text-white/60 font-mono text-sm">
-                <span className="text-white/30">{minisitePath.replace(landingSlug, "")}</span>
+              <p className="text-foreground/60 font-mono text-sm">
+                <span className="text-muted-foreground">{minisitePath.replace(landingSlug, "")}</span>
                 <span className="text-gold">{landingSlug}</span>
               </p>
             </div>

@@ -30,11 +30,11 @@ export default async function OrganizacaoPage() {
       </div>
 
       {!org ? (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl p-8 text-center">
-          <p className="text-white/30 font-sans text-sm">
+        <div className="bg-card border border-border rounded-2xl p-8 text-center">
+          <p className="text-muted-foreground font-sans text-sm">
             Você ainda não está vinculado a nenhuma organização.
           </p>
-          <p className="text-white/20 font-sans text-xs mt-2">
+          <p className="text-muted-foreground/50 font-sans text-xs mt-2">
             Peça ao administrador para te associar a uma imobiliária ou construtora.
           </p>
         </div>

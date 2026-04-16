@@ -40,7 +40,7 @@ export default async function LancamentosPage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Lançamentos</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Gerencie as landing pages cinematográficas de cada empreendimento em lançamento.
         </p>
         <div className="divider-gold mt-4 w-20" />
@@ -50,17 +50,17 @@ export default async function LancamentosPage() {
       {lancamentos.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
           {lancamentos.map((dev) => (
-            <div key={dev.id} className="bg-[#161616] border border-white/5 rounded-2xl overflow-hidden hover:border-orange-500/20 transition-colors group">
-              <div className="aspect-video bg-[#111] relative">
+            <div key={dev.id} className="bg-card border border-border rounded-2xl overflow-hidden hover:border-orange-500/20 transition-colors group">
+              <div className="aspect-video bg-muted/50 relative">
                 {dev.cover_image
                   ? <Image src={dev.cover_image} alt={dev.name} fill className="object-cover" />
                   : <div className="w-full h-full flex items-center justify-center"><Flame size={32} className="text-white/10" /></div>
                 }
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3">
-                  <p className="font-serif text-white font-semibold text-sm leading-tight">{dev.name}</p>
+                  <p className="font-serif text-foreground font-semibold text-sm leading-tight">{dev.name}</p>
                   {(dev.neighborhood || dev.city) && (
-                    <p className="text-white/40 text-xs font-sans">{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}</p>
+                    <p className="text-muted-foreground text-xs font-sans">{dev.neighborhood}{dev.city ? `, ${dev.city}` : ""}</p>
                   )}
                 </div>
               </div>
@@ -72,7 +72,7 @@ export default async function LancamentosPage() {
                 <div className="flex items-center gap-3">
                   <CopyLinkButton path={`/lancamento/${dev.id}`} />
                   <Link href={`/lancamento/${dev.id}`} target="_blank"
-                    className="flex items-center gap-1.5 text-white/30 hover:text-gold transition-colors text-xs font-sans">
+                    className="flex items-center gap-1.5 text-muted-foreground hover:text-gold transition-colors text-xs font-sans">
                     <ExternalLink size={12} /> Ver
                   </Link>
                 </div>
@@ -95,8 +95,8 @@ export default async function LancamentosPage() {
       )}
 
       {/* Manager */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+      <div className="bg-card border border-border rounded-2xl">
+        <div className="px-6 py-5 border-b border-border flex items-center gap-2">
           <Flame size={16} className="text-orange-400" />
           <h2 className="font-serif text-xl font-semibold text-white">Gerenciar Lançamentos</h2>
         </div>

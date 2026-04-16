@@ -133,8 +133,8 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
   const [nomeProprietario, setNomeProp]       = useState(initialData?.features?.nome_proprietario ?? "")
   const [contatoProprietario, setContatoProp] = useState(initialData?.features?.contato_proprietario ?? "")
 
-  const ic = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const lc = "text-xs uppercase tracking-[0.12em] text-white/40 font-sans block mb-1.5"
+  const ic = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const lc = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5"
 
   const filteredLogradouros = bairroId
     ? logradouros.filter((l) => l.bairro_id === bairroId || !l.bairro_id)
@@ -309,11 +309,11 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
   return (
     <form onSubmit={handleSubmit}>
       {/* ── Tab bar ───────────────────────── */}
-      <div className="flex gap-1 mb-6 border-b border-white/5">
+      <div className="flex gap-1 mb-6 border-b border-border">
         {TABS.map((t, i) => (
           <button key={t} type="button" onClick={() => setActiveTab(i)}
             className={`px-5 py-3 text-xs uppercase tracking-[0.15em] font-sans border-b-2 transition-colors ${
-              activeTab === i ? "border-gold text-gold" : "border-transparent text-white/30 hover:text-white/60"
+              activeTab === i ? "border-gold text-gold" : "border-transparent text-muted-foreground hover:text-foreground/60"
             }`}>
             {t}
           </button>
@@ -333,7 +333,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
         <div className="space-y-5">
 
           {/* Tipo de negócio */}
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+          <div className="bg-card border border-border rounded-2xl p-5">
             <p className={lc + " mb-3"}>Tipo de Negócio</p>
             <div className="flex flex-wrap gap-3">
               {[["venda","Venda"], ["aluguel","Aluguel Mês"], ["temporada","Temporada"], ["permuta","Permuta"]].map(([v, l]) => (
@@ -341,14 +341,14 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
                   <input type="radio" name="tipo_negocio" value={v}
                     checked={tipoNegocio === v} onChange={() => setTipoNegocio(v)}
                     className="accent-amber-500" />
-                  <span className="text-sm font-sans text-white/60">{l}</span>
+                  <span className="text-sm font-sans text-foreground/60">{l}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {/* Vínculo + Categoria */}
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-card border border-border rounded-2xl p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={lc}>Condomínio / Empreendimento</label>
               <select value={developmentId} onChange={(e) => handleDevChange(e.target.value)} className={ic}>
@@ -369,8 +369,8 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
 
           {/* Admin: ownership transfer */}
           {isAdmin && construtoras.length > 0 && (
-            <div className="bg-[#161616] border border-white/5 rounded-2xl p-5">
-              <p className="text-xs uppercase tracking-[0.12em] text-white/30 font-sans mb-3 pb-3 border-b border-white/5">
+            <div className="bg-card border border-border rounded-2xl p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans mb-3 pb-3 border-b border-border">
                 Vinculação à Construtora
               </p>
               <div>
@@ -401,8 +401,8 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
           )}
 
           {/* Localização via Locais */}
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-white/30 font-sans border-b border-white/5 pb-3">Localização</p>
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans border-b border-border pb-3">Localização</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={lc}>Bairro {bairros.length > 0 && <span className="text-gold/50">(de Locais)</span>}</label>
@@ -469,8 +469,8 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
           </div>
 
           {/* Características */}
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-white/30 font-sans border-b border-white/5 pb-3">Características</p>
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans border-b border-border pb-3">Características</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <NumSelect value={dormitorios} onChange={setDormitorios} label="Dormitórios" />
               <NumSelect value={suites}      onChange={setSuites}      label="Suítes" />
@@ -523,7 +523,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
           </div>
 
           {/* Mobiliado */}
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+          <div className="bg-card border border-border rounded-2xl p-5">
             <p className={lc + " mb-3"}>Mobília</p>
             <div className="flex flex-wrap gap-4">
               {[["mobiliado","Mobiliado"], ["semimobiliado","Semimobiliado"], ["decorado","Decorado"], ["sem_mobilia","Sem mobília"]].map(([v, l]) => (
@@ -531,19 +531,19 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
                   <input type="radio" name="mobiliado" value={v}
                     checked={mobiliado === v} onChange={() => setMobiliado(v)}
                     className="accent-amber-500" />
-                  <span className="text-sm font-sans text-white/60">{l}</span>
+                  <span className="text-sm font-sans text-foreground/60">{l}</span>
                 </label>
               ))}
               {mobiliado && (
                 <button type="button" onClick={() => setMobiliado("")}
-                  className="text-xs text-white/20 hover:text-white/50 font-sans">limpar</button>
+                  className="text-xs text-muted-foreground/50 hover:text-muted-foreground font-sans">limpar</button>
               )}
             </div>
           </div>
 
           {/* Administração */}
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">
-            <p className="text-xs uppercase tracking-[0.15em] text-white/30 font-sans border-b border-white/5 pb-3">Administração</p>
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans border-b border-border pb-3">Administração</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className={lc}>Proprietário</label>
@@ -569,7 +569,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
       {/* ══ TAB 1: IDENTIFICAÇÃO ══════════════════════════════════ */}
       {activeTab === 1 && (
         <div className="space-y-5">
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
             <div>
               <label className={lc}>Título *</label>
               <input required type="text" value={title}
@@ -581,7 +581,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
                 <label className={lc}>Slug (URL)</label>
                 <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)}
                   placeholder="apartamento-3-quartos-leblon" className={ic} />
-                <p className="text-white/20 text-xs font-sans mt-1">/imovel/<span className="text-gold/40">{slug || "seu-slug"}</span></p>
+                <p className="text-muted-foreground/50 text-xs font-sans mt-1">/imovel/<span className="text-gold/40">{slug || "seu-slug"}</span></p>
               </div>
               <div>
                 <label className={lc}>Preço (R$) *</label>
@@ -597,7 +597,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
             </div>
           </div>
 
-          <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={lc}>Status da Unidade</label>
@@ -626,24 +626,24 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
                 className={`w-full flex items-center justify-between p-4 rounded-xl border transition-colors ${
                   visibility === "publico"
                     ? "border-emerald-700/40 bg-emerald-900/10"
-                    : "border-white/10 bg-white/[0.02]"
+                    : "border-border bg-white/[0.02]"
                 }`}>
                 <div className="flex items-center gap-3">
                   {visibility === "publico"
                     ? <Globe size={16} className="text-emerald-400" />
-                    : <EyeOff size={16} className="text-white/30" />}
+                    : <EyeOff size={16} className="text-muted-foreground" />}
                   <div className="text-left">
-                    <p className={`text-sm font-sans font-medium ${visibility === "publico" ? "text-emerald-300" : "text-white/40"}`}>
+                    <p className={`text-sm font-sans font-medium ${visibility === "publico" ? "text-emerald-300" : "text-muted-foreground"}`}>
                       {visibility === "publico" ? "Publicado no catálogo e minisite" : "Oculto do catálogo e minisite"}
                     </p>
-                    <p className="text-xs font-sans text-white/20 mt-0.5">
+                    <p className="text-xs font-sans text-muted-foreground/50 mt-0.5">
                       {visibility === "publico"
                         ? "Aparece na Base de Imóveis e no minisite da organização"
                         : "Visível apenas internamente — não aparece no minisite"}
                     </p>
                   </div>
                 </div>
-                <div className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${visibility === "publico" ? "bg-emerald-600" : "bg-white/10"}`}>
+                <div className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${visibility === "publico" ? "bg-emerald-600" : "bg-muted"}`}>
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${visibility === "publico" ? "left-6" : "left-1"}`} />
                 </div>
               </button>
@@ -654,7 +654,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
 
       {/* ══ TAB 2: FOTOS ══════════════════════════════════════════ */}
       {activeTab === 2 && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl p-5 space-y-5">
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
           <ImageUpload bucket="property-images" folder={slug || "temp"}
             value={images} onChange={setImages} maxFiles={40} />
           <div>
@@ -667,7 +667,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
 
       {/* ══ TAB 3: DIFERENCIAIS ═══════════════════════════════════ */}
       {activeTab === 3 && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <p className={lc + " mb-4"}>Selecione os diferenciais do imóvel</p>
           <div className="flex flex-wrap gap-2">
             {ALL_TAGS.map((tag) => {
@@ -677,7 +677,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
               return (
                 <button key={tag} type="button" onClick={() => toggleTag(tag)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs font-sans transition-all ${
-                    active ? "border-gold bg-gold/10 text-gold" : "border-white/10 text-white/40 hover:border-white/25"
+                    active ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground hover:border-white/25"
                   }`}>
                   <Icon size={12} />
                   {info.label}
@@ -698,7 +698,7 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
 
       <div className="flex gap-4 mt-6 pb-8">
         <button type="button" onClick={() => router.back()}
-          className="px-6 py-3 border border-white/10 text-white/50 hover:border-white/25 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
+          className="px-6 py-3 border border-border text-muted-foreground hover:border-white/25 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
           Cancelar
         </button>
         {activeTab < TABS.length - 1 && (

@@ -78,33 +78,33 @@ function PropertyPicker({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col mx-4">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col mx-4">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <h2 className="font-serif text-xl font-semibold text-white">Adicionar Imóvel à Seleção</h2>
-          <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors"><X size={18} /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground/60 transition-colors"><X size={18} /></button>
         </div>
 
-        <div className="px-6 py-3 border-b border-white/5 flex gap-3">
+        <div className="px-6 py-3 border-b border-border flex gap-3">
           <div className="relative flex-1">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Título, bairro, código..."
-              className="w-full bg-[#111] border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
+              className="w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 pl-9 pr-4 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
           </div>
           {developments.length > 0 && (
             <select value={devFilter} onChange={(e) => setDevFilter(e.target.value)}
-              className="bg-[#111] border border-white/10 text-white/60 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50">
+              className="bg-muted/50 border border-border text-foreground/60 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50">
               <option value="">Todos os empreendimentos</option>
               {developments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           )}
         </div>
 
-        <p className="px-6 py-2 text-[11px] text-white/20 font-sans">{filtered.length} imóveis</p>
+        <p className="px-6 py-2 text-[11px] text-muted-foreground/50 font-sans">{filtered.length} imóveis</p>
 
         <div className="flex-1 overflow-y-auto divide-y divide-white/5">
           {filtered.length === 0 && (
-            <div className="py-10 text-center text-white/20 text-sm font-sans">Nenhum imóvel encontrado.</div>
+            <div className="py-10 text-center text-muted-foreground/50 text-sm font-sans">Nenhum imóvel encontrado.</div>
           )}
           {filtered.map((p) => {
             const added = isAdded(p.id)
@@ -112,12 +112,12 @@ function PropertyPicker({
             return (
               <div key={p.id} className="px-6 py-3 flex items-center gap-4 hover:bg-white/[0.02]">
                 {p.images?.[0]
-                  ? <Image src={p.images[0]} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-white/10" />
-                  : <div className="w-10 h-10 rounded-lg bg-white/5 flex-shrink-0 border border-white/5" />
+                  ? <Image src={p.images[0]} alt="" width={40} height={40} className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-border" />
+                  : <div className="w-10 h-10 rounded-lg bg-muted/50 flex-shrink-0 border border-border" />
                 }
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/90 text-sm font-sans truncate font-medium">{p.title}</p>
-                  <p className="text-white/30 text-xs font-sans mt-0.5 flex items-center gap-2">
+                  <p className="text-foreground/90 text-sm font-sans truncate font-medium">{p.title}</p>
+                  <p className="text-muted-foreground text-xs font-sans mt-0.5 flex items-center gap-2">
                     {dev && <span className="flex items-center gap-1"><Building2 size={9} />{dev.name}</span>}
                     {p.neighborhood && <span>{p.neighborhood}{p.city ? `, ${p.city}` : ""}</span>}
                     <span className="text-gold/60">{formatPrice(p.price)}</span>
@@ -134,8 +134,8 @@ function PropertyPicker({
           })}
         </div>
 
-        <div className="px-6 py-4 border-t border-white/5 flex justify-end">
-          <button onClick={onClose} className="text-white/50 text-sm font-sans hover:text-white/80 transition-colors">Fechar</button>
+        <div className="px-6 py-4 border-t border-border flex justify-end">
+          <button onClick={onClose} className="text-muted-foreground text-sm font-sans hover:text-foreground/80 transition-colors">Fechar</button>
         </div>
       </div>
     </div>
@@ -238,10 +238,10 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
         ].map((s) => {
           const Icon = s.icon
           return (
-            <div key={s.label} className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={14} className={s.color} />
-                <p className="text-white/30 text-xs uppercase tracking-wider font-sans">{s.label}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider font-sans">{s.label}</p>
               </div>
               <p className="font-serif text-3xl font-bold text-white">{s.value}</p>
             </div>
@@ -257,7 +257,7 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-[#161616] border border-gold/30 rounded-2xl p-5 mb-5 flex items-center gap-3"
+            className="bg-card border border-gold/30 rounded-2xl p-5 mb-5 flex items-center gap-3"
           >
             <input
               autoFocus
@@ -266,7 +266,7 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") createSelection(); if (e.key === "Escape") setCreating(false) }}
               placeholder="Ex: Família Silva — 3 suítes Leblon"
-              className="flex-1 bg-transparent text-white placeholder-white/20 font-sans text-sm focus:outline-none"
+              className="flex-1 bg-transparent text-white placeholder-muted-foreground/40 font-sans text-sm focus:outline-none"
             />
             <button
               onClick={createSelection}
@@ -275,7 +275,7 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
             >
               {saving ? "Criando..." : <><Check size={12} /> Criar</>}
             </button>
-            <button onClick={() => setCreating(false)} className="text-white/30 hover:text-white/60 transition-colors">
+            <button onClick={() => setCreating(false)} className="text-muted-foreground hover:text-foreground/60 transition-colors">
               <X size={16} />
             </button>
           </motion.div>
@@ -295,22 +295,22 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
       {/* Selections list */}
       <div className="space-y-3">
         {selections.length === 0 && (
-          <div className="py-16 text-center text-white/20 font-sans text-sm">
+          <div className="py-16 text-center text-muted-foreground/50 font-sans text-sm">
             Nenhuma seleção ainda. Crie sua primeira para compartilhar com um cliente.
           </div>
         )}
         {selections.map((sel) => {
           const isExpanded = expanded === sel.id
           return (
-            <div key={sel.id} className="bg-[#161616] border border-white/5 rounded-2xl overflow-hidden hover:border-gold/10 transition-colors">
+            <div key={sel.id} className="bg-card border border-border rounded-2xl overflow-hidden hover:border-gold/10 transition-colors">
               {/* Header row */}
               <div className="px-6 py-4 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center flex-shrink-0">
                   <BookOpen size={16} className="text-gold/60" />
                 </div>
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpanded(isExpanded ? null : sel.id)}>
-                  <p className="text-white/80 font-sans font-medium text-sm">{sel.title}</p>
-                  <p className="text-white/25 text-xs font-sans mt-0.5">
+                  <p className="text-foreground/80 font-sans font-medium text-sm">{sel.title}</p>
+                  <p className="text-muted-foreground/60 text-xs font-sans mt-0.5">
                     {sel.items.length} imóvel(is) · {sel.views} visualizações
                   </p>
                 </div>
@@ -320,7 +320,7 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
                     className={`flex items-center gap-1.5 px-3 py-1.5 border text-xs font-sans rounded-lg transition-all duration-300 ${
                       copiedId === sel.id
                         ? "border-emerald-700/40 bg-emerald-900/20 text-emerald-400"
-                        : "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
+                        : "border-border text-muted-foreground hover:text-foreground/70 hover:border-white/20"
                     }`}
                   >
                     {copiedId === sel.id ? <><Check size={11} /> Copiado</> : <><Link2 size={11} /> Copiar link</>}
@@ -336,14 +336,14 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
                   <button
                     onClick={() => deleteSelection(sel.id)}
                     disabled={deleting === sel.id}
-                    className="p-1.5 text-white/20 hover:text-red-400 transition-colors disabled:opacity-50"
+                    className="p-1.5 text-muted-foreground/50 hover:text-red-400 transition-colors disabled:opacity-50"
                     title="Excluir seleção"
                   >
                     <Trash2 size={14} />
                   </button>
                   <button
                     onClick={() => setExpanded(isExpanded ? null : sel.id)}
-                    className="text-white/20 hover:text-white/60 transition-colors p-1"
+                    className="text-muted-foreground/50 hover:text-foreground/60 transition-colors p-1"
                   >
                     {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </button>
@@ -360,9 +360,9 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-white/5">
+                    <div className="border-t border-border">
                       {sel.items.length === 0 ? (
-                        <div className="py-8 text-center text-white/20 text-sm font-sans">
+                        <div className="py-8 text-center text-muted-foreground/50 text-sm font-sans">
                           Nenhum imóvel adicionado ainda.
                         </div>
                       ) : (
@@ -370,8 +370,8 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
                           {sel.items.map((item) => (
                             <div key={item.id} className="px-6 py-3 flex items-center gap-4 hover:bg-white/[0.02]">
                               <div className="flex-1 min-w-0">
-                                <p className="text-white/70 text-sm font-sans truncate">{item.property.title}</p>
-                                <p className="text-white/25 text-xs font-sans mt-0.5">
+                                <p className="text-foreground/70 text-sm font-sans truncate">{item.property.title}</p>
+                                <p className="text-muted-foreground/60 text-xs font-sans mt-0.5">
                                   {item.property.neighborhood && `${item.property.neighborhood}, `}
                                   {item.property.city} · {formatPrice(item.property.price)}
                                 </p>
@@ -380,13 +380,13 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
                                 href={`/imovel/${item.property.slug}?ref=${userId}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-white/20 hover:text-gold transition-colors p-1.5"
+                                className="text-muted-foreground/50 hover:text-gold transition-colors p-1.5"
                               >
                                 <ExternalLink size={12} />
                               </a>
                               <button
                                 onClick={() => removeItem(sel.id, item.id)}
-                                className="text-white/20 hover:text-red-400 transition-colors p-1.5"
+                                className="text-muted-foreground/50 hover:text-red-400 transition-colors p-1.5"
                               >
                                 <X size={12} />
                               </button>
@@ -396,10 +396,10 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
                       )}
 
                       {/* Add property button */}
-                      <div className="px-6 py-4 border-t border-white/5">
+                      <div className="px-6 py-4 border-t border-border">
                         <button
                           onClick={() => setPicker(sel.id)}
-                          className="flex items-center gap-1.5 text-white/40 hover:text-gold text-xs font-sans uppercase tracking-[0.1em] transition-colors"
+                          className="flex items-center gap-1.5 text-muted-foreground hover:text-gold text-xs font-sans uppercase tracking-[0.1em] transition-colors"
                         >
                           <Plus size={12} /> Adicionar imóvel
                         </button>

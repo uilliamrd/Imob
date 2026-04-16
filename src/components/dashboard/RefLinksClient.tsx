@@ -64,7 +64,7 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
     <div>
       {/* Profile card */}
       {profile && (
-        <div className="relative bg-[#161616] border border-white/5 rounded-2xl p-6 mb-8 overflow-hidden">
+        <div className="relative bg-card border border-border rounded-2xl p-6 mb-8 overflow-hidden">
           <BorderBeam size={250} duration={14} colorFrom="#C9A96E" colorTo="#E0C896" />
           <div className="flex items-center gap-4">
             {profile.avatar_url ? (
@@ -79,10 +79,10 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
             <div>
               <h3 className="font-serif text-xl font-semibold text-white">{profile.full_name ?? "Corretor"}</h3>
               {profile.creci && <p className="text-gold/60 text-xs font-sans uppercase tracking-wider">CRECI {profile.creci}</p>}
-              {profile.whatsapp && <p className="text-white/40 text-sm font-sans mt-0.5">{profile.whatsapp}</p>}
+              {profile.whatsapp && <p className="text-muted-foreground text-sm font-sans mt-0.5">{profile.whatsapp}</p>}
             </div>
             <div className="ml-auto text-right">
-              <p className="text-white/20 text-xs font-sans">Seu ID de Ref</p>
+              <p className="text-muted-foreground/50 text-xs font-sans">Seu ID de Ref</p>
               <p className="font-mono text-gold/60 text-xs mt-0.5 select-all">{userId}</p>
             </div>
           </div>
@@ -96,7 +96,7 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
           placeholder="Filtrar imóveis..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#161616] border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+          className="w-full bg-card border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
         />
       </div>
 
@@ -109,11 +109,11 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04 }}
-              className="bg-[#161616] border border-white/5 rounded-xl px-5 py-4 flex items-center gap-4 hover:border-white/10 transition-colors group"
+              className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4 hover:border-border transition-colors group"
             >
               <div className="flex-1 min-w-0">
                 <h4 className="font-serif text-base font-semibold text-white truncate">{p.title}</h4>
-                <p className="text-white/30 text-xs font-sans">
+                <p className="text-muted-foreground text-xs font-sans">
                   {p.neighborhood && `${p.neighborhood}, `}{p.city} · {formatPrice(p.price)}
                 </p>
               </div>
@@ -121,7 +121,7 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
               {/* Ref URL preview */}
               <div className="hidden md:flex items-center gap-2 flex-shrink-0 max-w-xs">
                 <Link2 size={12} className="text-gold/40 flex-shrink-0" />
-                <span className="text-white/20 text-xs font-mono truncate">
+                <span className="text-muted-foreground/50 text-xs font-mono truncate">
                   /imovel/{p.slug}?ref={userId.slice(0, 8)}...
                 </span>
               </div>
@@ -132,7 +132,7 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
                   href={getRefUrl(p.slug)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg border border-white/10 text-white/30 hover:text-gold hover:border-gold/30 transition-colors"
+                  className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors"
                 >
                   <ExternalLink size={14} />
                 </a>
@@ -156,7 +156,7 @@ export function RefLinksClient({ userId, properties, profile }: RefLinksClientPr
         </AnimatePresence>
 
         {filtered.length === 0 && (
-          <div className="py-16 text-center text-white/20 font-sans text-sm">
+          <div className="py-16 text-center text-muted-foreground/50 font-sans text-sm">
             Nenhum imóvel disponível.
           </div>
         )}

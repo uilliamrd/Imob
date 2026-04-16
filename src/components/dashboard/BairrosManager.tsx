@@ -23,8 +23,8 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
   const [search, setSearch]     = useState("")
   const [error, setError]       = useState<string | null>(null)
 
-  const inputClass = "w-full bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5"
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5"
 
   const filtered = rows.filter((b) =>
     !search || b.name.toLowerCase().includes(search.toLowerCase()) || b.city.toLowerCase().includes(search.toLowerCase())
@@ -90,7 +90,7 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
       <div className="flex gap-3">
         <input type="text" placeholder="Buscar bairro ou cidade..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-[#111] border border-white/10 text-white placeholder-white/20 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
+          className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
         <button onClick={() => setShowNew(!showNew)}
           className="flex items-center gap-2 px-4 py-2 border border-gold/30 text-gold hover:bg-gold/10 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg flex-shrink-0">
           <Plus size={13} /> Novo Bairro
@@ -99,10 +99,10 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
 
       {/* New form */}
       {showNew && (
-        <div className="bg-[#111] border border-gold/20 rounded-xl p-4 space-y-3">
+        <div className="bg-muted/50 border border-gold/20 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-gold text-sm font-sans font-medium">Novo Bairro</p>
-            <button type="button" onClick={() => setShowNew(false)}><X size={13} className="text-white/30" /></button>
+            <button type="button" onClick={() => setShowNew(false)}><X size={13} className="text-muted-foreground" /></button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-1">
@@ -131,12 +131,12 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
 
       {/* List */}
       {filtered.length === 0 && (
-        <p className="text-white/20 text-sm font-sans py-6 text-center">
+        <p className="text-muted-foreground/50 text-sm font-sans py-6 text-center">
           {rows.length === 0 ? "Nenhum bairro cadastrado ainda." : "Nenhum resultado para a busca."}
         </p>
       )}
 
-      <div className="divide-y divide-white/[0.04] border border-white/5 rounded-xl overflow-hidden">
+      <div className="divide-y divide-white/[0.04] border border-border rounded-xl overflow-hidden">
         {filtered.map((b) => {
           const isExp = expanded === b.id
           const form = editForms[b.id] ?? b
@@ -150,24 +150,24 @@ export function BairrosManager({ bairros: initial }: { bairros: Bairro[] }) {
                   }}>
                   <Navigation size={13} className="text-gold/40 flex-shrink-0" />
                   <div>
-                    <p className="text-white/80 text-sm font-sans">{b.name}</p>
+                    <p className="text-foreground/80 text-sm font-sans">{b.name}</p>
                     {(b.city || b.state) && (
-                      <p className="text-white/30 text-xs font-sans">{b.city}{b.state ? `, ${b.state}` : ""}</p>
+                      <p className="text-muted-foreground text-xs font-sans">{b.city}{b.state ? `, ${b.state}` : ""}</p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => remove(b.id)} className="text-white/15 hover:text-red-400 transition-colors p-1">
+                  <button onClick={() => remove(b.id)} className="text-muted-foreground/40 hover:text-red-400 transition-colors p-1">
                     <X size={13} />
                   </button>
                   {isExp
-                    ? <ChevronUp size={13} className="text-white/20 cursor-pointer" onClick={() => setExpanded(null)} />
-                    : <ChevronDown size={13} className="text-white/20 cursor-pointer" onClick={() => { setEditForms((p) => ({ ...p, [b.id]: { ...b } })); setExpanded(b.id) }} />}
+                    ? <ChevronUp size={13} className="text-muted-foreground/50 cursor-pointer" onClick={() => setExpanded(null)} />
+                    : <ChevronDown size={13} className="text-muted-foreground/50 cursor-pointer" onClick={() => { setEditForms((p) => ({ ...p, [b.id]: { ...b } })); setExpanded(b.id) }} />}
                 </div>
               </div>
 
               {isExp && (
-                <div className="px-4 pb-4 pt-2 bg-white/[0.01] border-t border-white/5">
+                <div className="px-4 pb-4 pt-2 bg-white/[0.01] border-t border-border">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                     <div>
                       <label className={labelClass}>Nome</label>

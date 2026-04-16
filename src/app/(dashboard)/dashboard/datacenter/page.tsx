@@ -49,7 +49,7 @@ export default async function DataCenterPage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Data Center</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Logs de importação via n8n, histórico de versões de tabelas PDF e ferramentas de correção de dados.
         </p>
         <div className="divider-gold mt-4 w-20" />
@@ -65,10 +65,10 @@ export default async function DataCenterPage() {
         ].map((s) => {
           const Icon = s.icon
           return (
-            <div key={s.label} className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={14} className={s.color} />
-                <p className="text-white/30 text-xs uppercase tracking-wider font-sans">{s.label}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider font-sans">{s.label}</p>
               </div>
               <p className="font-serif text-3xl font-bold text-white">{s.value}</p>
             </div>
@@ -77,27 +77,27 @@ export default async function DataCenterPage() {
       </div>
 
       {/* Webhook config */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl mb-6">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+      <div className="bg-card border border-border rounded-2xl mb-6">
+        <div className="px-6 py-5 border-b border-border flex items-center gap-2">
           <Webhook size={16} className="text-gold" />
           <h2 className="font-serif text-xl font-semibold text-white">Webhook n8n</h2>
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5">
+            <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5">
               Endpoint de Ingestão
             </label>
             <div className="flex gap-2">
               <input
                 readOnly
                 value={ingestEndpoint}
-                className="flex-1 bg-[#111] border border-white/10 text-white/50 px-3 py-2.5 rounded-lg font-sans text-sm font-mono"
+                className="flex-1 bg-muted/50 border border-border text-muted-foreground px-3 py-2.5 rounded-lg font-sans text-sm font-mono"
               />
               <CopyButton value={ingestEndpoint} label="Copiar" />
             </div>
           </div>
           <div>
-            <label className="text-xs uppercase tracking-[0.12em] text-white/30 font-sans block mb-1.5">
+            <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5">
               Token de Autenticação
             </label>
             <div className="flex gap-2">
@@ -105,9 +105,9 @@ export default async function DataCenterPage() {
                 readOnly
                 value="••••••••••••••••••••"
                 type="password"
-                className="flex-1 bg-[#111] border border-white/10 text-white/50 px-3 py-2.5 rounded-lg font-sans text-sm"
+                className="flex-1 bg-muted/50 border border-border text-muted-foreground px-3 py-2.5 rounded-lg font-sans text-sm"
               />
-              <span className="px-4 py-2.5 border border-white/10 text-white/30 text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
+              <span className="px-4 py-2.5 border border-border text-muted-foreground text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
                 Definido em .env
               </span>
             </div>
@@ -116,17 +116,17 @@ export default async function DataCenterPage() {
       </div>
 
       {/* Logs */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+      <div className="bg-card border border-border rounded-2xl">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-gold" />
             <h2 className="font-serif text-xl font-semibold text-white">Histórico de Importações</h2>
           </div>
-          <span className="text-white/20 text-xs font-sans">{allLogs.length} registros</span>
+          <span className="text-muted-foreground/50 text-xs font-sans">{allLogs.length} registros</span>
         </div>
 
         {allLogs.length === 0 ? (
-          <div className="py-16 text-center text-white/20 font-sans text-sm">
+          <div className="py-16 text-center text-muted-foreground/50 font-sans text-sm">
             Nenhuma importação registrada ainda. Configure o n8n e faça o primeiro envio.
           </div>
         ) : (
@@ -135,12 +135,12 @@ export default async function DataCenterPage() {
               <div key={log.id} className="px-6 py-4 flex items-center gap-4 hover:bg-white/[0.02] transition-colors">
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${log.status === "success" ? "bg-emerald-400" : "bg-red-400"}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/80 text-sm font-sans truncate">{log.message}</p>
-                  <p className="text-white/20 text-xs font-sans mt-0.5">{formatDate(log.created_at)}</p>
+                  <p className="text-foreground/80 text-sm font-sans truncate">{log.message}</p>
+                  <p className="text-muted-foreground/50 text-xs font-sans mt-0.5">{formatDate(log.created_at)}</p>
                 </div>
                 {log.rows_processed > 0 && (
                   <div className="text-right flex-shrink-0">
-                    <p className="text-white/30 text-xs font-sans">{log.rows_processed} processados</p>
+                    <p className="text-muted-foreground text-xs font-sans">{log.rows_processed} processados</p>
                     {log.rows_created > 0 && (
                       <p className="text-emerald-400/50 text-xs font-sans">+{log.rows_created} criados</p>
                     )}

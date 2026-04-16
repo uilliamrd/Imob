@@ -37,8 +37,8 @@ const ROLE_COLORS: Record<UserRole, string> = {
   construtora: "text-amber-400 bg-amber-900/20 border-amber-800/40",
 }
 
-const inputClass = "w-full bg-[#0a0a0a] border border-white/10 text-white placeholder-white/20 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-const labelClass = "text-xs uppercase tracking-[0.15em] text-white/30 font-sans block mb-2"
+const inputClass = "w-full bg-[#0a0a0a] border border-border text-white placeholder-muted-foreground/40 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
 
 export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgOption[] }) {
   const [rows, setRows] = useState(users)
@@ -119,9 +119,9 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
       <div className="flex gap-3 mb-4">
         <input type="text" placeholder="Buscar por nome, email ou CRECI..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-[#111] border border-white/10 text-white placeholder-white/20 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
+          className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
         <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}
-          className="bg-[#111] border border-white/10 text-white/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+          className="bg-muted/50 border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
           <option value="all">Todos os papéis</option>
           {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
             <option key={r} value={r}>{ROLE_LABELS[r]}</option>
@@ -142,19 +142,19 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
               <div className="px-6 py-4 flex items-center justify-between hover:bg-white/[0.02] cursor-pointer"
                 onClick={() => setExpanded(isExpanded ? null : u.id)}>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white/40 text-xs font-serif">
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                    <span className="text-muted-foreground text-xs font-serif">
                       {(u.full_name ?? u.email ?? "U")[0].toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <p className="text-white/90 text-sm font-sans">{u.full_name ?? "—"}</p>
-                    <p className="text-white/30 text-xs font-sans flex items-center gap-2">
+                    <p className="text-foreground/90 text-sm font-sans">{u.full_name ?? "—"}</p>
+                    <p className="text-muted-foreground text-xs font-sans flex items-center gap-2">
                       <span><Mail size={9} className="inline mr-0.5" />{u.email ?? "—"}</span>
                       {u.creci && <span><Star size={9} className="inline mr-0.5" />{u.creci}</span>}
                       {u.whatsapp && <span><Phone size={9} className="inline mr-0.5" />{u.whatsapp}</span>}
                     </p>
-                    <p className="text-white/20 text-xs font-sans mt-0.5">
+                    <p className="text-muted-foreground/50 text-xs font-sans mt-0.5">
                       {u.organization?.name ?? "Sem organização"}
                     </p>
                   </div>
@@ -166,13 +166,13 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
                   {!u.is_active && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full border border-red-800/40 text-red-400 bg-red-900/20 uppercase font-sans">Inativo</span>
                   )}
-                  {isExpanded ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />}
+                  {isExpanded ? <ChevronUp size={14} className="text-muted-foreground" /> : <ChevronDown size={14} className="text-muted-foreground" />}
                 </div>
               </div>
 
               {/* Expanded edit panel */}
               {isExpanded && (
-                <div className="px-6 pb-6 bg-white/[0.01] border-t border-white/5 pt-5 space-y-5">
+                <div className="px-6 pb-6 bg-white/[0.01] border-t border-border pt-5 space-y-5">
                   {/* Identification */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -275,7 +275,7 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
         })}
 
         {filtered.length === 0 && (
-          <div className="px-6 py-10 text-center text-white/20 font-sans text-sm">
+          <div className="px-6 py-10 text-center text-muted-foreground/50 font-sans text-sm">
             Nenhum usuário encontrado.
           </div>
         )}

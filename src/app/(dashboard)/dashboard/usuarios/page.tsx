@@ -39,8 +39,8 @@ export default async function UsuariosPage() {
       </div>
 
       {/* Invite new user */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl mb-8">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+      <div className="bg-card border border-border rounded-2xl mb-8">
+        <div className="px-6 py-5 border-b border-border flex items-center gap-2">
           <UserPlus size={16} className="text-gold" />
           <h2 className="font-serif text-xl font-semibold text-white">Cadastrar Usuário</h2>
         </div>
@@ -48,10 +48,10 @@ export default async function UsuariosPage() {
       </div>
 
       {/* Users list */}
-      <div className="bg-[#161616] border border-white/5 rounded-2xl">
-        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+      <div className="bg-card border border-border rounded-2xl">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between">
           <h2 className="font-serif text-xl font-semibold text-white">Todos os Usuários</h2>
-          <span className="text-white/30 text-xs font-sans">{enrichedProfiles.length} registros</span>
+          <span className="text-muted-foreground text-xs font-sans">{enrichedProfiles.length} registros</span>
         </div>
         <AdminUsersClient
           users={enrichedProfiles as Parameters<typeof AdminUsersClient>[0]["users"]}

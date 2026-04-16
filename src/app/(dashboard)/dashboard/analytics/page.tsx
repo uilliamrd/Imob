@@ -31,7 +31,7 @@ export default async function AnalyticsPage() {
   if (!orgId) {
     return (
       <div className="px-4 py-6 lg:p-8 max-w-6xl">
-        <p className="text-white/30 font-sans text-sm">Você não está vinculado a nenhuma organização.</p>
+        <p className="text-muted-foreground font-sans text-sm">Você não está vinculado a nenhuma organização.</p>
       </div>
     )
   }
@@ -121,7 +121,7 @@ export default async function AnalyticsPage() {
         <h1 className="font-serif text-4xl font-bold text-white">
           <AnimatedGradientText className="font-serif text-4xl font-bold">Analytics de Vendas</AnimatedGradientText>
         </h1>
-        <p className="text-white/30 font-sans text-sm mt-2 max-w-xl">
+        <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
           Leads capturados, corretores parceiros e imóveis mais procurados.
         </p>
         <div className="divider-gold mt-4 w-20" />
@@ -137,10 +137,10 @@ export default async function AnalyticsPage() {
         ].map((s) => {
           const Icon = s.icon
           return (
-            <div key={s.label} className="bg-[#161616] border border-white/5 rounded-2xl p-5">
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={14} className={s.color} />
-                <p className="text-white/30 text-xs uppercase tracking-wider font-sans">{s.label}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider font-sans">{s.label}</p>
               </div>
               <p className="font-serif text-3xl font-bold text-white">{s.value}</p>
             </div>
@@ -150,26 +150,26 @@ export default async function AnalyticsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Top corretores */}
-        <div className="bg-[#161616] border border-white/5 rounded-2xl">
-          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-2xl">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-2">
             <Users size={16} className="text-gold" />
             <h2 className="font-serif text-xl font-semibold text-white">Top Corretores</h2>
           </div>
           {topPartners.length === 0 ? (
-            <div className="px-6 py-10 text-center text-white/20 font-sans text-sm">
+            <div className="px-6 py-10 text-center text-muted-foreground/50 font-sans text-sm">
               Nenhum lead com corretor vinculado ainda.
             </div>
           ) : (
             <div className="divide-y divide-white/[0.04]">
               {topPartners.map((p, i) => (
                 <div key={p.name + i} className="px-6 py-4 flex items-center gap-3">
-                  <span className="text-white/15 text-xs font-serif w-4">{i + 1}</span>
+                  <span className="text-muted-foreground/40 text-xs font-serif w-4">{i + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white/70 text-sm font-sans truncate">{p.name}</p>
+                    <p className="text-foreground/70 text-sm font-sans truncate">{p.name}</p>
                     <p className="text-emerald-400/50 text-xs font-sans">{p.converted} convertidos</p>
                   </div>
-                  <p className="text-white/50 text-sm font-sans flex-shrink-0">{p.leads} leads</p>
-                  <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden flex-shrink-0">
+                  <p className="text-muted-foreground text-sm font-sans flex-shrink-0">{p.leads} leads</p>
+                  <div className="w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden flex-shrink-0">
                     <div className="h-full bg-gold/50 rounded-full transition-all" style={{ width: `${(p.leads / maxPartnerLeads) * 100}%` }} />
                   </div>
                 </div>
@@ -179,29 +179,29 @@ export default async function AnalyticsPage() {
         </div>
 
         {/* Top imóveis */}
-        <div className="bg-[#161616] border border-white/5 rounded-2xl">
-          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-2xl">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-2">
             <Building2 size={16} className="text-gold" />
             <h2 className="font-serif text-xl font-semibold text-white">Imóveis Mais Procurados</h2>
           </div>
           {topProperties.length === 0 ? (
-            <div className="px-6 py-10 text-center text-white/20 font-sans text-sm">
+            <div className="px-6 py-10 text-center text-muted-foreground/50 font-sans text-sm">
               Nenhum lead vinculado a imóveis ainda.
             </div>
           ) : (
             <div className="divide-y divide-white/[0.04]">
               {topProperties.map((p, i) => (
                 <div key={p.title + i} className="px-6 py-4 flex items-center gap-3">
-                  <span className="text-white/15 text-xs font-serif w-4">{i + 1}</span>
+                  <span className="text-muted-foreground/40 text-xs font-serif w-4">{i + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white/70 text-sm font-sans truncate">{p.title}</p>
+                    <p className="text-foreground/70 text-sm font-sans truncate">{p.title}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[p.status] ?? "bg-zinc-500"}`} />
-                      <p className="text-white/25 text-xs font-sans capitalize">{p.status}</p>
+                      <p className="text-muted-foreground/60 text-xs font-sans capitalize">{p.status}</p>
                     </div>
                   </div>
-                  <p className="text-white/50 text-sm font-sans flex-shrink-0">{p.leads} leads</p>
-                  <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden flex-shrink-0">
+                  <p className="text-muted-foreground text-sm font-sans flex-shrink-0">{p.leads} leads</p>
+                  <div className="w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden flex-shrink-0">
                     <div className="h-full bg-gold/50 rounded-full transition-all" style={{ width: `${(p.leads / maxPropLeads) * 100}%` }} />
                   </div>
                 </div>
@@ -213,16 +213,16 @@ export default async function AnalyticsPage() {
 
       {/* Source breakdown */}
       {Object.keys(sourceMap).length > 0 && (
-        <div className="bg-[#161616] border border-white/5 rounded-2xl">
-          <div className="px-6 py-5 border-b border-white/5">
+        <div className="bg-card border border-border rounded-2xl">
+          <div className="px-6 py-5 border-b border-border">
             <h2 className="font-serif text-xl font-semibold text-white">Origem dos Leads</h2>
           </div>
           <div className="p-6 flex flex-wrap gap-4">
             {Object.entries(sourceMap).sort((a, b) => b[1] - a[1]).map(([src, count]) => (
-              <div key={src} className="bg-[#111] border border-white/5 rounded-xl px-5 py-4 flex items-center gap-4">
+              <div key={src} className="bg-muted/50 border border-border rounded-xl px-5 py-4 flex items-center gap-4">
                 <div>
-                  <p className="text-white/60 text-sm font-sans">{SOURCE_LABELS[src] ?? src}</p>
-                  <p className="text-white/20 text-xs font-sans mt-0.5">{pct(count, totalLeads)} do total</p>
+                  <p className="text-foreground/60 text-sm font-sans">{SOURCE_LABELS[src] ?? src}</p>
+                  <p className="text-muted-foreground/50 text-xs font-sans mt-0.5">{pct(count, totalLeads)} do total</p>
                 </div>
                 <p className="font-serif text-2xl font-bold text-white">{count}</p>
               </div>
@@ -232,7 +232,7 @@ export default async function AnalyticsPage() {
       )}
 
       {totalLeads === 0 && (
-        <div className="mt-6 text-center py-16 text-white/20 font-sans text-sm">
+        <div className="mt-6 text-center py-16 text-muted-foreground/50 font-sans text-sm">
           Nenhum lead capturado ainda. Os dados aparecerão aqui conforme os corretores compartilharem links dos seus imóveis.
         </div>
       )}
