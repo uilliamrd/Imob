@@ -18,6 +18,16 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
   try {
     const supabase = await createClient()
 
+    // Check professional role
+    const { data: { user } } = await supabase.auth.getUser()
+    let canDownload = false
+    if (user) {
+      const { createAdminClient } = await import("@/lib/supabase/admin")
+      const admin = createAdminClient()
+      const { data: prof } = await admin.from("profiles").select("role").eq("id", user.id).single()
+      canDownload = ["admin", "imobiliaria", "corretor", "construtora"].includes(prof?.role ?? "")
+    }
+
     const [{ data: dev }, { data: properties }] = await Promise.all([
       supabase.from("developments").select("*, organization:organizations(*)").eq("id", id).single(),
       supabase.from("properties").select("*").eq("development_id", id).order("status").order("price"),
@@ -54,6 +64,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
           properties={(properties ?? []) as Property[]}
           refId={ref}
           whatsapp={whatsapp}
+          canDownload={canDownload}
         />
         <Footer orgName={org?.name ?? development.name} whatsapp={whatsapp} website={org?.website} />
         <CorretorMinisite defaultWhatsapp={whatsapp} defaultName={org?.name ?? development.name} defaultPhoto={org?.logo ?? undefined} />

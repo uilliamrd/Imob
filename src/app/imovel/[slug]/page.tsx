@@ -107,6 +107,20 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
   if (!property) notFound()
 
+  // Check if current user has a professional role (can download photos / copy description)
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  let canDownload = false
+  if (user) {
+    const admin = createAdminClient()
+    const { data: prof } = await admin
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+    canDownload = ["admin", "imobiliaria", "corretor", "construtora"].includes(prof?.role ?? "")
+  }
+
   const isConstrutora = org?.type === "construtora"
   const accentColor = isConstrutora ? (org?.brand_colors?.primary ?? "#C4A052") : "#C4A052"
 
@@ -184,6 +198,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
           images={property.images ?? []}
           description={property.description}
           title={property.title}
+          canDownload={canDownload}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 mt-4 lg:mt-16">

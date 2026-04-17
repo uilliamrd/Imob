@@ -123,7 +123,7 @@ export function LeadCaptureForm({
               <div className="bg-[#fdf8f2] border border-[rgba(201,169,110,0.3)] rounded-2xl p-8 w-full max-w-md shadow-2xl pointer-events-auto relative">
                 <button
                   onClick={() => setOpen(false)}
-                  className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute top-4 right-4 text-[#6B6460] hover:text-[#1C1C1C] transition-colors"
                 >
                   <X size={18} />
                 </button>
@@ -133,10 +133,10 @@ export function LeadCaptureForm({
                     <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
                       <MessageCircle size={24} className="text-emerald-600" />
                     </div>
-                    <h3 className="font-serif text-2xl font-bold text-foreground mb-2">
+                    <h3 className="font-serif text-2xl font-bold text-[#1C1C1C] mb-2">
                       Redirecionando...
                     </h3>
-                    <p className="text-muted-foreground text-sm font-sans">
+                    <p className="text-[#6B6460] text-sm font-sans">
                       Abrindo WhatsApp com seu contato pré-preenchido.
                     </p>
                   </div>
@@ -146,42 +146,42 @@ export function LeadCaptureForm({
                       <p className="text-xs uppercase tracking-[0.2em] text-gold font-sans mb-1">
                         Solicitar informações
                       </p>
-                      <h3 className="font-serif text-2xl font-bold text-foreground">
+                      <h3 className="font-serif text-2xl font-bold text-[#1C1C1C]">
                         {propertyTitle}
                       </h3>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
-                        <label className="text-xs uppercase tracking-[0.1em] text-muted-foreground font-sans block mb-1.5">
+                        <label className="text-xs uppercase tracking-[0.1em] text-[#6B6460] font-sans block mb-1.5">
                           Seu nome
                         </label>
                         <div className="relative">
-                          <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9B9490]" />
                           <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
                             placeholder="Nome completo"
-                            className="w-full bg-white border border-border text-foreground placeholder-muted-foreground pl-9 pr-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
+                            className="w-full bg-white border border-[#DDD5C8] text-[#1C1C1C] placeholder-[#9B9490] pl-9 pr-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-[#C9A96E] transition-colors"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="text-xs uppercase tracking-[0.1em] text-muted-foreground font-sans block mb-1.5">
+                        <label className="text-xs uppercase tracking-[0.1em] text-[#6B6460] font-sans block mb-1.5">
                           WhatsApp / Telefone
                         </label>
                         <div className="relative">
-                          <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9B9490]" />
                           <input
                             type="tel"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             required
                             placeholder="(21) 99999-9999"
-                            className="w-full bg-white border border-border text-foreground placeholder-muted-foreground pl-9 pr-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
+                            className="w-full bg-white border border-[#DDD5C8] text-[#1C1C1C] placeholder-[#9B9490] pl-9 pr-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-[#C9A96E] transition-colors"
                           />
                         </div>
                       </div>
@@ -189,7 +189,7 @@ export function LeadCaptureForm({
                       <button
                         type="submit"
                         disabled={loading || !name.trim() || !phone.trim()}
-                        className="flex items-center justify-center gap-2 w-full py-4 bg-graphite text-offwhite hover:bg-gold hover:text-graphite disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 text-xs uppercase tracking-[0.2em] font-sans rounded-xl mt-2"
+                        className="flex items-center justify-center gap-2 w-full py-4 bg-[#1C1C1C] text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-[#1C1C1C] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-500 text-xs uppercase tracking-[0.2em] font-sans rounded-xl mt-2"
                       >
                         {loading ? (
                           "Aguarde..."
@@ -203,7 +203,7 @@ export function LeadCaptureForm({
                       </button>
                     </form>
 
-                    <p className="text-[11px] text-muted-foreground font-sans text-center mt-4">
+                    <p className="text-[11px] text-[#9B9490] font-sans text-center mt-4">
                       Seus dados são usados apenas para contato sobre este imóvel.
                     </p>
                   </>

@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Copy, Check, ImageDown, Loader2 } from "lucide-react"
+import { Download, Copy, Check, ImageDown, Loader2, Lock } from "lucide-react"
 
 interface PropertyActionsProps {
   images: string[]
   description: string | null
   title: string
+  canDownload?: boolean
 }
 
 async function downloadBlob(url: string, filename: string) {
@@ -24,7 +25,7 @@ async function downloadBlob(url: string, filename: string) {
   }
 }
 
-export function PropertyActions({ images, description, title }: PropertyActionsProps) {
+export function PropertyActions({ images, description, title, canDownload = false }: PropertyActionsProps) {
   const [copied, setCopied] = useState(false)
   const [downloading, setDownloading] = useState(false)
 
@@ -41,13 +42,24 @@ export function PropertyActions({ images, description, title }: PropertyActionsP
     const slug = title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
     for (let i = 0; i < images.length; i++) {
       await downloadBlob(images[i], `${slug}-foto-${i + 1}.jpg`)
-      // Small delay between downloads to avoid browser throttling
       if (i < images.length - 1) await new Promise((r) => setTimeout(r, 300))
     }
     setDownloading(false)
   }
 
   if (!images.length && !description) return null
+
+  if (!canDownload) {
+    return (
+      <div className="flex items-center gap-2 mb-6 mt-4 px-4 py-2.5 rounded-xl border border-border bg-card text-muted-foreground/50 text-xs font-sans">
+        <Lock size={11} className="flex-shrink-0" />
+        <span>Baixar fotos e copiar descrição disponível apenas para corretores e imobiliárias.</span>
+        <a href="/login" className="text-gold hover:text-gold-light transition-colors ml-1 underline underline-offset-2">
+          Entrar
+        </a>
+      </div>
+    )
+  }
 
   return (
     <div className="flex items-center gap-2 flex-wrap mb-6 mt-4">
