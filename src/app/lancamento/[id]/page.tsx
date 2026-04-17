@@ -57,7 +57,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
 
     return (
       <main>
-        <PrintButton />
+        {canDownload && <PrintButton />}
         <LancamentoLanding
           development={development}
           org={org}
