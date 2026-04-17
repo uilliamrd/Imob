@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import {
   Building2, ExternalLink, Edit, Trash2, Users, Home,
   AlertTriangle, CheckCircle, PlusCircle, Globe
 } from "lucide-react"
-import { OrgEditModal } from "@/components/dashboard/OrgEditModal"
+import { OrgDetailPanel } from "@/components/dashboard/OrgDetailPanel"
 import { OrgForm } from "@/components/dashboard/OrgForm"
 import type { Organization, OrgType, OrgPlan } from "@/types/database"
 
@@ -41,7 +42,7 @@ const TYPE_PATH: Record<OrgType, string> = {
 export function OrgDetailList({ initialOrgs, orgType }: Props) {
   const supabase = createClient()
   const [orgs, setOrgs] = useState<OrgWithStats[]>(initialOrgs)
-  const [editing, setEditing] = useState<Organization | null>(null)
+  const [viewing, setViewing] = useState<OrgWithStats | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -198,9 +199,9 @@ export function OrgDetailList({ initialOrgs, orgType }: Props) {
                       <ExternalLink size={13} />
                     </a>
                   )}
-                  <button onClick={() => setEditing(org)}
+                  <button onClick={() => setViewing(org)}
                     className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors"
-                    title="Editar">
+                    title="Ver detalhes">
                     <Edit size={13} />
                   </button>
                   <button onClick={() => deleteOrg(org)} disabled={deleting === org.id}
@@ -244,12 +245,14 @@ export function OrgDetailList({ initialOrgs, orgType }: Props) {
         )}
       </div>
 
-      {editing && (
-        <OrgEditModal
-          org={editing}
-          onClose={() => setEditing(null)}
-        />
-      )}
+      <AnimatePresence>
+        {viewing && (
+          <OrgDetailPanel
+            org={viewing}
+            onClose={() => setViewing(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
