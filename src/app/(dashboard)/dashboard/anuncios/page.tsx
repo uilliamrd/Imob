@@ -1,6 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
-import { redirect } from "next/navigation"
 import { AnunciosClient } from "@/components/dashboard/AnunciosClient"
 import type { PropertyAd } from "@/types/database"
 
@@ -10,8 +9,7 @@ const PROPERTY_SELECT =
   "id, title, slug, price, images, neighborhood, city, org_id, organization:organizations(id, name)"
 
 export default async function AnunciosPage() {
-  const { role } = await requireAuth()
-  if (role !== "admin") redirect("/dashboard")
+  await requireAuth(["admin"])
 
   const admin = createAdminClient()
 
