@@ -50,7 +50,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
   const navItems = (
     [
       { id: "sobre"       as Section, label: "Sobre",       show: true },
-      { id: "portfolio"   as Section, label: "Portfólio",   show: delivered.length > 0 },
+      { id: "portfolio"   as Section, label: "Portfólio",   show: true },
       { id: "imoveis"     as Section, label: "Imóveis",     show: propertiesForSale.length > 0 },
       { id: "lancamentos" as Section, label: "Lançamentos", show: org.has_lancamentos && lancamentos.length > 0 },
     ] as { id: Section; label: string; show: boolean }[]
@@ -227,6 +227,11 @@ function PortfolioSection({ developments }: { developments: Development[] }) {
           </h2>
           <div className="divider-gold mt-6 w-20 opacity-60" />
         </div>
+        {developments.length === 0 && (
+          <div className="py-16 text-center text-white/30 font-sans">
+            Nenhum empreendimento entregue cadastrado ainda.
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {developments.map((dev) => (
             <div key={dev.id} className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden group hover:border-gold/30 transition-all duration-300">

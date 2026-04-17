@@ -5,13 +5,15 @@ import Image from "next/image"
 import Link from "next/link"
 import {
   Search, X, SlidersHorizontal, MapPin, BedDouble, Maximize2, Car,
-  Building2, ArrowRight, Home, ChevronDown, ChevronUp
+  Building2, ArrowRight, Home, ChevronDown, ChevronUp, Sparkles, Star
 } from "lucide-react"
 import type { PortalProperty, PortalConstrutora } from "@/app/(portal)/page"
 
 interface Props {
   properties: PortalProperty[]
   construtoras: PortalConstrutora[]
+  superDestaques?: PortalProperty[]
+  destaqueIds?: Set<string>
 }
 
 const CATEGORIAS = [
@@ -35,7 +37,7 @@ function formatPrice(price: number) {
   return "R$ " + price.toLocaleString("pt-BR")
 }
 
-export function PortalSearch({ properties, construtoras }: Props) {
+export function PortalSearch({ properties, construtoras, superDestaques = [], destaqueIds = new Set() }: Props) {
   const [search, setSearch]           = useState("")
   const [filterNegocio, setNegocio]   = useState("")
   const [filterCategoria, setCategoria] = useState("")
@@ -78,6 +80,12 @@ export function PortalSearch({ properties, construtoras }: Props) {
     const matchDev = !filterDev || p.development_id === filterDev
     return matchText && matchNegocio && matchCategoria && matchCity && matchBeds && matchPrice && matchOrg && matchDev
   })
+
+  // Sort: destaques first, then by date
+  const sortedFiltered = [
+    ...filtered.filter((p) => destaqueIds.has(p.id)),
+    ...filtered.filter((p) => !destaqueIds.has(p.id)),
+  ]
 
   const activeFilters = [filterNegocio, filterCategoria, filterCity, filterBeds, filterPrice, filterOrg, filterDev]
     .filter(Boolean).length
@@ -224,6 +232,64 @@ export function PortalSearch({ properties, construtoras }: Props) {
         </div>
       )}
 
+      {/* ── Super Destaques ─────────────────────────────── */}
+      {superDestaques.length > 0 && (
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles size={13} className="text-gold" />
+            <p className="text-xs uppercase tracking-[0.25em] text-gold font-sans">Super Destaques</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {superDestaques.map((p) => (
+              <Link
+                key={p.id}
+                href={`/imovel/${p.slug}`}
+                className="group relative bg-card border-2 border-gold/40 hover:border-gold rounded-xl overflow-hidden transition-all duration-300 flex flex-col shadow-[0_0_24px_rgba(201,169,110,0.12)]"
+              >
+                <div className="aspect-video bg-muted relative overflow-hidden">
+                  {p.images[0] ? (
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center"><Home size={24} className="text-muted-foreground/20" /></div>
+                  )}
+                  {/* Super Destaque badge */}
+                  <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-gold text-graphite rounded-full text-[9px] font-sans uppercase tracking-wider font-semibold shadow-lg">
+                    <Sparkles size={9} />
+                    Super Destaque
+                  </div>
+                  {p.organization && (
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-[9px] px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded-full font-sans text-white/70">{p.organization.name}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  <p className="font-serif text-foreground text-sm font-semibold leading-tight line-clamp-2 mb-1">{p.title}</p>
+                  {(p.neighborhood || p.city) && (
+                    <p className="text-muted-foreground text-xs font-sans flex items-center gap-1 mb-3">
+                      <MapPin size={9} className="flex-shrink-0" />
+                      {[p.neighborhood, p.city].filter(Boolean).join(", ")}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-3 text-muted-foreground text-[11px] font-sans mb-3">
+                    {p.features.area_m2 && <span className="flex items-center gap-1"><Maximize2 size={9} className="text-gold/50" />{p.features.area_m2}m²</span>}
+                    {(p.features.suites || p.features.dormitorios || p.features.quartos) && (
+                      <span className="flex items-center gap-1"><BedDouble size={9} className="text-gold/50" />{p.features.suites ?? p.features.dormitorios ?? p.features.quartos}</span>
+                    )}
+                    {p.features.vagas && <span className="flex items-center gap-1"><Car size={9} className="text-gold/50" />{p.features.vagas}v</span>}
+                  </div>
+                  <div className="flex items-center justify-between mt-auto">
+                    <p className="font-serif text-gold text-base font-semibold">{formatPrice(p.price)}</p>
+                    <ArrowRight size={13} className="text-muted-foreground/30 group-hover:text-gold group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="divider-gold opacity-20 mt-8" />
+        </div>
+      )}
+
       {/* Results count */}
       <div className="flex items-center justify-between mb-5">
         <p className="text-sm font-sans text-muted-foreground">
@@ -254,11 +320,17 @@ export function PortalSearch({ properties, construtoras }: Props) {
 
       {/* Property grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map((p) => (
+        {sortedFiltered.map((p) => {
+          const isDestaque = destaqueIds.has(p.id)
+          return (
           <Link
             key={p.id}
             href={`/imovel/${p.slug}`}
-            className="group bg-card border border-border rounded-xl overflow-hidden hover:border-gold/30 transition-all duration-300 flex flex-col"
+            className={`group bg-card rounded-xl overflow-hidden transition-all duration-300 flex flex-col ${
+              isDestaque
+                ? "border border-gold/40 hover:border-gold shadow-[0_0_16px_rgba(201,169,110,0.08)]"
+                : "border border-border hover:border-gold/30"
+            }`}
           >
             {/* Image */}
             <div className="aspect-video bg-muted relative overflow-hidden">
@@ -272,6 +344,12 @@ export function PortalSearch({ properties, construtoras }: Props) {
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Home size={24} className="text-muted-foreground/20" />
+                </div>
+              )}
+              {isDestaque && (
+                <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-gold/90 text-graphite rounded-full text-[9px] font-sans uppercase tracking-wider font-semibold">
+                  <Star size={8} />
+                  Destaque
                 </div>
               )}
               {p.organization && (
@@ -324,7 +402,8 @@ export function PortalSearch({ properties, construtoras }: Props) {
               </div>
             </div>
           </Link>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

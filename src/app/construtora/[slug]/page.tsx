@@ -52,7 +52,7 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
       about_text: "Construímos sonhos com a precisão de quem entende que um lar vai além de quatro paredes. Cada projeto é concebido para elevar o padrão de vida dos nossos moradores.",
       about_image: null, hero_tagline: "Onde a Excelência se Encontra com o Lar",
       hero_image: null, has_lancamentos: false, website: "https://meridian.com.br", whatsapp: null,
-      created_at: "",
+      plan: "free" as const, created_at: "",
     },
     properties: [
       { id: "1", code: 1001, title: "Torre A — Apt 1201", description: null, price: 2850000, features: { suites: 4, vagas: 3, area_m2: 198, andar: 12 }, tags: ["VM", "MD", "AL"], status: "disponivel" as const, visibility: "publico" as const, created_by: "1", org_id: "demo", development_id: null, images: [], video_url: null, address: null, neighborhood: "Leblon", city: "Rio de Janeiro", slug: "torre-a-apt-1201", created_at: "", updated_at: "", cep: null, categoria: null, tipo_negocio: "venda", bairro_id: null, logradouro_id: null },

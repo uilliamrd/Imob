@@ -24,6 +24,8 @@ import {
   Layers,
   ListChecks,
   RotateCcw,
+  Megaphone,
+  Inbox,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
@@ -43,9 +45,12 @@ const NAV_ITEMS: NavItem[] = [
   // ── Admin
   { href: "/dashboard/imoveis",           label: "Imóveis",          icon: Home,      roles: ["admin"] },
   { href: "/dashboard/usuarios",          label: "Usuários",         icon: Users,     roles: ["admin"] },
-  { href: "/dashboard/admin",             label: "Organizações",     icon: Building2, roles: ["admin"] },
+  { href: "/dashboard/imobiliarias",       label: "Imobiliárias",     icon: Building2, roles: ["admin"] },
+  { href: "/dashboard/construtoras",       label: "Construtoras",     icon: Building2, roles: ["admin"] },
   { href: "/dashboard/empreendimentos",   label: "Empreendimentos",  icon: Layers,    roles: ["admin"] },
   { href: "/dashboard/locais",            label: "Locais",           icon: MapPin,    roles: ["admin"] },
+  { href: "/dashboard/anuncios",         label: "Anúncios",         icon: Megaphone, roles: ["admin"] },
+  { href: "/dashboard/submissoes",       label: "Submissões",       icon: Inbox,     roles: ["admin"] },
   { href: "/dashboard/datacenter",     label: "Data Center",      icon: Database,        roles: ["admin"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["admin"] },
 

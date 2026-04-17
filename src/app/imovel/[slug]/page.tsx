@@ -6,6 +6,7 @@ import { BentoGallery } from "@/components/property/BentoGallery"
 import { PropertyActions } from "@/components/property/PropertyActions"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { LeadCaptureForm } from "@/components/property/LeadCaptureForm"
+import { PropertyMobileCTA } from "@/components/property/PropertyMobileCTA"
 import { Footer } from "@/components/landing/Footer"
 import { getTagInfo } from "@/lib/tag-icons"
 import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink } from "lucide-react"
@@ -94,10 +95,17 @@ async function getProperty(slug: string): Promise<{
 const STATUS_LABEL: Record<string, string> = {
   disponivel: "Disponível", reserva: "Em Negociação", vendido: "Vendido",
 }
+// For dark backgrounds (main page area, mobile chips)
 const STATUS_COLOR: Record<string, string> = {
   disponivel: "text-emerald-400 bg-emerald-900/20 border-emerald-700/40",
-  reserva: "text-amber-400 bg-amber-900/20 border-amber-700/40",
-  vendido: "text-zinc-500 bg-zinc-800 border-zinc-700/40",
+  reserva:    "text-amber-400 bg-amber-900/20 border-amber-700/40",
+  vendido:    "text-zinc-500 bg-zinc-800 border-zinc-700/40",
+}
+// For cream/light backgrounds (sticky nav, right contact card)
+const STATUS_COLOR_LIGHT: Record<string, string> = {
+  disponivel: "text-emerald-700 bg-emerald-50 border-emerald-300",
+  reserva:    "text-amber-700 bg-amber-50 border-amber-300",
+  vendido:    "text-zinc-500 bg-zinc-100 border-zinc-300",
 }
 
 export default async function ImovelPage({ params, searchParams }: PageProps) {
@@ -132,7 +140,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
     <main className="min-h-screen bg-background">
 
       {/* ── Sticky top nav ─────────────────────────────────── */}
-      <nav className="sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between h-14">
+      <nav className="force-light sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between h-14">
         <Link
           href={isConstrutora && org?.slug ? `/construtora/${org.slug}` : "/"}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-sans"
@@ -142,7 +150,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
         </Link>
         {/* Price + status — desktop only in nav */}
         <div className="hidden lg:flex items-center gap-4">
-          <span className={`text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider font-sans ${STATUS_COLOR[property.status] ?? ""}`}>
+          <span className={`text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider font-sans ${STATUS_COLOR_LIGHT[property.status] ?? ""}`}>
             {STATUS_LABEL[property.status] ?? property.status}
           </span>
           <span className="font-serif text-xl font-bold text-foreground">
@@ -388,14 +396,14 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
           {/* ── Right: Sticky contact card — desktop only ──── */}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 bg-[#fdf8f2] border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
+            <div className="force-light sticky top-24 bg-[#fdf8f2] border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans mb-1">
                 Valor
               </p>
               <p className="font-serif text-3xl font-bold text-foreground">
                 {formatPrice(property.price)}
               </p>
-              <p className={`text-xs mt-1 mb-6 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
+              <p className={`text-xs mt-1 mb-6 font-sans ${STATUS_COLOR_LIGHT[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
                 {STATUS_LABEL[property.status]}
               </p>
 
@@ -430,22 +438,16 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
       </div>
 
       {/* ── Mobile CTA bar ───────────────────────────── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3 flex items-center gap-3">
-        <div className="flex-1 min-w-0">
-          <p className="font-serif text-xl font-bold text-foreground leading-none">{formatPrice(property.price)}</p>
-          <p className={`text-[10px] mt-0.5 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-1.5 py-0.5 rounded-full border`}>
-            {STATUS_LABEL[property.status]}
-          </p>
-        </div>
-        <a
-          href={`https://wa.me/${fallbackWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá! Tenho interesse no imóvel: ${property.title}`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-5 py-3 bg-gold text-graphite rounded-xl text-sm font-sans uppercase tracking-[0.1em] font-semibold flex-shrink-0"
-        >
-          Tenho Interesse
-        </a>
-      </div>
+      <PropertyMobileCTA
+        price={property.price}
+        status={property.status}
+        propertyId={property.id}
+        propertySlug={property.slug}
+        propertyTitle={property.title}
+        orgId={property.org_id}
+        orgWhatsapp={fallbackWhatsapp}
+        refId={ref}
+      />
       {/* spacer so footer doesn't hide behind CTA bar on mobile */}
       <div className="lg:hidden h-20" />
 

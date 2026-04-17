@@ -5,11 +5,14 @@ export type PropertyVisibility = 'publico' | 'equipe' | 'privado'
 export type LeadStatus = 'novo' | 'em_contato' | 'convertido' | 'perdido'
 export type LeadSource = 'imovel' | 'minisite' | 'selecao' | 'manual'
 
+export type OrgPlan = 'free' | 'starter' | 'pro' | 'enterprise'
+
 export interface Organization {
   id: string
   name: string
   slug: string | null
   type: OrgType
+  plan: OrgPlan
   logo: string | null
   brand_colors: { primary?: string; secondary?: string; accent?: string } | null
   portfolio_desc: string | null
@@ -184,6 +187,23 @@ export interface IngestLog {
   rows_updated: number
   rows_errored: number
   created_at: string
+}
+
+export type AdTier = 'destaque' | 'super_destaque'
+export type AdStatus = 'pending' | 'active' | 'paused' | 'expired'
+
+export interface PropertyAd {
+  id: string
+  property_id: string
+  org_id: string | null
+  tier: AdTier
+  status: AdStatus
+  starts_at: string | null
+  expires_at: string | null
+  created_by: string | null
+  created_at: string
+  notes: string | null
+  property?: Property & { organization?: Pick<Organization, 'id' | 'name' | 'slug' | 'type' | 'logo' | 'brand_colors'> }
 }
 
 export interface IngestPropertyPayload {

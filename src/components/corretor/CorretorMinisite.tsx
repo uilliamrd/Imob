@@ -69,8 +69,8 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
 
   const whatsappUrl = 'https://wa.me/' + whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent('Olá! Tenho interesse em um imóvel.')
 
-  // Don't show widget if there's no corretor reference at all
-  if (!resolvedRef && !defaultWhatsapp) return null
+  // Only show widget when a specific corretor is attributed via ref/cookie
+  if (!resolvedRef) return null
 
   return (
     <AnimatePresence>

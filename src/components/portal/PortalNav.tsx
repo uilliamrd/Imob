@@ -12,6 +12,8 @@ const NAV_LINKS = [
   { href: "/sobre", label: "Sobre o Portal" },
 ]
 
+const CTA_LINK = { href: "/venda", label: "Venda seu Imóvel" }
+
 export function PortalNav() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
@@ -43,6 +45,16 @@ export function PortalNav() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href={CTA_LINK.href}
+            className={`text-[11px] uppercase tracking-[0.15em] font-sans transition-colors px-4 py-1.5 rounded-full border ${
+              pathname === CTA_LINK.href
+                ? "bg-gold text-graphite border-gold"
+                : "border-gold/40 text-gold hover:bg-gold hover:text-graphite"
+            }`}
+          >
+            {CTA_LINK.label}
+          </Link>
         </nav>
 
         {/* CTA + hamburger */}
@@ -79,9 +91,16 @@ export function PortalNav() {
               </Link>
             ))}
             <Link
+              href={CTA_LINK.href}
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2 mt-2 py-3 border border-gold/40 text-gold text-xs uppercase tracking-[0.2em] font-sans rounded-sm hover:bg-gold hover:text-graphite transition-colors"
+            >
+              {CTA_LINK.label}
+            </Link>
+            <Link
               href="/login"
               onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-2 mt-4 py-3 bg-gold text-graphite text-xs uppercase tracking-[0.2em] font-sans rounded-sm"
+              className="flex items-center justify-center gap-2 mt-2 py-3 bg-gold text-graphite text-xs uppercase tracking-[0.2em] font-sans rounded-sm"
             >
               Acesso Corretor <ArrowRight size={12} />
             </Link>

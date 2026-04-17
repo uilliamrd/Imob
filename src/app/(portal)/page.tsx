@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { PortalSearch } from "@/components/portal/PortalSearch"
-import type { Property, Organization, Development } from "@/types/database"
+import type { Property, Organization, Development, PropertyAd } from "@/types/database"
 
 export interface PortalProperty extends Omit<Property, "organization" | "development"> {
   organization: Pick<Organization, "id" | "name" | "slug" | "type" | "logo" | "brand_colors"> | null
@@ -16,13 +16,16 @@ export interface PortalConstrutora {
   availableCount: number
 }
 
+const PROPERTY_SELECT = "id, title, slug, price, features, tags, status, visibility, org_id, development_id, images, neighborhood, city, categoria, tipo_negocio, created_at, organization:organizations(id, name, slug, type, logo, brand_colors), development:developments(id, name)"
+
 export default async function PortalPage() {
   const admin = createAdminClient()
+  const now = new Date().toISOString()
 
-  const [{ data: rawProperties }, { data: orgs }] = await Promise.all([
+  const [{ data: rawProperties }, { data: orgs }, { data: rawAds }] = await Promise.all([
     admin
       .from("properties")
-      .select("id, title, slug, price, features, tags, status, visibility, org_id, development_id, images, neighborhood, city, categoria, tipo_negocio, created_at, organization:organizations(id, name, slug, type, logo, brand_colors), development:developments(id, name)")
+      .select(PROPERTY_SELECT)
       .eq("visibility", "publico")
       .eq("status", "disponivel")
       .order("created_at", { ascending: false }),
@@ -31,9 +34,23 @@ export default async function PortalPage() {
       .select("id, name, slug, logo, brand_colors, hero_tagline, portfolio_desc")
       .eq("type", "construtora")
       .not("slug", "is", null),
+    admin
+      .from("property_ads")
+      .select(`*, property:properties(${PROPERTY_SELECT})`)
+      .eq("status", "active")
+      .or(`expires_at.is.null,expires_at.gt.${now}`)
+      .order("created_at", { ascending: false }),
   ])
 
   const properties = (rawProperties ?? []) as unknown as PortalProperty[]
+
+  const ads = (rawAds ?? []) as unknown as PropertyAd[]
+  const superDestaques = ads
+    .filter((a) => a.tier === "super_destaque" && a.property)
+    .map((a) => a.property as unknown as PortalProperty)
+  const destaqueIds = new Set(
+    ads.filter((a) => a.tier === "destaque").map((a) => a.property_id)
+  )
 
   const construtoras: PortalConstrutora[] = await Promise.all(
     (orgs ?? []).map(async (org) => {
@@ -80,7 +97,12 @@ export default async function PortalPage() {
       {/* Search */}
       <section className="py-10 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <PortalSearch properties={properties} construtoras={construtoras} />
+          <PortalSearch
+            properties={properties}
+            construtoras={construtoras}
+            superDestaques={superDestaques}
+            destaqueIds={destaqueIds}
+          />
         </div>
       </section>
     </div>

@@ -176,6 +176,29 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  /*
+   * Force all CSS custom properties to their light-mode values, regardless of
+   * the active theme. Apply to any container with a hardcoded light/cream
+   * background so text-foreground, text-muted-foreground, border-border, bg-card
+   * etc. are always dark/readable. Custom properties cascade by DOM proximity,
+   * so this overrides the .dark root for all descendants.
+   */
+  .force-light {
+    --background:         #F5F0E8;
+    --foreground:         #1C1C1C;
+    --card:               #FDFAF4;
+    --card-foreground:    #1C1C1C;
+    --popover:            #FDFAF4;
+    --popover-foreground: #1C1C1C;
+    --muted:              #EDE8DF;
+    --muted-foreground:   #6B6460;
+    --border:             #DDD5C8;
+    --input:              #DDD5C8;
+    --graphite:           #1C1C1C;
+    --offwhite:           #F5F0E8;
+    color-scheme: light;
+  }
+
   /* iOS safe area for bottom nav */
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);

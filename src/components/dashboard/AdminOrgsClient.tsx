@@ -61,14 +61,14 @@ export function AdminOrgsClient({ orgs: initial }: AdminOrgsClientProps) {
                     </span>
                   )}
                   {org.slug && (
-                    <span className="text-muted-foreground/50 text-[10px] font-mono">/construtora/{org.slug}</span>
+                    <span className="text-muted-foreground/50 text-[10px] font-mono">/{org.type === "imobiliaria" ? "imobiliaria" : "construtora"}/{org.slug}</span>
                   )}
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               {org.slug && (
-                <a href={`/construtora/${org.slug}`} target="_blank" rel="noopener noreferrer"
+                <a href={`/${org.type === "imobiliaria" ? "imobiliaria" : "construtora"}/${org.slug}`} target="_blank" rel="noopener noreferrer"
                   className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
                   <ExternalLink size={14} />
                 </a>
