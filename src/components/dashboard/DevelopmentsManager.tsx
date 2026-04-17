@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Plus, X, ChevronDown, ChevronUp, Save, Building2, Flame, CheckCircle, MapPin, Images, Code2, ExternalLink } from "lucide-react"
+import { Plus, X, ChevronDown, ChevronUp, Save, Trash2, Building2, Flame, CheckCircle, MapPin, Images, Code2, ExternalLink } from "lucide-react"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
 import type { Development } from "@/types/database"
@@ -263,10 +263,6 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                   className="text-muted-foreground/50 hover:text-gold transition-colors p-1" title="Ver página pública">
                   <ExternalLink size={14} />
                 </a>
-                <button type="button" onClick={(e) => { e.stopPropagation(); deleteDev(dev.id) }}
-                  className="text-muted-foreground/50 hover:text-red-400 transition-colors p-1">
-                  <X size={14} />
-                </button>
                 {isExpanded ? <ChevronUp size={14} className="text-muted-foreground" /> : <ChevronDown size={14} className="text-muted-foreground" />}
               </div>
             </div>
@@ -360,10 +356,16 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                   </label>
                 </div>
 
-                <button type="button" onClick={() => updateDev(dev.id)} disabled={saving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gold text-graphite hover:bg-gold-light disabled:opacity-50 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
-                  <Save size={13} /> {saving ? "Salvando..." : "Salvar"}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => updateDev(dev.id)} disabled={saving}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-gold text-graphite hover:bg-gold-light disabled:opacity-50 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
+                    <Save size={13} /> {saving ? "Salvando..." : "Salvar"}
+                  </button>
+                  <button type="button" onClick={() => deleteDev(dev.id)} disabled={saving}
+                    className="flex items-center gap-2 px-4 py-2.5 border border-red-800/40 text-red-400/60 hover:text-red-400 hover:border-red-700/60 hover:bg-red-900/10 disabled:opacity-40 transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg">
+                    <Trash2 size={13} /> Excluir
+                  </button>
+                </div>
               </div>
             )}
           </div>
