@@ -114,13 +114,13 @@ export function LeadCaptureForm({
 
             {/* Modal */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ type: "spring", stiffness: 400, damping: 35 }}
+              className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 pointer-events-none"
             >
-              <div className="force-light bg-[#fdf8f2] border border-[rgba(201,169,110,0.3)] rounded-2xl p-8 w-full max-w-md shadow-2xl pointer-events-auto relative">
+              <div className="force-light bg-[#fdf8f2] border border-[rgba(201,169,110,0.3)] rounded-t-2xl sm:rounded-2xl p-6 sm:p-8 w-full sm:max-w-md shadow-2xl pointer-events-auto relative max-h-[92dvh] overflow-y-auto">
                 <button
                   onClick={() => setOpen(false)}
                   className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"

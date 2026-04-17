@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { ConstrutoraLanding } from "@/components/construtora/ConstrutoraLanding"
@@ -7,7 +7,7 @@ import type { Organization, Property, Development } from "@/types/database"
 
 async function getData(slug: string): Promise<{ org: Organization; properties: Property[]; developments: Development[] } | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: org } = await supabase
       .from("organizations")
@@ -18,7 +18,7 @@ async function getData(slug: string): Promise<{ org: Organization; properties: P
     if (!org || org.type !== "construtora") return null
 
     const [{ data: properties }, { data: developments }] = await Promise.all([
-      supabase.from("properties").select("*").eq("org_id", org.id).eq("visibility", "publico").order("status"),
+      supabase.from("properties").select("*").eq("org_id", org.id).eq("visibility", "publico").order("status").order("created_at", { ascending: false }),
       supabase.from("developments").select("*").eq("org_id", org.id).order("name"),
     ])
 

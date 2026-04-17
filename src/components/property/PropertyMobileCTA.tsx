@@ -1,6 +1,7 @@
 "use client"
 
 import { LeadCaptureForm } from "./LeadCaptureForm"
+import { PropertyShare } from "./PropertyShare"
 
 const STATUS_LABEL: Record<string, string> = {
   disponivel: "Disponível", reserva: "Em Negociação", vendido: "Vendido",
@@ -26,21 +27,22 @@ interface PropertyMobileCTAProps {
   orgId: string | null
   orgWhatsapp: string
   refId?: string | null
+  userId?: string | null
 }
 
 export function PropertyMobileCTA({
-  price, status, propertyId, propertySlug, propertyTitle, orgId, orgWhatsapp, refId,
+  price, status, propertyId, propertySlug, propertyTitle, orgId, orgWhatsapp, refId, userId,
 }: PropertyMobileCTAProps) {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3">
-      <div className="flex items-center gap-3 mb-0">
+      <div className="flex items-center gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-serif text-xl font-bold text-foreground leading-none">{formatPrice(price)}</p>
-          <p className={`text-[10px] mt-0.5 font-sans ${STATUS_COLOR[status] ?? ""} inline-flex px-1.5 py-0.5 rounded-full border`}>
+          <p className="font-serif text-2xl font-bold text-foreground leading-none">{formatPrice(price)}</p>
+          <p className={`text-xs mt-0.5 font-sans ${STATUS_COLOR[status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
             {STATUS_LABEL[status] ?? status}
           </p>
         </div>
-        <div className="flex-shrink-0 w-48">
+        <div className="flex flex-col gap-1.5 flex-shrink-0 w-44">
           <LeadCaptureForm
             propertyId={propertyId}
             propertySlug={propertySlug}
@@ -50,6 +52,13 @@ export function PropertyMobileCTA({
             refId={refId}
             source="imovel"
           />
+          {userId && (
+            <PropertyShare
+              userId={userId}
+              propertySlug={propertySlug}
+              propertyTitle={propertyTitle}
+            />
+          )}
         </div>
       </div>
     </div>

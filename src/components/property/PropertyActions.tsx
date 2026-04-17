@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Copy, Check, ImageDown, Loader2, Lock } from "lucide-react"
+import { Download, Copy, Check, ImageDown, Loader2 } from "lucide-react"
 
 interface PropertyActionsProps {
   images: string[]
@@ -49,17 +49,7 @@ export function PropertyActions({ images, description, title, canDownload = fals
 
   if (!images.length && !description) return null
 
-  if (!canDownload) {
-    return (
-      <div className="flex items-center gap-2 mb-6 mt-4 px-4 py-2.5 rounded-xl border border-border bg-card text-muted-foreground/50 text-xs font-sans">
-        <Lock size={11} className="flex-shrink-0" />
-        <span>Baixar fotos e copiar descrição disponível apenas para corretores e imobiliárias.</span>
-        <a href="/login" className="text-gold hover:text-gold-light transition-colors ml-1 underline underline-offset-2">
-          Entrar
-        </a>
-      </div>
-    )
-  }
+  if (!canDownload) return null
 
   return (
     <div className="flex items-center gap-2 flex-wrap mb-6 mt-4">

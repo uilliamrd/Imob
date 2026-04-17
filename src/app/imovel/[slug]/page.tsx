@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
+import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { BentoGallery } from "@/components/property/BentoGallery"
@@ -7,6 +8,7 @@ import { PropertyActions } from "@/components/property/PropertyActions"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { LeadCaptureForm } from "@/components/property/LeadCaptureForm"
 import { PropertyMobileCTA } from "@/components/property/PropertyMobileCTA"
+import { PropertyShare } from "@/components/property/PropertyShare"
 import { Footer } from "@/components/landing/Footer"
 import { getTagInfo } from "@/lib/tag-icons"
 import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink } from "lucide-react"
@@ -37,6 +39,31 @@ function formatPrice(price: number) {
   if (price >= 1_000_000)
     return "R$ " + (price / 1_000_000).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " Mi"
   return "R$ " + price.toLocaleString("pt-BR")
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const { property, org } = await getProperty(slug)
+  const image = property.images?.[0] ?? null
+  const title = `${property.title} — ${org?.name ?? "RealState Intelligence"}`
+  const description = property.description
+    ?? `${formatPrice(property.price)} · ${[property.neighborhood, property.city].filter(Boolean).join(", ")}`
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: image ? [{ url: image, width: 1200, height: 630, alt: property.title }] : [],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : [],
+    },
+  }
 }
 
 async function getProperty(slug: string): Promise<{
@@ -245,7 +272,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
             <div className="lg:hidden bg-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between mb-5">
               <div>
                 <p className="font-serif text-2xl font-bold text-foreground leading-none">{formatPrice(property.price)}</p>
-                <span className={`text-[10px] mt-1 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
+                <span className={`text-xs mt-1 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
                   {STATUS_LABEL[property.status]}
                 </span>
               </div>
@@ -274,7 +301,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                   <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
                     <Maximize2 size={14} className="text-gold" />
                     <span className="font-serif text-lg font-bold text-foreground">{property.features.area_m2}</span>
-                    <span className="text-[10px] text-muted-foreground">m²</span>
+                    <span className="text-xs text-muted-foreground">m²</span>
                   </div>
                   {/* Desktop card */}
                   <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
@@ -289,7 +316,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                   <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
                     <BedDouble size={14} className="text-gold" />
                     <span className="font-serif text-lg font-bold text-foreground">{property.features.suites ?? property.features.quartos}</span>
-                    <span className="text-[10px] text-muted-foreground">{property.features.suites ? "suítes" : "dorms"}</span>
+                    <span className="text-xs text-muted-foreground">{property.features.suites ? "suítes" : "dorms"}</span>
                   </div>
                   <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
                     <BedDouble size={18} className="text-gold" />
@@ -303,7 +330,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                   <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
                     <Car size={14} className="text-gold" />
                     <span className="font-serif text-lg font-bold text-foreground">{property.features.vagas}</span>
-                    <span className="text-[10px] text-muted-foreground">vagas</span>
+                    <span className="text-xs text-muted-foreground">vagas</span>
                   </div>
                   <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
                     <Car size={18} className="text-gold" />
@@ -317,7 +344,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                   <div className="lg:hidden flex-shrink-0 flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5">
                     <Building2 size={14} className="text-gold" />
                     <span className="font-serif text-lg font-bold text-foreground">{property.features.andar}º</span>
-                    <span className="text-[10px] text-muted-foreground">andar</span>
+                    <span className="text-xs text-muted-foreground">andar</span>
                   </div>
                   <div className="hidden lg:flex flex-col items-center gap-2 p-5 rounded-xl border border-border bg-card hover:border-gold/30 transition-colors">
                     <Building2 size={18} className="text-gold" />
@@ -422,6 +449,16 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                 refId={ref}
               />
 
+              {canDownload && user && (
+                <div className="mb-3">
+                  <PropertyShare
+                    userId={user.id}
+                    propertySlug={property.slug}
+                    propertyTitle={property.title}
+                  />
+                </div>
+              )}
+
               {property.video_url && (
                 <a
                   href={property.video_url}
@@ -447,11 +484,12 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
         orgId={property.org_id}
         orgWhatsapp={fallbackWhatsapp}
         refId={ref}
+        userId={canDownload && user ? user.id : null}
       />
       {/* spacer so footer doesn't hide behind CTA bar on mobile */}
-      <div className="lg:hidden h-20" />
+      <div className="lg:hidden h-28" />
 
-      <Footer orgName={orgName} whatsapp={fallbackWhatsapp} website={org?.website} />
+      <Footer orgName={orgName} whatsapp={ref ? fallbackWhatsapp : undefined} website={org?.website} />
 
       {/* Floating corretor minisite — resolves corretor from ref/cookie, falls back to org/admin WA */}
       <CorretorMinisite
