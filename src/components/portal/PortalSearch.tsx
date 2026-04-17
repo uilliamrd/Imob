@@ -7,11 +7,11 @@ import {
   Search, X, SlidersHorizontal, MapPin, BedDouble, Maximize2, Car,
   Building2, ArrowRight, Home, ChevronDown, ChevronUp, Sparkles, Star
 } from "lucide-react"
-import type { PortalProperty, PortalConstrutora } from "@/app/(portal)/page"
+import type { PortalProperty, PortalOrg } from "@/app/(portal)/page"
 
 interface Props {
   properties: PortalProperty[]
-  construtoras: PortalConstrutora[]
+  construtoras: PortalOrg[]
   superDestaques?: PortalProperty[]
   destaqueIds?: Set<string>
 }

@@ -7,7 +7,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <PortalNav />
-      <main className="min-h-screen bg-background">{children}</main>
+      <main className="min-h-screen bg-[#FAF8F5]">{children}</main>
       <Footer orgName="RealState Intelligence" />
     </>
   )

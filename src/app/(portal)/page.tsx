@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin"
-import { PortalSearch } from "@/components/portal/PortalSearch"
+import { PortalHome } from "@/components/portal/PortalHome"
 import type { Property, Organization, Development, PropertyAd } from "@/types/database"
 
 export interface PortalProperty extends Omit<Property, "organization" | "development"> {
@@ -7,7 +7,7 @@ export interface PortalProperty extends Omit<Property, "organization" | "develop
   development: Pick<Development, "id" | "name"> | null
 }
 
-export interface PortalConstrutora {
+export interface PortalOrg {
   id: string
   name: string
   slug: string
@@ -22,7 +22,7 @@ export default async function PortalPage() {
   const admin = createAdminClient()
   const now = new Date().toISOString()
 
-  const [{ data: rawProperties }, { data: orgs }, { data: rawAds }] = await Promise.all([
+  const [{ data: rawProperties }, { data: construtorасData }, { data: imobiliariasData }, { data: rawAds }] = await Promise.all([
     admin
       .from("properties")
       .select(PROPERTY_SELECT)
@@ -31,8 +31,13 @@ export default async function PortalPage() {
       .order("created_at", { ascending: false }),
     admin
       .from("organizations")
-      .select("id, name, slug, logo, brand_colors, hero_tagline, portfolio_desc")
+      .select("id, name, slug, logo, brand_colors")
       .eq("type", "construtora")
+      .not("slug", "is", null),
+    admin
+      .from("organizations")
+      .select("id, name, slug, logo, brand_colors")
+      .eq("type", "imobiliaria")
       .not("slug", "is", null),
     admin
       .from("property_ads")
@@ -43,8 +48,8 @@ export default async function PortalPage() {
   ])
 
   const properties = (rawProperties ?? []) as unknown as PortalProperty[]
-
   const ads = (rawAds ?? []) as unknown as PropertyAd[]
+
   const superDestaques = ads
     .filter((a) => a.tier === "super_destaque" && a.property)
     .map((a) => a.property as unknown as PortalProperty)
@@ -52,59 +57,46 @@ export default async function PortalPage() {
     ads.filter((a) => a.tier === "destaque").map((a) => a.property_id)
   )
 
-  const construtoras: PortalConstrutora[] = await Promise.all(
-    (orgs ?? []).map(async (org) => {
-      const { count } = await admin
-        .from("properties")
-        .select("*", { count: "exact", head: true })
-        .eq("org_id", org.id)
-        .eq("visibility", "publico")
-        .eq("status", "disponivel")
-      return {
-        id: org.id,
-        name: org.name,
-        slug: org.slug!,
-        logo: org.logo,
-        brand_colors: org.brand_colors,
-        availableCount: count ?? 0,
-      }
-    })
-  )
+  async function buildOrgList(orgs: typeof construtorасData): Promise<PortalOrg[]> {
+    if (!orgs?.length) return []
+    return Promise.all(
+      orgs.map(async (org) => {
+        const { count } = await admin
+          .from("properties")
+          .select("*", { count: "exact", head: true })
+          .eq("org_id", org.id)
+          .eq("visibility", "publico")
+          .eq("status", "disponivel")
+        return {
+          id: org.id,
+          name: org.name,
+          slug: org.slug!,
+          logo: org.logo,
+          brand_colors: org.brand_colors,
+          availableCount: count ?? 0,
+        }
+      })
+    )
+  }
+
+  const [construtoras, imobiliarias] = await Promise.all([
+    buildOrgList(construtorасData),
+    buildOrgList(imobiliariasData),
+  ])
+
+  const heroImage =
+    superDestaques[0]?.images?.[0] ??
+    properties.find((p) => p.images?.[0])?.images?.[0] ??
+    null
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="py-16 px-6 border-b border-border/30 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.025]" style={{
-          backgroundImage: "linear-gradient(rgba(201,169,110,1) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,1) 1px,transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
-        <div className="relative max-w-4xl mx-auto text-center">
-          <p className="text-[10px] uppercase tracking-[0.4em] text-gold/60 font-sans mb-4">Portal de Imóveis</p>
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
-            Encontre o imóvel
-            <span className="block italic text-gradient-gold">dos seus sonhos</span>
-          </h1>
-          <p className="text-muted-foreground font-sans text-base max-w-xl mx-auto">
-            {properties.length > 0
-              ? `${properties.length} imóvel${properties.length !== 1 ? "is" : ""} disponível${properties.length !== 1 ? "is" : ""} para você encontrar.`
-              : "Imóveis selecionados por construtoras e corretores especializados."}
-          </p>
-          <div className="divider-gold mt-6 mx-auto w-16" />
-        </div>
-      </section>
-
-      {/* Search */}
-      <section className="py-10 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <PortalSearch
-            properties={properties}
-            construtoras={construtoras}
-            superDestaques={superDestaques}
-            destaqueIds={destaqueIds}
-          />
-        </div>
-      </section>
-    </div>
+    <PortalHome
+      properties={properties}
+      construtoras={construtoras}
+      imobiliarias={imobiliarias}
+      superDestaques={superDestaques}
+      destaqueIds={destaqueIds}
+      heroImage={heroImage}
+    />
   )
 }
