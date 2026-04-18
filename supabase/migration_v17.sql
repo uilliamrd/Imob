@@ -27,7 +27,7 @@ begin
         on properties
         for select
         using (
-          visibility = 'corretores'
+          visibility::text = 'corretores'
           and exists (
             select 1 from profiles
             where id = auth.uid()
