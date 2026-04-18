@@ -10,10 +10,13 @@ import { LeadCaptureForm } from "@/components/property/LeadCaptureForm"
 import { PropertyMobileCTA } from "@/components/property/PropertyMobileCTA"
 import { PropertyShare } from "@/components/property/PropertyShare"
 import { Footer } from "@/components/landing/Footer"
+import { JsonLd } from "@/components/seo/JsonLd"
 import { getTagInfo } from "@/lib/tag-icons"
 import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink } from "lucide-react"
 import type { Property, Organization, Development } from "@/types/database"
 import Link from "next/link"
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
 
 // ── Fallback mock (dev only) ─────────────────────────────────────────────────
 const MOCK: Property = {
@@ -63,6 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       images: image ? [image] : [],
     },
+    alternates: { canonical: `/imovel/${slug}` },
   }
 }
 
@@ -165,6 +169,26 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
   return (
     <main className="min-h-screen bg-background">
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "RealEstateListing",
+        name: property.title,
+        description: property.description ?? undefined,
+        url: `${SITE_URL}/imovel/${property.slug}`,
+        image: property.images.length > 0 ? property.images : undefined,
+        offers: {
+          "@type": "Offer",
+          price: property.price,
+          priceCurrency: "BRL",
+          availability: property.status === "disponivel" ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+        },
+        address: (property.neighborhood || property.city) ? {
+          "@type": "PostalAddress",
+          addressLocality: property.city ?? undefined,
+          addressRegion: property.neighborhood ?? undefined,
+          addressCountry: "BR",
+        } : undefined,
+      }} />
 
       {/* ── Sticky top nav ─────────────────────────────────── */}
       <nav className="force-light sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between h-14">

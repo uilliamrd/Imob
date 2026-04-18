@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -9,6 +10,37 @@ import {
 } from "lucide-react"
 import type { Selection, SelectionItem, Property, Profile } from "@/types/database"
 import Link from "next/link"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  try {
+    const admin = createAdminClient()
+    const { data: selection } = await admin
+      .from("selections")
+      .select("title, items:selection_items(sort_order, property:properties(images)), corretor:profiles(full_name)")
+      .eq("id", id)
+      .eq("is_public", true)
+      .single()
+    if (!selection) return {}
+    const selAny = selection as unknown as Record<string, unknown>
+    const corrector = selAny.corretor as Record<string, unknown> | null
+    const corrName = (corrector?.full_name as string | null) ?? "Consultor Especialista"
+    const items = (selAny.items as Array<{ sort_order: number; property: { images: string[] } | null }>) ?? []
+    const count = items.length
+    const firstImg = items.sort((a, b) => a.sort_order - b.sort_order)[0]?.property?.images?.[0] ?? null
+    const title = selAny.title as string
+    const description = `Seleção de ${count} imóvel${count !== 1 ? "is" : ""} curada por ${corrName}.`
+    return {
+      title,
+      description,
+      openGraph: { title, description, images: firstImg ? [firstImg] : [] },
+      twitter: { card: "summary_large_image", title, description, images: firstImg ? [firstImg] : [] },
+      alternates: { canonical: `/selecao/${id}` },
+    }
+  } catch {
+    return {}
+  }
+}
 
 interface PageProps {
   params: Promise<{ id: string }>

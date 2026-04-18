@@ -1,5 +1,11 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Building2, Users, BarChart3, Shield } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Sobre",
+  description: "Conheça a RealState Intelligence, plataforma de curadoria de imóveis de alto padrão.",
+}
 
 const FEATURES = [
   {

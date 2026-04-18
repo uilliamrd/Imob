@@ -1,7 +1,13 @@
+import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import Image from "next/image"
 import Link from "next/link"
 import { Building2, Home, ArrowRight } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Construtoras",
+  description: "Conheça as principais construtoras e seus empreendimentos disponíveis.",
+}
 
 export default async function ConstrutoresPage() {
   const admin = createAdminClient()

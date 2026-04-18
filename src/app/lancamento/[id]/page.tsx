@@ -1,10 +1,44 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { LancamentoLanding } from "@/components/construtora/LancamentoLanding"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { PrintButton } from "@/components/property/PrintButton"
 import type { Development, Organization, Property } from "@/types/database"
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  try {
+    const admin = createAdminClient()
+    const { data: dev } = await admin
+      .from("developments")
+      .select("name, neighborhood, city, cover_image, organization:organizations(logo, hero_image)")
+      .eq("id", id)
+      .single()
+    if (!dev) return {}
+    const devAny = dev as unknown as Record<string, unknown>
+    const org = devAny.organization as Record<string, unknown> | null
+    const title = `${dev.name} | Lançamento`
+    const parts = [dev.name as string]
+    if (devAny.neighborhood) parts.push(`em ${devAny.neighborhood}`)
+    if (devAny.city) parts.push(devAny.city as string)
+    const description = `Conheça ${parts.join(", ")}.`
+    const image = (devAny.cover_image ?? org?.hero_image ?? org?.logo ?? null) as string | null
+    return {
+      title,
+      description,
+      openGraph: { title, description, images: image ? [image] : [] },
+      twitter: { card: "summary_large_image", title, description, images: image ? [image] : [] },
+      alternates: { canonical: `/lancamento/${id}` },
+    }
+  } catch {
+    return {}
+  }
+}
 
 interface PageProps {
   params: Promise<{ id: string }>

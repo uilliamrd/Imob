@@ -1,8 +1,41 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorLanding } from "@/components/corretor/CorretorLanding"
+import { JsonLd } from "@/components/seo/JsonLd"
 import type { Profile, Property } from "@/types/database"
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
+
+async function getProfile(id: string) {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from("profiles")
+    .select("id, full_name, avatar_url, whatsapp, creci, bio, role, organization_id, slug")
+    .or(`id.eq.${id},slug.eq.${id}`)
+    .eq("role", "corretor")
+    .eq("is_active", true)
+    .maybeSingle()
+  return data
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const profile = await getProfile(id)
+  if (!profile) return {}
+  const title = profile.full_name ? `${profile.full_name} | Corretor de Imóveis` : "Corretor de Imóveis"
+  const description = (profile.bio as string | null) ?? `Corretor especializado${profile.creci ? ` — CRECI ${profile.creci}` : ""}.`
+  const image = (profile.avatar_url as string | null) ?? null
+  const canonical = `/corretor/${(profile.slug as string | null) ?? profile.id}`
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: image ? [image] : [] },
+    twitter: { card: "summary_large_image", title, description, images: image ? [image] : [] },
+    alternates: { canonical },
+  }
+}
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -19,14 +52,8 @@ export default async function CorretorPage({ params, searchParams }: PageProps) 
   const { ref } = await searchParams
   const admin = createAdminClient()
 
-  const [{ data: profile }, { data: listings }] = await Promise.all([
-    admin
-      .from("profiles")
-      .select("id, full_name, avatar_url, whatsapp, creci, bio, role, organization_id, slug")
-      .or(`id.eq.${id},slug.eq.${id}`)
-      .eq("role", "corretor")
-      .eq("is_active", true)
-      .maybeSingle(),
+  const [profile, { data: listings }] = await Promise.all([
+    getProfile(id),
     admin
       .from("property_listings")
       .select("is_featured, property:properties(*)")
@@ -54,13 +81,24 @@ export default async function CorretorPage({ params, searchParams }: PageProps) 
     const { data: org } = await admin
       .from("organizations")
       .select("name")
-      .eq("id", profile.organization_id)
+      .eq("id", profile.organization_id as string)
       .single()
     orgName = org?.name ?? null
   }
 
+  const profileSlug = (profile.slug as string | null) ?? profile.id
+
   return (
     <main>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "RealEstateAgent",
+        name: profile.full_name,
+        description: profile.bio ?? undefined,
+        image: profile.avatar_url ?? undefined,
+        url: `${SITE_URL}/corretor/${profileSlug}`,
+        telephone: profile.whatsapp ?? undefined,
+      }} />
       <CorretorLanding
         profile={profile as Profile}
         orgName={orgName}
@@ -69,8 +107,8 @@ export default async function CorretorPage({ params, searchParams }: PageProps) 
         refId={ref}
       />
       <Footer
-        orgName={profile.full_name ?? "Corretor"}
-        whatsapp={profile.whatsapp ?? ""}
+        orgName={(profile.full_name as string | null) ?? "Corretor"}
+        whatsapp={(profile.whatsapp as string | null) ?? ""}
       />
     </main>
   )

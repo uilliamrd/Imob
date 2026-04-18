@@ -1,7 +1,13 @@
+import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import Image from "next/image"
 import Link from "next/link"
 import { User, ArrowRight, BadgeCheck } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Corretores Especializados",
+  description: "Encontre corretores especializados em imóveis de alto padrão para te atender.",
+}
 
 export default async function CorretoresPage() {
   const admin = createAdminClient()

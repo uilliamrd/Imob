@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { PortalHome } from "@/components/portal/PortalHome"
 import type { Property, Organization, Development, PropertyAd } from "@/types/database"
+
+export const metadata: Metadata = {
+  title: "Portal de Imóveis de Alto Padrão",
+  description: "Encontre apartamentos, casas, lançamentos e terrenos selecionados com curadoria especializada.",
+  openGraph: { type: "website" },
+}
 
 export interface PortalProperty extends Omit<Property, "organization" | "development"> {
   organization: Pick<Organization, "id" | "name" | "slug" | "type" | "logo" | "brand_colors"> | null

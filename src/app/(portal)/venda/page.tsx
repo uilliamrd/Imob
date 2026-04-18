@@ -1,6 +1,12 @@
+import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { VendaWizard } from "@/components/venda/VendaWizard"
 import type { CorretorCard } from "@/components/venda/VendaWizard"
+
+export const metadata: Metadata = {
+  title: "Quero Vender Meu Imóvel",
+  description: "Cadastre seu imóvel e conecte-se com compradores qualificados.",
+}
 
 export const dynamic = "force-dynamic"
 

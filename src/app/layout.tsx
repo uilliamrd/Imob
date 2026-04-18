@@ -17,9 +17,22 @@ const playfair = Playfair_Display({
   style: ["normal", "italic"],
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
+
 export const metadata: Metadata = {
-  title: "RealState Intelligence",
-  description: "Plataforma imobiliária de alto padrão",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    template: "%s — RealState Intelligence",
+    default: "RealState Intelligence | Imóveis de Alto Padrão",
+  },
+  description: "Portal de imóveis de alto padrão. Encontre apartamentos, casas e lançamentos com curadoria especializada.",
+  openGraph: {
+    siteName: "RealState Intelligence",
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({

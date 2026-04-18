@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { ConstrutoraLanding } from "@/components/construtora/ConstrutoraLanding"
+import { JsonLd } from "@/components/seo/JsonLd"
 import type { Organization, Property, Development } from "@/types/database"
 
 async function getData(slug: string): Promise<{ org: Organization; properties: Property[]; developments: Development[] } | null> {
@@ -29,6 +31,29 @@ async function getData(slug: string): Promise<{ org: Organization; properties: P
     }
   } catch {
     return null
+  }
+}
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const data = await getData(slug)
+  if (!data) return {}
+  const { org } = data
+  const title = `${org.name} | Construtora`
+  const description = (org as unknown as Record<string, string | null>).portfolio_desc
+    ?? (org as unknown as Record<string, string | null>).about_text
+    ?? `Conheça os empreendimentos de ${org.name}.`
+  const image = (org as unknown as Record<string, string | null>).hero_image
+    ?? org.logo
+    ?? null
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: image ? [image] : [], type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: image ? [image] : [] },
+    alternates: { canonical: `/construtora/${slug}` },
   }
 }
 
@@ -69,8 +94,20 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
   const { org, properties, developments } = data
   const whatsapp = org.whatsapp ?? "5521999999999"
 
+  const orgAny = org as unknown as Record<string, unknown>
+
   return (
     <main>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: org.name,
+        url: `${SITE_URL}/construtora/${slug}`,
+        logo: org.logo ?? undefined,
+        telephone: org.whatsapp ?? undefined,
+        description: (orgAny.portfolio_desc ?? orgAny.about_text) as string | undefined,
+        contactPoint: org.whatsapp ? { "@type": "ContactPoint", telephone: org.whatsapp, contactType: "sales" } : undefined,
+      }} />
       <ConstrutoraLanding
         org={org}
         properties={properties}
