@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { PlusCircle, Eye, Edit, Maximize2, BedDouble, Car, Hash, Search, ListPlus, Trash2, ExternalLink } from "lucide-react"
+import { PlusCircle, Edit, Maximize2, BedDouble, Car, Hash, Search, ListPlus, Trash2, ExternalLink } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { getTagInfo } from "@/lib/tag-icons"
 import { PropertyPickerModal } from "@/components/dashboard/PropertyPickerModal"
@@ -183,83 +183,81 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           const isOwn = p.created_by === userId
 
           return (
-            <div key={p.id} className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-gold/20 transition-all duration-300">
-              <div className="aspect-video bg-gradient-to-br from-[#1a1a1a] to-[#222] relative overflow-hidden">
-                {p.images[0] ? (
-                  <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/10">
-                    <span className="font-serif text-4xl">R</span>
-                  </div>
-                )}
-                <span className={`absolute top-3 left-3 text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider font-sans ${statusStyle}`}>
-                  {statusLabel}
-                </span>
-                {isListed && !isOwn && (
-                  <span className="absolute top-3 right-3 text-[9px] px-2 py-1 rounded-full bg-gold/20 border border-gold/40 text-gold uppercase font-sans tracking-wider">
-                    No catálogo
-                  </span>
-                )}
-              </div>
-
-              <div className="p-5">
-                {p.code && (
-                  <div className="flex items-center gap-1 text-muted-foreground/50 text-[10px] font-sans mb-1">
-                    <Hash size={9} /><span>{p.code}</span>
-                  </div>
-                )}
-                <h3 className="font-serif text-lg font-semibold text-white mb-1 truncate">{p.title}</h3>
-                {p.neighborhood && (
-                  <p className="text-muted-foreground text-xs font-sans mb-3">{p.neighborhood}, {p.city}</p>
-                )}
-
-                <div className="flex items-center gap-3 text-muted-foreground text-xs font-sans mb-3">
-                  {p.features.area_m2 && (
-                    <span className="flex items-center gap-1"><Maximize2 size={11} />{p.features.area_m2}m²</span>
+            <div key={p.id} className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-gold/20 transition-all duration-300 flex flex-col">
+              <Link href={`/imovel/${p.slug}`} target="_blank" className="block">
+                <div className="aspect-video bg-gradient-to-br from-[#1a1a1a] to-[#222] relative overflow-hidden">
+                  {p.images[0] ? (
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white/10">
+                      <span className="font-serif text-4xl">R</span>
+                    </div>
                   )}
-                  {(p.features.suites || p.features.dormitorios) && (
-                    <span className="flex items-center gap-1">
-                      <BedDouble size={11} />
-                      {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
+                  <span className={`absolute top-3 left-3 text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider font-sans ${statusStyle}`}>
+                    {statusLabel}
+                  </span>
+                  {isListed && !isOwn && (
+                    <span className="absolute top-3 right-3 text-[9px] px-2 py-1 rounded-full bg-gold/20 border border-gold/40 text-gold uppercase font-sans tracking-wider">
+                      No catálogo
                     </span>
                   )}
-                  {p.features.vagas && (
-                    <span className="flex items-center gap-1"><Car size={11} />{p.features.vagas} vagas</span>
+                </div>
+
+                <div className="px-5 pt-5 pb-3">
+                  {p.code && (
+                    <div className="flex items-center gap-1 text-muted-foreground/50 text-[10px] font-sans mb-1">
+                      <Hash size={9} /><span>{p.code}</span>
+                    </div>
                   )}
-                </div>
+                  <h3 className="font-serif text-lg font-semibold text-white mb-1 truncate group-hover:text-gold transition-colors">{p.title}</h3>
+                  {p.neighborhood && (
+                    <p className="text-muted-foreground text-xs font-sans mb-3">{p.neighborhood}, {p.city}</p>
+                  )}
 
-                <div className="flex gap-1 mb-4">
-                  {p.tags.slice(0, 4).map((tag) => {
-                    const info = getTagInfo(tag)
-                    const Icon = info.icon
-                    return (
-                      <span key={tag} title={info.label} className="flex items-center justify-center w-6 h-6 rounded-full border border-gold/20 text-gold/50">
-                        <Icon size={11} />
-                      </span>
-                    )
-                  })}
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <p className="font-serif text-xl font-bold text-white">{formatPrice(p.price)}</p>
-                  <div className="flex gap-2">
-                    <Link href={`/imovel/${p.slug}`} target="_blank"
-                      className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
-                      <Eye size={14} />
-                    </Link>
-                    {(isAdmin || isOwn) && (
-                      <Link href={`/dashboard/imoveis/${p.id}/editar`}
-                        className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
-                        <Edit size={14} />
-                      </Link>
+                  <div className="flex items-center gap-3 text-muted-foreground text-xs font-sans mb-3">
+                    {p.features.area_m2 && (
+                      <span className="flex items-center gap-1"><Maximize2 size={11} />{p.features.area_m2}m²</span>
                     )}
-                    {(isAdmin || isOwn || isListed) && (
-                      <button onClick={() => handleDelete(p)} disabled={deleting === p.id}
-                        className="p-2 rounded-lg border border-border text-muted-foreground hover:text-red-400 hover:border-red-900/50 transition-colors disabled:opacity-40">
-                        <Trash2 size={14} />
-                      </button>
+                    {(p.features.suites || p.features.dormitorios) && (
+                      <span className="flex items-center gap-1">
+                        <BedDouble size={11} />
+                        {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
+                      </span>
+                    )}
+                    {p.features.vagas && (
+                      <span className="flex items-center gap-1"><Car size={11} />{p.features.vagas} vagas</span>
                     )}
                   </div>
+
+                  <div className="flex gap-1">
+                    {p.tags.slice(0, 4).map((tag) => {
+                      const info = getTagInfo(tag)
+                      const Icon = info.icon
+                      return (
+                        <span key={tag} title={info.label} className="flex items-center justify-center w-6 h-6 rounded-full border border-gold/20 text-gold/50">
+                          <Icon size={11} />
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              </Link>
+
+              <div className="px-5 pb-5 pt-3 border-t border-border/50 flex items-center justify-between mt-auto">
+                <p className="font-serif text-xl font-bold text-white">{formatPrice(p.price)}</p>
+                <div className="flex gap-2">
+                  {(isAdmin || isOwn) && (
+                    <Link href={`/dashboard/imoveis/${p.id}/editar`}
+                      className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
+                      <Edit size={14} />
+                    </Link>
+                  )}
+                  {(isAdmin || isOwn || isListed) && (
+                    <button onClick={() => handleDelete(p)} disabled={deleting === p.id}
+                      className="p-2 rounded-lg border border-border text-muted-foreground hover:text-red-400 hover:border-red-900/50 transition-colors disabled:opacity-40">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
