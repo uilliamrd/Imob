@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
 import { ImageUpload } from "@/components/ui/ImageUpload"
-import { Save, Plus, X, Hash, Globe, EyeOff } from "lucide-react"
+import { Save, Plus, X, Hash, Globe, EyeOff, Sparkles } from "lucide-react"
 import type { PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
 const ALL_TAGS = Object.keys(getAllTags())
@@ -66,6 +66,8 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
   const [activeTab, setActiveTab] = useState(0)
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState<string | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError]     = useState<string | null>(null)
 
   // Admin org transfer — track selected org for PATCH
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(initialData?.org_id ?? orgId ?? null)
@@ -208,6 +210,43 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
           }
         }
       }
+    }
+  }
+
+  async function handleGenerateContent() {
+    setAiLoading(true); setAiError(null)
+    try {
+      const res = await fetch("/api/admin/generate-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          categoria,
+          tipo_negocio: tipoNegocio,
+          price: parseFloat(price) || 0,
+          neighborhood,
+          city,
+          features: {
+            suites:    suites    ? parseInt(suites)    : undefined,
+            quartos:   dormitorios ? parseInt(dormitorios) : undefined,
+            vagas:     vagas     ? parseInt(vagas)     : undefined,
+            area_m2:   areaM2    ? parseFloat(areaM2)  : undefined,
+            banheiros: banheiros ? parseInt(banheiros) : undefined,
+            andar:     andar     ? parseInt(andar)     : undefined,
+            mobiliado: mobiliado || undefined,
+          },
+          tags: selectedTags.map((t) => getTagInfo(t).label),
+          development_name: developments.find((d) => d.id === developmentId)?.name,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setAiError(data.error ?? "Erro ao gerar conteúdo"); return }
+      if (data.title)       setTitle(data.title)
+      if (data.description) setDesc(data.description)
+      if (data.slug)        setSlug(data.slug)
+    } catch {
+      setAiError("Erro de conexão. Tente novamente.")
+    } finally {
+      setAiLoading(false)
     }
   }
 
@@ -570,6 +609,27 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
       {/* ══ TAB 1: IDENTIFICAÇÃO ══════════════════════════════════ */}
       {activeTab === 1 && (
         <div className="space-y-5">
+
+          {/* ── Bloco IA ── */}
+          <div className="bg-gold/5 border border-gold/20 rounded-2xl p-5">
+            <p className="text-xs uppercase tracking-[0.15em] text-gold font-sans mb-1">Geração com IA</p>
+            <p className="text-muted-foreground font-sans text-sm mb-4">
+              Preenche título, descrição e slug automaticamente com base nos dados já inseridos.
+            </p>
+            <button
+              type="button"
+              onClick={handleGenerateContent}
+              disabled={aiLoading || (!categoria && !tipoNegocio && !price)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gold text-graphite hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg"
+            >
+              <Sparkles size={14} />
+              {aiLoading ? "Gerando…" : "Gerar com IA"}
+            </button>
+            {aiError && (
+              <p className="text-red-400 font-sans text-xs mt-3">{aiError}</p>
+            )}
+          </div>
+
           <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
             <div>
               <label className={lc}>Título *</label>

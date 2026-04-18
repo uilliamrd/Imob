@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { getPlanLimits, resolveEntityType } from "@/lib/plans"
+import type { OrgPlan, OrgType } from "@/types/database"
 
 const ALLOWED_ROLES = ["admin", "imobiliaria", "corretor", "construtora"]
 
@@ -9,7 +11,11 @@ async function getAuth() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
   const admin = createAdminClient()
-  const { data: p } = await admin.from("profiles").select("role, organization_id").eq("id", user.id).single()
+  const { data: p } = await admin
+    .from("profiles")
+    .select("role, plan, organization_id, organization:organizations(type, plan)")
+    .eq("id", user.id)
+    .single()
   if (!p || !ALLOWED_ROLES.includes(p.role)) return null
   return { admin, userId: user.id, profile: p }
 }
@@ -17,6 +23,29 @@ async function getAuth() {
 export async function POST(request: Request) {
   const auth = await getAuth()
   if (!auth) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+
+  // Verificar limite de imóveis do plano (admins são isentos)
+  if (auth.profile.role !== "admin") {
+    const org = auth.profile.organization as unknown as { type: OrgType; plan: OrgPlan } | null
+    const entityType = resolveEntityType(auth.profile.role, org?.type ?? null)
+    const plan = (org?.plan ?? auth.profile.plan ?? "free") as OrgPlan
+    const limits = getPlanLimits(entityType, plan)
+
+    if (limits.max_properties !== null) {
+      const scopeId = auth.profile.organization_id ?? auth.userId
+      const scopeField = auth.profile.organization_id ? "org_id" : "created_by"
+      const { count } = await auth.admin
+        .from("properties")
+        .select("id", { count: "exact", head: true })
+        .eq(scopeField, scopeId)
+      if ((count ?? 0) >= limits.max_properties) {
+        return NextResponse.json(
+          { error: `Limite do plano atingido: máximo de ${limits.max_properties} imóveis. Faça upgrade para continuar.` },
+          { status: 403 }
+        )
+      }
+    }
+  }
 
   const body = await request.json()
 

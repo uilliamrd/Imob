@@ -31,6 +31,7 @@ export interface Profile {
   full_name: string | null
   avatar_url: string | null
   role: UserRole
+  plan: OrgPlan
   bio: string | null
   whatsapp: string | null
   creci: string | null

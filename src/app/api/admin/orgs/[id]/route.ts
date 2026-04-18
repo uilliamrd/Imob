@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { getPlanLimits, resolveEntityType } from "@/lib/plans"
+import type { OrgPlan, OrgType } from "@/types/database"
 
 async function assertAdmin() {
   const supabase = await createClient()
@@ -52,6 +54,30 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params
   const { corretor_id } = await req.json()
   if (!corretor_id) return NextResponse.json({ error: "corretor_id obrigatório" }, { status: 400 })
+
+  // Verificar limite de corretores do plano da org
+  const { data: org } = await admin
+    .from("organizations")
+    .select("type, plan")
+    .eq("id", id)
+    .single()
+
+  if (org) {
+    const entityType = resolveEntityType(org.type as OrgType, org.type as OrgType)
+    const limits = getPlanLimits(entityType, (org.plan ?? "free") as OrgPlan)
+    if (limits.max_corretores !== null) {
+      const { count } = await admin
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", id)
+      if ((count ?? 0) >= limits.max_corretores) {
+        return NextResponse.json(
+          { error: `Limite do plano atingido: máximo de ${limits.max_corretores} corretores na equipe. Faça upgrade para continuar.` },
+          { status: 403 }
+        )
+      }
+    }
+  }
 
   const { error } = await admin
     .from("profiles")

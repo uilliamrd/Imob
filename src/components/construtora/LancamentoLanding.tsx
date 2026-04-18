@@ -15,10 +15,11 @@ function formatPrice(price: number) {
   return "R$ " + price.toLocaleString("pt-BR")
 }
 
+// Status badges always on dark background (bg-graphite section) — use dark-safe colors only
 const STATUS_MAP = {
-  disponivel: { label: "Disponível", cls: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700/50" },
-  reserva:    { label: "Reservado",  cls: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700/50" },
-  vendido:    { label: "Vendido",    cls: "bg-zinc-100 text-zinc-500 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700/50" },
+  disponivel: { label: "Disponível", cls: "bg-emerald-900/30 text-emerald-300 border-emerald-700/50" },
+  reserva:    { label: "Reservado",  cls: "bg-amber-900/30 text-amber-300 border-amber-700/50" },
+  vendido:    { label: "Vendido",    cls: "bg-zinc-800 text-zinc-400 border-zinc-700/50" },
 } as const
 
 interface Props {
@@ -153,6 +154,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
       </div>
 
       {/* ── TABELA DE UNIDADES ────────────────────────────────── */}
+      {/* Fundo sempre escuro (bg-graphite) — todas as cores de texto são fixas, sem variáveis de tema */}
       <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-graphite">
         <div className="max-w-6xl mx-auto">
 
@@ -160,7 +162,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <div className="flex flex-col gap-5 mb-8 md:mb-12 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-2">Tabela de Preços</p>
-              <h2 className="font-serif text-3xl md:text-5xl font-bold text-foreground">
+              <h2 className="font-serif text-3xl md:text-5xl font-bold text-white">
                 Escolha a Sua <span className="italic" style={{ color: "#C9A96E" }}>Unidade</span>
               </h2>
             </div>
@@ -171,7 +173,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                   className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
                     activeFilter === f.id
                       ? "bg-gold text-[#1C1C1C] font-semibold"
-                      : "border border-border text-foreground/55 hover:border-gold/50 hover:text-gold"
+                      : "border border-white/20 text-white/50 hover:border-gold/50 hover:text-gold"
                   }`}>
                   {f.label}
                 </button>
@@ -182,7 +184,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <div className="divider-gold opacity-30 mb-1" />
 
           {/* Desktop table header — hidden on mobile */}
-          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-foreground/40 font-sans">
+          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-white/30 font-sans">
             <span className="col-span-4">Unidade</span>
             <span className="col-span-2 text-center">Área</span>
             <span className="col-span-2 text-center">Dormitórios</span>
@@ -200,15 +202,15 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                 <motion.div key={p.id} layout
                   initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.3, delay: i * 0.03 }}
-                  className={`border-b border-border/40 ${!isAvailable ? "opacity-55" : ""}`}>
+                  className={`border-b border-white/10 ${!isAvailable ? "opacity-50" : ""}`}>
 
                   {/* ── Mobile card ── */}
-                  <div className="md:hidden px-1 py-4 hover:bg-muted/20 transition-colors">
+                  <div className="md:hidden px-1 py-4 hover:bg-white/5 transition-colors">
                     <div className="flex items-start justify-between gap-3 mb-2.5">
                       <div className="flex-1 min-w-0">
-                        <p className="font-serif text-foreground font-semibold text-base leading-tight">{p.title}</p>
+                        <p className="font-serif text-white font-semibold text-base leading-tight">{p.title}</p>
                         {p.code && (
-                          <p className="text-muted-foreground text-[11px] font-sans mt-0.5 flex items-center gap-1">
+                          <p className="text-white/40 text-[11px] font-sans mt-0.5 flex items-center gap-1">
                             <Hash size={9} /> Cód. {p.code}
                           </p>
                         )}
@@ -220,18 +222,18 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                         {status.label}
                       </span>
                       {p.features.area_m2 && (
-                        <span className="flex items-center gap-1 text-muted-foreground text-xs font-sans">
+                        <span className="flex items-center gap-1 text-white/50 text-xs font-sans">
                           <Maximize2 size={11} className="text-gold/60" />{p.features.area_m2} m²
                         </span>
                       )}
                       {(p.features.suites || p.features.dormitorios) && (
-                        <span className="flex items-center gap-1 text-muted-foreground text-xs font-sans">
+                        <span className="flex items-center gap-1 text-white/50 text-xs font-sans">
                           <BedDouble size={11} className="text-gold/60" />
                           {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
                         </span>
                       )}
                       {p.features.vagas && (
-                        <span className="flex items-center gap-1 text-muted-foreground text-xs font-sans">
+                        <span className="flex items-center gap-1 text-white/50 text-xs font-sans">
                           <Car size={11} className="text-gold/60" />{p.features.vagas} vg
                         </span>
                       )}
@@ -245,27 +247,27 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                   </div>
 
                   {/* ── Desktop table row ── */}
-                  <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-muted/20 transition-colors">
+                  <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-white/5 transition-colors">
                     <div className="col-span-4 flex flex-col gap-1">
-                      <span className="font-serif text-foreground font-semibold text-base leading-tight">{p.title}</span>
+                      <span className="font-serif text-white font-semibold text-base leading-tight">{p.title}</span>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
                           {status.label}
                         </span>
                         {p.code && (
-                          <span className="text-muted-foreground text-[10px] font-sans flex items-center gap-0.5">
+                          <span className="text-white/40 text-[10px] font-sans flex items-center gap-0.5">
                             <Hash size={8} />{p.code}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-center gap-1 text-foreground/60">
+                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/50">
                       <Maximize2 size={12} className="text-gold/60" />
                       <span className="font-sans text-sm">{p.features.area_m2 ? `${p.features.area_m2} m²` : "—"}</span>
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-center gap-1 text-foreground/60">
+                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/50">
                       {(p.features.suites || p.features.dormitorios) && (
                         <span className="flex items-center gap-1 font-sans text-sm">
                           <BedDouble size={12} className="text-gold/60" />
@@ -274,7 +276,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                       )}
                     </div>
 
-                    <div className="col-span-1 flex items-center justify-center text-foreground/60">
+                    <div className="col-span-1 flex items-center justify-center text-white/50">
                       {p.features.vagas && (
                         <span className="flex items-center gap-1 font-sans text-sm">
                           <Car size={12} className="text-gold/60" />{p.features.vagas}
@@ -283,7 +285,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                     </div>
 
                     <div className="col-span-2 flex items-center justify-end">
-                      <span className="font-serif text-lg font-semibold text-foreground">{formatPrice(p.price)}</span>
+                      <span className="font-serif text-lg font-semibold text-white">{formatPrice(p.price)}</span>
                     </div>
 
                     <div className="col-span-1 flex items-center justify-end gap-1.5">
@@ -310,7 +312,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           </AnimatePresence>
 
           {filtered.length === 0 && (
-            <div className="py-12 text-center text-muted-foreground/40 font-sans">Nenhuma unidade encontrada.</div>
+            <div className="py-12 text-center text-white/30 font-sans">Nenhuma unidade encontrada.</div>
           )}
           <div className="divider-gold opacity-20 mt-1" />
         </div>

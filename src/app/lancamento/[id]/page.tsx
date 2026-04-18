@@ -52,14 +52,13 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
   try {
     const supabase = await createClient()
 
-    // Check professional role
+    // Check professional role — PDF download for admin, corretor e construtora apenas
     const { data: { user } } = await supabase.auth.getUser()
     let canDownload = false
     if (user) {
-      const { createAdminClient } = await import("@/lib/supabase/admin")
-      const admin = createAdminClient()
-      const { data: prof } = await admin.from("profiles").select("role").eq("id", user.id).single()
-      canDownload = ["admin", "imobiliaria", "corretor", "construtora"].includes(prof?.role ?? "")
+      const adminClient = createAdminClient()
+      const { data: prof } = await adminClient.from("profiles").select("role").eq("id", user.id).single()
+      canDownload = ["admin", "corretor", "construtora"].includes(prof?.role ?? "")
     }
 
     const [{ data: dev }, { data: properties }] = await Promise.all([
