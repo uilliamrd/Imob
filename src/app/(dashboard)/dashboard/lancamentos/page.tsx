@@ -25,10 +25,10 @@ export default async function LancamentosPage() {
     .from("developments")
     .select("*")
     .eq("org_id", orgId ?? "")
-    .eq("is_lancamento", true)
     .order("name")
 
-  const lancamentos = (developments ?? []) as Development[]
+  const allDevelopments = (developments ?? []) as Development[]
+  const lancamentos = allDevelopments.filter((d) => d.is_lancamento)
 
   return (
     <div className="px-4 py-6 lg:p-8 max-w-6xl">

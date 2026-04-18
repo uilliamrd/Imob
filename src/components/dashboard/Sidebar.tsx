@@ -56,20 +56,19 @@ const NAV_ITEMS: NavItem[] = [
 
   // ── Imobiliária
   { href: "/dashboard/vitrine",        label: "Base de Imóveis",  icon: Globe,           roles: ["imobiliaria"] },
-  { href: "/dashboard/catalogo",       label: "Meu Catálogo",     icon: ListChecks,      roles: ["imobiliaria"] },
+  { href: "/dashboard/catalogo",       label: "Vitrine",          icon: ListChecks,      roles: ["imobiliaria"] },
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["imobiliaria"] },
   { href: "/dashboard/rodizio",        label: "Rodízio",          icon: RotateCcw,       roles: ["imobiliaria", "admin"] },
   { href: "/dashboard/equipe",         label: "Minha Equipe",     icon: Users,           roles: ["imobiliaria"] },
-  { href: "/dashboard/minisite",       label: "Meu Minisite",     icon: ExternalLink,    roles: ["imobiliaria"] },
-  { href: "/dashboard/organizacao",    label: "Branding",         icon: Building2,       roles: ["imobiliaria"] },
+  { href: "/dashboard/minisite",       label: "Meu Site",         icon: ExternalLink,    roles: ["imobiliaria"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["imobiliaria"] },
 
   // ── Corretor
   { href: "/dashboard/vitrine",        label: "Base de Imóveis",  icon: Globe,           roles: ["corretor"] },
-  { href: "/dashboard/catalogo",       label: "Meu Catálogo",     icon: ListChecks,      roles: ["corretor"] },
+  { href: "/dashboard/catalogo",       label: "Vitrine",          icon: ListChecks,      roles: ["corretor"] },
   { href: "/dashboard/selecoes",       label: "Seleções",         icon: BookOpen,        roles: ["corretor"] },
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["corretor"] },
-  { href: "/dashboard/minisite",       label: "Meu Minisite",     icon: ExternalLink,    roles: ["corretor"] },
+  { href: "/dashboard/minisite",       label: "Meu Site",         icon: ExternalLink,    roles: ["corretor"] },
   { href: "/dashboard/corretor",       label: "Meus Links",       icon: Link2,           roles: ["corretor"] },
 
   // ── Construtora
@@ -77,7 +76,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/lancamentos",    label: "Lançamentos",      icon: Flame,           roles: ["construtora"] },
   { href: "/dashboard/disponibilidade",label: "Disponibilidade",  icon: ClipboardList,   roles: ["construtora"] },
   { href: "/dashboard/analytics",      label: "Analytics",        icon: BarChart3,       roles: ["construtora"] },
-  { href: "/dashboard/organizacao",    label: "Branding",         icon: Building2,       roles: ["construtora"] },
+  { href: "/dashboard/minisite",       label: "Meu Site",         icon: ExternalLink,    roles: ["construtora"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["construtora"] },
 ]
 

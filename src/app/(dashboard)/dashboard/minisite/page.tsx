@@ -8,7 +8,7 @@ import type { UserRole } from "@/types/database"
 import Link from "next/link"
 
 export default async function MinisitePage() {
-  const user = await requireAuth(["imobiliaria", "corretor"])
+  const user = await requireAuth(["imobiliaria", "corretor", "construtora"])
   const admin = createAdminClient()
 
   const { data: profile } = await admin
@@ -27,6 +27,7 @@ export default async function MinisitePage() {
 
   const corretorSlugOrId = profile?.slug ?? user.id
   const minisiteUrl =
+    role === "construtora" && org?.slug ? `/construtora/${org.slug}` :
     role === "imobiliaria" && org?.slug ? `/imobiliaria/${org.slug}` :
     role === "corretor" ? `/corretor/${corretorSlugOrId}` :
     null
@@ -37,11 +38,11 @@ export default async function MinisitePage() {
         <div className="flex items-center gap-3 mb-2">
           <Monitor size={18} className="text-gold" />
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans">
-            {role === "corretor" ? "Corretor" : "Imobiliária"}
+            {role === "corretor" ? "Corretor" : role === "construtora" ? "Construtora" : "Imobiliária"}
           </p>
         </div>
         <h1 className="font-serif text-4xl font-bold text-white">
-          <AnimatedGradientText className="font-serif text-4xl font-bold">Meu Minisite</AnimatedGradientText>
+          <AnimatedGradientText className="font-serif text-4xl font-bold">Meu Site</AnimatedGradientText>
         </h1>
         <div className="divider-gold mt-4 w-20" />
       </div>
@@ -89,8 +90,8 @@ export default async function MinisitePage() {
         </div>
       )}
 
-      {/* For imobiliaria: org edit form */}
-      {role === "imobiliaria" && (
+      {/* For imobiliaria/construtora: org edit form */}
+      {(role === "imobiliaria" || role === "construtora") && (
         <div className="bg-card border border-border rounded-2xl">
           <div className="px-6 py-5 border-b border-border flex items-center gap-2">
             <Edit3 size={16} className="text-gold" />

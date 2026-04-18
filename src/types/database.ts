@@ -1,7 +1,7 @@
 export type UserRole = 'admin' | 'imobiliaria' | 'corretor' | 'construtora'
 export type OrgType = 'imobiliaria' | 'construtora'
 export type PropertyStatus = 'disponivel' | 'vendido' | 'reserva'
-export type PropertyVisibility = 'publico' | 'equipe' | 'privado'
+export type PropertyVisibility = 'publico' | 'corretores' | 'equipe' | 'privado'
 export type LeadStatus = 'novo' | 'em_contato' | 'convertido' | 'perdido'
 export type LeadSource = 'imovel' | 'minisite' | 'selecao' | 'manual'
 
@@ -142,6 +142,11 @@ export interface Lead {
   status: LeadStatus
   notes: string | null
   created_at: string
+  cidade_cliente: string | null
+  perfil_imovel: string | null
+  preco_min: number | null
+  preco_max: number | null
+  tipo_negociacao: string | null
   property?: Pick<Property, 'id' | 'title' | 'slug'>
   corretor?: Pick<Profile, 'id' | 'full_name'>
 }

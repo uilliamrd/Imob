@@ -489,7 +489,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
       {/* spacer so footer doesn't hide behind CTA bar on mobile */}
       <div className="lg:hidden h-28" />
 
-      <Footer orgName={orgName} whatsapp={ref ? fallbackWhatsapp : undefined} website={org?.website} />
+      <Footer orgName={orgName} website={org?.website} />
 
       {/* Floating corretor minisite — resolves corretor from ref/cookie, falls back to org/admin WA */}
       <CorretorMinisite

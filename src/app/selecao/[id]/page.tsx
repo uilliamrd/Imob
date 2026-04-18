@@ -3,10 +3,9 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { Footer } from "@/components/landing/Footer"
-import { LeadCaptureForm } from "@/components/property/LeadCaptureForm"
 import { getTagInfo } from "@/lib/tag-icons"
 import {
-  BedDouble, Car, Maximize2, MapPin, User, ArrowLeft, BookOpen,
+  BedDouble, Car, Maximize2, MapPin, User, ArrowLeft, BookOpen, Phone,
 } from "lucide-react"
 import type { Selection, SelectionItem, Property, Profile } from "@/types/database"
 import Link from "next/link"
@@ -236,15 +235,20 @@ export default async function SelecaoPage({ params }: PageProps) {
                         <p className="font-serif text-3xl font-bold text-foreground">{formatPrice(p.price)}</p>
                       </div>
                       <div className="mt-6 space-y-2">
-                        <LeadCaptureForm
-                          propertyId={p.id}
-                          propertySlug={p.slug}
-                          propertyTitle={p.title}
-                          orgId={p.org_id}
-                          orgWhatsapp={orgWhatsapp}
-                          refId={corretor?.id}
-                          source="selecao"
-                        />
+                        <a
+                          href={`https://wa.me/${corrWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá! Vi sua seleção "${selection.title}" e gostaria de saber mais sobre ${p.title}.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full py-3.5 bg-[#1C1C1C] text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-[#1C1C1C] transition-all text-xs uppercase tracking-[0.15em] font-sans rounded-xl"
+                        >
+                          WhatsApp
+                        </a>
+                        <a
+                          href={`tel:+${corrWhatsapp.replace(/\D/g, "")}`}
+                          className="flex items-center justify-center gap-2 w-full py-3 border border-border text-muted-foreground hover:border-gold/40 hover:text-gold transition-all text-xs uppercase tracking-[0.15em] font-sans rounded-xl"
+                        >
+                          <Phone size={12} /> Ligar
+                        </a>
                         <Link
                           href={`/imovel/${p.slug}?ref=${corretor?.id ?? ""}`}
                           className="flex items-center justify-center w-full py-3 border border-border text-muted-foreground hover:border-gold/40 hover:text-gold transition-all duration-300 text-xs uppercase tracking-[0.15em] font-sans rounded-xl"

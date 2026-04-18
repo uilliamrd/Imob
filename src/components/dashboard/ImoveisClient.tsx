@@ -130,6 +130,8 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           <option value="Cobertura">Cobertura</option>
           <option value="Kitnet / Studio">Kitnet / Studio</option>
           <option value="Terreno">Terreno</option>
+          <option value="Lote em Condomínio Fechado">Lote em Condomínio Fechado</option>
+          <option value="Lote em Rua">Lote em Rua</option>
           <option value="Sala Comercial">Sala Comercial</option>
           <option value="Loja">Loja</option>
           <option value="Galpão / Depósito">Galpão / Depósito</option>

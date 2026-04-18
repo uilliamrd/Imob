@@ -13,6 +13,7 @@ export interface PortalOrg {
   slug: string
   logo: string | null
   brand_colors: { primary?: string } | null
+  hero_tagline: string | null
   availableCount: number
 }
 
@@ -31,12 +32,12 @@ export default async function PortalPage() {
       .order("created_at", { ascending: false }),
     admin
       .from("organizations")
-      .select("id, name, slug, logo, brand_colors")
+      .select("id, name, slug, logo, brand_colors, hero_tagline")
       .eq("type", "construtora")
       .not("slug", "is", null),
     admin
       .from("organizations")
-      .select("id, name, slug, logo, brand_colors")
+      .select("id, name, slug, logo, brand_colors, hero_tagline")
       .eq("type", "imobiliaria")
       .not("slug", "is", null),
     admin
@@ -73,6 +74,7 @@ export default async function PortalPage() {
           slug: org.slug!,
           logo: org.logo,
           brand_colors: org.brand_colors,
+          hero_tagline: (org as { hero_tagline?: string | null }).hero_tagline ?? null,
           availableCount: count ?? 0,
         }
       })

@@ -49,10 +49,10 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
 
   const navItems = (
     [
-      { id: "sobre"       as Section, label: "Sobre",       show: true },
-      { id: "portfolio"   as Section, label: "Portfólio",   show: true },
-      { id: "imoveis"     as Section, label: "Imóveis",     show: propertiesForSale.length > 0 },
       { id: "lancamentos" as Section, label: "Lançamentos", show: org.has_lancamentos && lancamentos.length > 0 },
+      { id: "imoveis"     as Section, label: "Imóveis",     show: propertiesForSale.length > 0 },
+      { id: "portfolio"   as Section, label: "Portfólio",   show: true },
+      { id: "sobre"       as Section, label: "Sobre",       show: true },
     ] as { id: Section; label: string; show: boolean }[]
   ).filter((n) => n.show)
 
@@ -271,13 +271,13 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
   return (
     <motion.div layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
-      className={`border-b border-border/40 ${!isAvailable ? "opacity-55" : ""}`}>
+      className={`border-b border-white/10 ${!isAvailable ? "opacity-55" : ""}`}>
 
       {/* ── Mobile card ── */}
-      <div className="md:hidden px-1 py-4 hover:bg-muted/20 transition-colors">
+      <div className="md:hidden px-1 py-4 hover:bg-white/[0.03] transition-colors">
         <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="flex-1 min-w-0">
-            <p className="font-serif text-foreground font-semibold text-base leading-tight">{property.title}</p>
+            <p className="font-serif text-[#F5F0E8] font-semibold text-base leading-tight">{property.title}</p>
           </div>
           <p className="font-serif text-gold font-bold text-lg flex-shrink-0">{formatPrice(property.price)}</p>
         </div>
@@ -286,12 +286,12 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
             {status.label}
           </span>
           {property.features.area_m2 && (
-            <span className="flex items-center gap-1 text-muted-foreground text-xs font-sans">
+            <span className="flex items-center gap-1 text-[#F5F0E8]/50 text-xs font-sans">
               <Maximize2 size={11} className="text-gold/60" />{property.features.area_m2} m²
             </span>
           )}
           {(property.features.suites || (property as { features: { dormitorios?: number } }).features.dormitorios) && (
-            <span className="flex items-center gap-1 text-muted-foreground text-xs font-sans">
+            <span className="flex items-center gap-1 text-[#F5F0E8]/50 text-xs font-sans">
               <BedDouble size={11} className="text-gold/60" />
               {property.features.suites
                 ? `${property.features.suites} suítes`
@@ -299,7 +299,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
             </span>
           )}
           {property.features.vagas && (
-            <span className="flex items-center gap-1 text-muted-foreground text-xs font-sans">
+            <span className="flex items-center gap-1 text-[#F5F0E8]/50 text-xs font-sans">
               <Car size={11} className="text-gold/60" />{property.features.vagas} vg
             </span>
           )}
@@ -313,18 +313,18 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
       </div>
 
       {/* ── Desktop table row ── */}
-      <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-muted/20 transition-colors">
+      <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors">
         <div className="col-span-3 flex flex-col gap-1">
-          <span className="font-serif text-foreground font-semibold text-base leading-tight">{property.title}</span>
+          <span className="font-serif text-[#F5F0E8] font-semibold text-base leading-tight">{property.title}</span>
           <span className={`inline-flex items-center self-start text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
             {status.label}
           </span>
         </div>
-        <div className="col-span-2 flex items-center justify-center gap-1 text-foreground/60">
+        <div className="col-span-2 flex items-center justify-center gap-1 text-[#F5F0E8]/50">
           <Maximize2 size={12} className="text-gold/60" />
           <span className="font-sans text-sm">{property.features.area_m2 ? `${property.features.area_m2} m²` : "—"}</span>
         </div>
-        <div className="col-span-2 flex items-center justify-center gap-2 text-foreground/60">
+        <div className="col-span-2 flex items-center justify-center gap-2 text-[#F5F0E8]/50">
           {(property.features.suites || (property as { features: { dormitorios?: number } }).features.dormitorios) && (
             <span className="flex items-center gap-1 font-sans text-sm">
               <BedDouble size={12} className="text-gold/60" />
@@ -351,7 +351,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
           })}
         </div>
         <div className="col-span-2 flex items-center justify-end">
-          <span className="font-serif text-lg font-semibold text-foreground">{formatPrice(property.price)}</span>
+          <span className="font-serif text-lg font-semibold text-[#F5F0E8]">{formatPrice(property.price)}</span>
         </div>
         <div className="col-span-1 flex items-center justify-end">
           {isAvailable && (
@@ -397,12 +397,12 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
 
   return (
     <motion.section id="unidades" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-      className="py-12 md:py-20 px-4 md:px-6 bg-graphite">
+      className="py-12 md:py-20 px-4 md:px-6 bg-[#1C1C1C]">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col gap-5 mb-8 md:mb-12 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-2">Unidades Disponíveis</p>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-foreground">
+            <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#F5F0E8]">
               Escolha o Seu <span className="italic" style={{ color: "#C9A96E" }}>Estilo de Vida</span>
             </h2>
           </div>
@@ -412,7 +412,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
                 className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
                   unitFilter === f.id
                     ? "bg-gold text-[#1C1C1C] font-semibold"
-                    : "border border-border text-foreground/55 hover:border-gold/50 hover:text-gold"
+                    : "border border-white/20 text-[#F5F0E8]/55 hover:border-gold/50 hover:text-gold"
                 }`}>
                 {f.label}
               </button>

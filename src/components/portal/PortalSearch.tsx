@@ -18,18 +18,19 @@ interface Props {
 
 const CATEGORIAS = [
   "Apartamento", "Casa", "Casa em Condomínio", "Cobertura",
-  "Kitnet / Studio", "Terreno", "Sala Comercial", "Loja",
-  "Galpão / Depósito", "Sítio / Fazenda",
+  "Kitnet / Studio", "Terreno", "Lote em Condomínio Fechado", "Lote em Rua",
+  "Sala Comercial", "Loja", "Galpão / Depósito", "Sítio / Fazenda",
 ]
 
-const PRICE_OPTIONS = [
-  { label: "Até R$ 300 mil",   value: "300000" },
-  { label: "Até R$ 500 mil",   value: "500000" },
-  { label: "Até R$ 800 mil",   value: "800000" },
-  { label: "Até R$ 1 milhão",  value: "1000000" },
-  { label: "Até R$ 2 milhões", value: "2000000" },
-  { label: "Até R$ 5 milhões", value: "5000000" },
-]
+function parseBRNumber(val: string): number {
+  return parseInt(val.replace(/\./g, "").replace(",", ".")) || 0
+}
+
+function maskBRNumber(raw: string): string {
+  const digits = raw.replace(/\D/g, "")
+  if (!digits) return ""
+  return Number(digits).toLocaleString("pt-BR")
+}
 
 function formatPrice(price: number) {
   if (price >= 1_000_000)
@@ -38,19 +39,31 @@ function formatPrice(price: number) {
 }
 
 export function PortalSearch({ properties, construtoras, superDestaques = [], destaqueIds = new Set() }: Props) {
-  const [search, setSearch]           = useState("")
-  const [filterNegocio, setNegocio]   = useState("")
+  const [search, setSearch]             = useState("")
+  const [filterNegocio, setNegocio]     = useState("")
   const [filterCategoria, setCategoria] = useState("")
-  const [filterCity, setCity]         = useState("")
-  const [filterBeds, setBeds]         = useState("")
-  const [filterPrice, setPrice]       = useState("")
-  const [filterOrg, setOrg]           = useState("")
-  const [filterDev, setDev]           = useState("")
-  const [showFilters, setShowFilters] = useState(false)
+  const [filterCity, setCity]           = useState("")
+  const [filterBairro, setBairro]       = useState("")
+  const [filterBeds, setBeds]           = useState("")
+  const [filterVagas, setVagas]         = useState("")
+  const [priceMin, setPriceMin]         = useState("")
+  const [priceMax, setPriceMax]         = useState("")
+  const [filterOrg, setOrg]             = useState("")
+  const [filterDev, setDev]             = useState("")
+  const [showFilters, setShowFilters]   = useState(false)
 
   // Derived filter options
   const cityOptions = Array.from(
     new Set(properties.map((p) => p.city).filter(Boolean) as string[])
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"))
+
+  const bairroOptions = Array.from(
+    new Set(
+      properties
+        .filter((p) => !filterCity || p.city === filterCity)
+        .map((p) => p.neighborhood)
+        .filter(Boolean) as string[]
+    )
   ).sort((a, b) => a.localeCompare(b, "pt-BR"))
 
   const devOptions = Array.from(
@@ -71,14 +84,19 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
     const matchNegocio = !filterNegocio || p.tipo_negocio === filterNegocio
     const matchCategoria = !filterCategoria || p.categoria === filterCategoria
     const matchCity = !filterCity || p.city === filterCity
+    const matchBairro = !filterBairro || p.neighborhood === filterBairro
     const minBeds = filterBeds ? parseInt(filterBeds) : 0
     const beds = (p.features.dormitorios ?? p.features.suites ?? p.features.quartos ?? 0) as number
     const matchBeds = !minBeds || beds >= minBeds
-    const maxPrice = filterPrice ? parseInt(filterPrice) : 0
-    const matchPrice = !maxPrice || p.price <= maxPrice
+    const minVagas = filterVagas ? parseInt(filterVagas) : 0
+    const vagas = (p.features.vagas ?? 0) as number
+    const matchVagas = !minVagas || vagas >= minVagas
+    const numPriceMin = parseBRNumber(priceMin)
+    const numPriceMax = parseBRNumber(priceMax)
+    const matchPrice = (!numPriceMin || p.price >= numPriceMin) && (!numPriceMax || p.price <= numPriceMax)
     const matchOrg = !filterOrg || p.org_id === filterOrg
     const matchDev = !filterDev || p.development_id === filterDev
-    return matchText && matchNegocio && matchCategoria && matchCity && matchBeds && matchPrice && matchOrg && matchDev
+    return matchText && matchNegocio && matchCategoria && matchCity && matchBairro && matchBeds && matchVagas && matchPrice && matchOrg && matchDev
   })
 
   // Sort: destaques first, then by date
@@ -87,11 +105,11 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
     ...filtered.filter((p) => !destaqueIds.has(p.id)),
   ]
 
-  const activeFilters = [filterNegocio, filterCategoria, filterCity, filterBeds, filterPrice, filterOrg, filterDev]
+  const activeFilters = [filterNegocio, filterCategoria, filterCity, filterBairro, filterBeds, filterVagas, priceMin, priceMax, filterOrg, filterDev]
     .filter(Boolean).length
 
   function clearAll() {
-    setSearch(""); setNegocio(""); setCategoria(""); setCity(""); setBeds(""); setPrice(""); setOrg(""); setDev("")
+    setSearch(""); setNegocio(""); setCategoria(""); setCity(""); setBairro(""); setBeds(""); setVagas(""); setPriceMin(""); setPriceMax(""); setOrg(""); setDev("")
   }
 
   const SELECT_CLASS =
@@ -108,28 +126,33 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
               Ver todas →
             </Link>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {construtoras.map((org) => {
               const accent = org.brand_colors?.primary ?? "#C9A96E"
               return (
                 <Link
                   key={org.id}
                   href={`/construtora/${org.slug}`}
-                  className="flex-shrink-0 snap-start flex flex-col items-center gap-2 p-4 bg-card border border-border hover:border-gold/30 rounded-xl transition-colors w-36 text-center"
+                  className="flex flex-col items-center gap-2 p-4 bg-card border border-border hover:border-gold/30 rounded-xl transition-colors text-center"
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: accent + "20" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: accent + "20" }}>
                     {org.logo ? (
-                      <Image src={org.logo} alt={org.name} width={28} height={28} className="object-contain" />
+                      <Image src={org.logo} alt={org.name} width={32} height={32} className="object-contain" />
                     ) : (
-                      <Building2 size={16} style={{ color: accent }} />
+                      <Building2 size={18} style={{ color: accent }} />
                     )}
                   </div>
-                  <p className="font-sans text-xs text-foreground font-medium leading-tight line-clamp-2">{org.name}</p>
-                  {org.availableCount > 0 && (
-                    <p className="text-[10px] font-sans" style={{ color: accent }}>
-                      {org.availableCount} disponível{org.availableCount !== 1 ? "is" : ""}
-                    </p>
-                  )}
+                  <div className="w-full">
+                    <p className="font-sans text-xs text-foreground font-medium leading-tight line-clamp-2">{org.name}</p>
+                    {org.hero_tagline && (
+                      <p className="text-[10px] font-sans text-muted-foreground mt-0.5 line-clamp-1">{org.hero_tagline}</p>
+                    )}
+                    {org.availableCount > 0 && (
+                      <p className="text-[10px] font-sans mt-1" style={{ color: accent }}>
+                        {org.availableCount} disponível{org.availableCount !== 1 ? "is" : ""}
+                      </p>
+                    )}
+                  </div>
                 </Link>
               )
             })}
@@ -183,14 +206,21 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
           </select>
 
           <select value={filterCategoria} onChange={(e) => setCategoria(e.target.value)} className={SELECT_CLASS}>
-            <option value="">Categoria</option>
+            <option value="">Tipo</option>
             {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
 
-          <select value={filterCity} onChange={(e) => setCity(e.target.value)} className={SELECT_CLASS}>
+          <select value={filterCity} onChange={(e) => { setCity(e.target.value); setBairro("") }} className={SELECT_CLASS}>
             <option value="">Cidade</option>
             {cityOptions.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
+
+          {bairroOptions.length > 0 && (
+            <select value={filterBairro} onChange={(e) => setBairro(e.target.value)} className={SELECT_CLASS}>
+              <option value="">Bairro</option>
+              {bairroOptions.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          )}
 
           <select value={filterBeds} onChange={(e) => setBeds(e.target.value)} className={SELECT_CLASS}>
             <option value="">Dormitórios</option>
@@ -200,10 +230,27 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
             <option value="4">4+</option>
           </select>
 
-          <select value={filterPrice} onChange={(e) => setPrice(e.target.value)} className={SELECT_CLASS}>
-            <option value="">Preço máximo</option>
-            {PRICE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          <select value={filterVagas} onChange={(e) => setVagas(e.target.value)} className={SELECT_CLASS}>
+            <option value="">Vagas</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
           </select>
+
+          <input
+            type="text"
+            placeholder="Preço mínimo"
+            value={priceMin}
+            onChange={(e) => setPriceMin(maskBRNumber(e.target.value))}
+            className={SELECT_CLASS}
+          />
+          <input
+            type="text"
+            placeholder="Preço máximo"
+            value={priceMax}
+            onChange={(e) => setPriceMax(maskBRNumber(e.target.value))}
+            className={SELECT_CLASS}
+          />
 
           <select
             value={filterOrg}

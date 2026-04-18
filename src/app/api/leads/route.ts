@@ -29,6 +29,11 @@ export async function POST(request: NextRequest) {
     ref_id?: string
     org_id?: string
     source?: string
+    cidade_cliente?: string
+    perfil_imovel?: string
+    preco_min?: number
+    preco_max?: number
+    tipo_negociacao?: string
   }
 
   try {
@@ -37,7 +42,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const { name, phone, property_id, property_slug, ref_id, org_id, source } = body
+  const { name, phone, property_id, property_slug, ref_id, org_id, source,
+          cidade_cliente, perfil_imovel, preco_min, preco_max, tipo_negociacao } = body
 
   if (!name?.trim() || !phone?.trim()) {
     return NextResponse.json({ error: 'name and phone are required' }, { status: 400 })
@@ -56,6 +62,11 @@ export async function POST(request: NextRequest) {
       org_id: org_id ?? null,
       source: source ?? 'imovel',
       status: 'novo',
+      cidade_cliente: cidade_cliente ?? null,
+      perfil_imovel: perfil_imovel ?? null,
+      preco_min: preco_min ?? null,
+      preco_max: preco_max ?? null,
+      tipo_negociacao: tipo_negociacao ?? null,
     })
     .select("id")
     .single()

@@ -203,7 +203,8 @@ export function CatalogoClient({ listings: initial }: Props) {
               item.is_featured ? "border-gold/30" : "border-border"
             }`}
           >
-            <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+            <Link href={`/imovel/${item.property.slug}`} target="_blank" rel="noopener noreferrer"
+              className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
               {item.property.images?.[0] ? (
                 <Image
                   src={item.property.images[0]}
@@ -221,11 +222,12 @@ export function CatalogoClient({ listings: initial }: Props) {
                   <Star size={8} className="fill-graphite text-graphite" />
                 </div>
               )}
-            </div>
+            </Link>
             <div className="flex-1 min-w-0">
-              <p className="font-serif text-foreground text-sm font-semibold leading-snug line-clamp-1">
+              <Link href={`/imovel/${item.property.slug}`} target="_blank" rel="noopener noreferrer"
+                className="font-serif text-foreground text-sm font-semibold leading-snug line-clamp-1 hover:text-gold transition-colors block">
                 {item.property.title}
-              </p>
+              </Link>
               {(item.property.neighborhood || item.property.city) && (
                 <p className="text-muted-foreground text-[11px] font-sans mt-0.5 flex items-center gap-1">
                   <MapPin size={9} />
@@ -277,7 +279,8 @@ export function CatalogoClient({ listings: initial }: Props) {
               item.is_featured ? "border-gold/30" : "border-border hover:border-gold/20"
             }`}
           >
-            <div className="aspect-video bg-muted relative overflow-hidden">
+            <Link href={`/imovel/${item.property.slug}`} target="_blank" rel="noopener noreferrer"
+              className="aspect-video bg-muted relative overflow-hidden block">
               {item.property.images?.[0] ? (
                 <Image
                   src={item.property.images[0]}
@@ -298,12 +301,13 @@ export function CatalogoClient({ listings: initial }: Props) {
                   </span>
                 </div>
               )}
-            </div>
+            </Link>
 
             <div className="p-4">
-              <p className="font-serif text-foreground text-sm font-semibold leading-tight line-clamp-1 mb-1">
+              <Link href={`/imovel/${item.property.slug}`} target="_blank" rel="noopener noreferrer"
+                className="font-serif text-foreground text-sm font-semibold leading-tight line-clamp-1 mb-1 hover:text-gold transition-colors block">
                 {item.property.title}
-              </p>
+              </Link>
               {(item.property.neighborhood || item.property.city) && (
                 <p className="text-muted-foreground text-xs font-sans flex items-center gap-1 mb-2">
                   <MapPin size={9} />

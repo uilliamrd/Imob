@@ -527,7 +527,7 @@ function EquipeSection({ corretores, org, brandColor }: {
                   )}
                   {c.slug && (
                     <a
-                      href={`/corretor/${c.id}`}
+                      href={`/corretor/${c.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center px-3 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/20 transition-colors"

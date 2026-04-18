@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { Phone, Home, Clock, ChevronDown, MessageSquare, AlertTriangle, X } from "lucide-react"
+import { Phone, Home, Clock, ChevronDown, ChevronUp, MessageSquare, AlertTriangle, X, ExternalLink } from "lucide-react"
 import type { Lead, LeadStatus, LeadConflict } from "@/types/database"
 
 const STATUS_OPTIONS: { value: LeadStatus; label: string; cls: string }[] = [
@@ -31,6 +32,7 @@ export function LeadsClient({ initialLeads, initialConflicts = [] }: Props) {
   const [conflicts, setConflicts] = useState(initialConflicts)
   const [updating, setUpdating] = useState<string | null>(null)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const [search, setSearch] = useState("")
 
   const conflictedLeadIds = new Set(conflicts.map((c) => c.original_lead_id))
@@ -164,71 +166,133 @@ export function LeadsClient({ initialLeads, initialConflicts = [] }: Props) {
               const isConflicted = conflictedLeadIds.has(lead.id)
               const conflictItem = conflicts.find((c) => c.original_lead_id === lead.id)
               return (
-              <div key={lead.id} className={`grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors relative ${isConflicted ? "bg-amber-900/5" : ""}`}>
+              <div key={lead.id} className={`relative ${isConflicted ? "bg-amber-900/5" : ""}`}>
                 {isConflicted && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500/50 rounded-full" />}
-                <div className="col-span-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-foreground/80 text-sm font-sans font-medium">{lead.name}</p>
-                    {isConflicted && conflictItem && (
-                      <button
-                        onClick={() => acknowledgeConflict(conflictItem.id)}
-                        title="Reconhecer e dispensar aviso"
-                        className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-900/30 border border-amber-700/40 text-amber-400 rounded-full text-[9px] font-sans uppercase tracking-wide hover:bg-amber-900/50 transition-colors"
-                      >
-                        <AlertTriangle size={8} /> conflito
-                        <X size={7} className="ml-0.5 opacity-60" />
-                      </button>
+                <div
+                  className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.02] transition-colors cursor-pointer"
+                  onClick={() => setExpandedId(expandedId === lead.id ? null : lead.id)}
+                >
+                  <div className="col-span-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-foreground/80 text-sm font-sans font-medium">{lead.name}</p>
+                      {isConflicted && conflictItem && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); acknowledgeConflict(conflictItem.id) }}
+                          title="Reconhecer e dispensar aviso"
+                          className="flex items-center gap-1 px-1.5 py-0.5 bg-amber-900/30 border border-amber-700/40 text-amber-400 rounded-full text-[9px] font-sans uppercase tracking-wide hover:bg-amber-900/50 transition-colors"
+                        >
+                          <AlertTriangle size={8} /> conflito
+                          <X size={7} className="ml-0.5 opacity-60" />
+                        </button>
+                      )}
+                    </div>
+                    <a
+                      href={`https://wa.me/${lead.phone.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-muted-foreground hover:text-gold text-xs font-sans flex items-center gap-1 mt-0.5 transition-colors"
+                    >
+                      <Phone size={9} />{lead.phone}
+                    </a>
+                  </div>
+
+                  <div className="col-span-3">
+                    <p className="text-muted-foreground text-xs font-sans flex items-center gap-1">
+                      <Home size={9} className="text-gold/40 flex-shrink-0" />
+                      <span className="truncate">{lead.property?.title ?? lead.property_slug ?? "—"}</span>
+                    </p>
+                  </div>
+
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground text-xs font-sans capitalize">{lead.source}</span>
+                  </div>
+
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground/60 text-xs font-sans">{formatDate(lead.created_at)}</span>
+                  </div>
+
+                  <div className="col-span-1 relative">
+                    <button
+                      disabled={updating === lead.id}
+                      onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === lead.id ? null : lead.id) }}
+                      className={`inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider cursor-pointer transition-opacity ${statusCls(lead.status)} ${updating === lead.id ? "opacity-50" : ""}`}
+                    >
+                      {statusLabel(lead.status)}
+                      <ChevronDown size={9} />
+                    </button>
+
+                    {openDropdown === lead.id && (
+                      <div className="absolute top-8 left-0 z-20 bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-2xl min-w-[130px]">
+                        {STATUS_OPTIONS.map((opt) => (
+                          <button
+                            key={opt.value}
+                            onClick={(e) => { e.stopPropagation(); updateStatus(lead.id, opt.value) }}
+                            className={`w-full text-left px-4 py-2.5 text-xs font-sans hover:bg-muted/50 transition-colors ${lead.status === opt.value ? "text-gold" : "text-foreground/60"}`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  <a
-                    href={`https://wa.me/${lead.phone.replace(/\D/g, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-gold text-xs font-sans flex items-center gap-1 mt-0.5 transition-colors"
-                  >
-                    <Phone size={9} />{lead.phone}
-                  </a>
+
+                  <div className="col-span-1 flex justify-end">
+                    {expandedId === lead.id
+                      ? <ChevronUp size={13} className="text-muted-foreground/40" />
+                      : <ChevronDown size={13} className="text-muted-foreground/20" />
+                    }
+                  </div>
                 </div>
 
-                <div className="col-span-3">
-                  <p className="text-muted-foreground text-xs font-sans flex items-center gap-1">
-                    <Home size={9} className="text-gold/40 flex-shrink-0" />
-                    <span className="truncate">{lead.property?.title ?? lead.property_slug ?? "—"}</span>
-                  </p>
-                </div>
-
-                <div className="col-span-2">
-                  <span className="text-muted-foreground text-xs font-sans capitalize">{lead.source}</span>
-                </div>
-
-                <div className="col-span-2">
-                  <span className="text-muted-foreground/60 text-xs font-sans">{formatDate(lead.created_at)}</span>
-                </div>
-
-                <div className="col-span-2 relative">
-                  <button
-                    disabled={updating === lead.id}
-                    onClick={() => setOpenDropdown(openDropdown === lead.id ? null : lead.id)}
-                    className={`inline-flex items-center gap-1 text-[10px] px-2 py-1 rounded-full border uppercase tracking-wider cursor-pointer transition-opacity ${statusCls(lead.status)} ${updating === lead.id ? "opacity-50" : ""}`}
-                  >
-                    {statusLabel(lead.status)}
-                    <ChevronDown size={9} />
-                  </button>
-
-                  {openDropdown === lead.id && (
-                    <div className="absolute top-8 left-0 z-20 bg-[#1a1a1a] border border-border rounded-xl overflow-hidden shadow-2xl min-w-[130px]">
-                      {STATUS_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => updateStatus(lead.id, opt.value)}
-                          className={`w-full text-left px-4 py-2.5 text-xs font-sans hover:bg-muted/50 transition-colors ${lead.status === opt.value ? "text-gold" : "text-foreground/60"}`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
+                {expandedId === lead.id && (
+                  <div className="px-6 pb-4 bg-white/[0.015] border-t border-white/[0.04]">
+                    <div className="mt-3 flex flex-wrap gap-4 text-xs font-sans">
+                      {lead.notes && (
+                        <p className="text-muted-foreground w-full">
+                          <span className="text-foreground/40 uppercase tracking-wider text-[10px] mr-2">Mensagem</span>
+                          {lead.notes}
+                        </p>
+                      )}
+                      {lead.cidade_cliente && (
+                        <span className="text-muted-foreground">
+                          <span className="text-foreground/40 uppercase tracking-wider text-[10px] mr-1">Cidade</span>
+                          {lead.cidade_cliente}
+                        </span>
+                      )}
+                      {lead.perfil_imovel && (
+                        <span className="text-muted-foreground">
+                          <span className="text-foreground/40 uppercase tracking-wider text-[10px] mr-1">Perfil</span>
+                          {lead.perfil_imovel}
+                        </span>
+                      )}
+                      {(lead.preco_min || lead.preco_max) && (
+                        <span className="text-muted-foreground">
+                          <span className="text-foreground/40 uppercase tracking-wider text-[10px] mr-1">Faixa</span>
+                          {lead.preco_min ? `R$ ${lead.preco_min.toLocaleString("pt-BR")}` : "—"}
+                          {" "}-{" "}
+                          {lead.preco_max ? `R$ ${lead.preco_max.toLocaleString("pt-BR")}` : "—"}
+                        </span>
+                      )}
+                      {lead.tipo_negociacao && (
+                        <span className="text-muted-foreground">
+                          <span className="text-foreground/40 uppercase tracking-wider text-[10px] mr-1">Negociação</span>
+                          {lead.tipo_negociacao}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
+                    {lead.property?.slug && (
+                      <Link
+                        href={`/imovel/${lead.property.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-gold/70 hover:text-gold text-xs font-sans transition-colors mt-2 w-fit"
+                      >
+                        <ExternalLink size={11} /> Ver imóvel
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             )})
           )}

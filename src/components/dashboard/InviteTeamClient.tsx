@@ -1,58 +1,57 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
-import { UserPlus, Check, Copy } from "lucide-react"
+import { UserPlus, Check, Copy, Search, User, X } from "lucide-react"
+import { searchProfiles } from "@/app/actions/searchProfiles"
+import type { ProfileResult } from "@/app/actions/searchProfiles"
 
 interface InviteTeamClientProps {
   orgId: string
 }
 
 export function InviteTeamClient({ orgId }: InviteTeamClientProps) {
-  const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<ProfileResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const [adding, setAdding] = useState<string | null>(null)
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Direct-join link: when a user registers with this URL they get associated to the org
   const joinUrl = typeof window !== "undefined"
     ? `${window.location.origin}/register?org=${orgId}`
     : ""
 
-  async function handleInvite(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!query.trim()) { setResults([]); return }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true)
+      const res = await searchProfiles(query)
+      setResults(res)
+      setSearching(false)
+    }, 350)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [query])
+
+  async function addToOrg(profile: ProfileResult) {
+    setAdding(profile.id)
     setError(null)
-
-    // Look up the profile by email via Supabase admin (service role needed for auth lookup)
-    // For now: show the invite link approach, which is always available
     const supabase = createClient()
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, full_name")
-      .eq("id", email) // email as lookup key if stored
-      .maybeSingle()
-
-    if (!profile) {
-      setError("Usuário não encontrado. Compartilhe o link de convite abaixo para convidar novas pessoas.")
-      setLoading(false)
-      return
-    }
-
-    const { error: updateError } = await supabase
+    const { error: err } = await supabase
       .from("profiles")
       .update({ organization_id: orgId })
       .eq("id", profile.id)
-
-    if (updateError) {
-      setError(updateError.message)
+    if (err) {
+      setError(err.message)
     } else {
-      setSuccess(true)
-      setEmail("")
-      setTimeout(() => setSuccess(false), 3000)
+      setAddedIds((prev) => new Set([...prev, profile.id]))
+      setResults((prev) => prev.filter((p) => p.id !== profile.id))
     }
-    setLoading(false)
+    setAdding(null)
   }
 
   async function copyJoinUrl() {
@@ -95,33 +94,70 @@ export function InviteTeamClient({ orgId }: InviteTeamClientProps) {
 
       <div className="divider-gold opacity-10" />
 
-      {/* Add by user ID */}
-      <form onSubmit={handleInvite}>
+      {/* Search by name/CRECI */}
+      <div>
         <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans mb-2">
-          Adicionar por ID de Usuário
+          Buscar Corretor por Nome ou CRECI
         </p>
-        <div className="flex gap-2">
+        <div className="relative">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
           <input
             type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="UUID do usuário..."
-            className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-mono text-xs focus:outline-none focus:border-gold/50 transition-colors"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Nome ou CRECI do corretor..."
+            className="w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 pl-10 pr-10 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
           />
-          <button
-            type="submit"
-            disabled={loading || !email}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gold text-graphite hover:bg-gold-light disabled:opacity-40 transition-all text-xs font-sans uppercase tracking-wider rounded-lg flex-shrink-0"
-          >
-            {loading
-              ? <span className="w-3 h-3 border border-graphite/30 border-t-graphite rounded-full animate-spin" />
-              : success
-              ? <><Check size={12} /> Adicionado</>
-              : <><UserPlus size={12} /> Adicionar</>}
-          </button>
+          {query && (
+            <button onClick={() => { setQuery(""); setResults([]) }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground">
+              <X size={13} />
+            </button>
+          )}
         </div>
+
+        {/* Results */}
+        {(results.length > 0 || (searching && query)) && (
+          <div className="mt-2 border border-border rounded-xl overflow-hidden">
+            {searching && (
+              <div className="px-4 py-3 text-muted-foreground/50 text-xs font-sans">Buscando...</div>
+            )}
+            {results.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] border-b border-border/50 last:border-0 transition-colors">
+                <div className="w-8 h-8 rounded-full bg-muted flex-shrink-0 overflow-hidden flex items-center justify-center">
+                  {p.avatar_url
+                    ? <Image src={p.avatar_url} alt={p.full_name ?? ""} width={32} height={32} className="object-cover" />
+                    : <User size={14} className="text-muted-foreground/40" />
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-foreground/80 text-sm font-sans font-medium truncate">{p.full_name ?? "Sem nome"}</p>
+                  {p.creci && <p className="text-muted-foreground/60 text-xs font-sans">CRECI {p.creci}</p>}
+                </div>
+                <button
+                  onClick={() => addToOrg(p)}
+                  disabled={adding === p.id || addedIds.has(p.id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 text-gold hover:bg-gold hover:text-graphite border border-gold/30 disabled:opacity-40 transition-all text-xs font-sans uppercase tracking-wider rounded-lg flex-shrink-0"
+                >
+                  {adding === p.id
+                    ? <span className="w-3 h-3 border border-gold/30 border-t-gold rounded-full animate-spin" />
+                    : addedIds.has(p.id)
+                    ? <><Check size={11} /> Adicionado</>
+                    : <><UserPlus size={11} /> Adicionar</>
+                  }
+                </button>
+              </div>
+            ))}
+            {!searching && results.length === 0 && query && (
+              <div className="px-4 py-3 text-muted-foreground/50 text-xs font-sans">
+                Nenhum corretor sem organização encontrado.
+              </div>
+            )}
+          </div>
+        )}
+
         {error && <p className="text-amber-400 text-xs font-sans mt-2">{error}</p>}
-      </form>
+      </div>
     </div>
   )
 }

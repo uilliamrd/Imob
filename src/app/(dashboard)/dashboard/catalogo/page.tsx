@@ -39,10 +39,10 @@ export default async function CatalogoPage() {
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans">Portfólio</p>
         </div>
         <h1 className="font-serif text-4xl font-bold text-foreground">
-          <AnimatedGradientText className="font-serif text-4xl font-bold">Meu Catálogo</AnimatedGradientText>
+          <AnimatedGradientText className="font-serif text-4xl font-bold">Vitrine</AnimatedGradientText>
         </h1>
         <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
-          Imóveis adicionados ao seu portfólio. Destaque até 6 para exibição prioritária no seu minisite.
+          Imóveis adicionados ao seu portfólio. Destaque até 6 para exibição prioritária no seu site.
         </p>
         <div className="divider-gold mt-4 w-20" />
       </div>

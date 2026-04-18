@@ -343,7 +343,7 @@ export function OrgDetailPanel({ org, onClose }: Props) {
                       )}
                       {c.slug && (
                         <a
-                          href={`/corretor/${c.id}`}
+                          href={`/corretor/${c.slug}`}
                           target="_blank" rel="noopener noreferrer"
                           className="p-1.5 rounded-lg text-muted-foreground/30 hover:text-gold hover:bg-gold/5 transition-colors"
                           title="Ver minisite"

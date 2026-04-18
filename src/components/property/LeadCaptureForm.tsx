@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { MessageCircle, X, Phone, User, ArrowRight } from "lucide-react"
+import { MessageCircle, X, Phone, User, ArrowRight, ChevronDown } from "lucide-react"
 
 const COOKIE_NAME = "corretor_ref"
 
@@ -43,6 +43,12 @@ export function LeadCaptureForm({
   const [phone, setPhone] = useState("")
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [showCRM, setShowCRM] = useState(false)
+  const [cidadeCliente, setCidade] = useState("")
+  const [perfilImovel, setPerfil] = useState("")
+  const [precoMin, setPrecoMin] = useState("")
+  const [precoMax, setPrecoMax] = useState("")
+  const [tipoNegociacao, setTipoNeg] = useState("")
 
   // Resolve corretor WhatsApp from ref param or cookie — overrides orgWhatsapp
   const [resolvedWhatsapp, setResolvedWhatsapp] = useState(orgWhatsapp)
@@ -64,6 +70,10 @@ export function LeadCaptureForm({
     setLoading(true)
 
     try {
+      const parsePricePt = (v: string) => {
+        const n = parseInt(v.replace(/\./g, ""))
+        return isNaN(n) ? undefined : n
+      }
       await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,6 +85,11 @@ export function LeadCaptureForm({
           ref_id: resolvedRefId ?? null,
           org_id: orgId,
           source: source ?? (resolvedRefId ? "minisite" : "imovel"),
+          cidade_cliente: cidadeCliente.trim() || undefined,
+          perfil_imovel: perfilImovel || undefined,
+          preco_min: parsePricePt(precoMin),
+          preco_max: parsePricePt(precoMax),
+          tipo_negociacao: tipoNegociacao || undefined,
         }),
       })
     } catch {
@@ -184,6 +199,65 @@ export function LeadCaptureForm({
                             className="w-full bg-card border border-border text-foreground placeholder-muted-foreground/50 pl-9 pr-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
                           />
                         </div>
+                      </div>
+
+                      {/* Optional CRM fields */}
+                      <div className="border-t border-border/40 pt-3 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => setShowCRM(!showCRM)}
+                          className="flex items-center gap-1.5 text-muted-foreground/60 text-xs font-sans hover:text-foreground/60 transition-colors"
+                        >
+                          <ChevronDown size={12} className={`transition-transform ${showCRM ? "rotate-180" : ""}`} />
+                          Mais sobre seu interesse (opcional)
+                        </button>
+                        {showCRM && (
+                          <div className="mt-3 space-y-3">
+                            <input
+                              type="text"
+                              value={cidadeCliente}
+                              onChange={(e) => setCidade(e.target.value)}
+                              placeholder="Cidade onde mora"
+                              className="w-full bg-card border border-border text-foreground placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
+                            />
+                            <select value={perfilImovel} onChange={(e) => setPerfil(e.target.value)}
+                              className="w-full bg-card border border-border text-foreground/70 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors">
+                              <option value="">Tipo de imóvel buscado</option>
+                              {["Apartamento","Casa","Casa em Condomínio","Cobertura","Terreno","Sala Comercial","Outro"].map((t) => (
+                                <option key={t} value={t}>{t}</option>
+                              ))}
+                            </select>
+                            <div className="grid grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                value={precoMin}
+                                onChange={(e) => {
+                                  const d = e.target.value.replace(/\D/g, "")
+                                  setPrecoMin(d ? Number(d).toLocaleString("pt-BR") : "")
+                                }}
+                                placeholder="Preço mínimo"
+                                className="bg-card border border-border text-foreground placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
+                              />
+                              <input
+                                type="text"
+                                value={precoMax}
+                                onChange={(e) => {
+                                  const d = e.target.value.replace(/\D/g, "")
+                                  setPrecoMax(d ? Number(d).toLocaleString("pt-BR") : "")
+                                }}
+                                placeholder="Preço máximo"
+                                className="bg-card border border-border text-foreground placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
+                              />
+                            </div>
+                            <select value={tipoNegociacao} onChange={(e) => setTipoNeg(e.target.value)}
+                              className="w-full bg-card border border-border text-foreground/70 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors">
+                              <option value="">Forma de negociação</option>
+                              {["Financiamento","À vista","Dação","Permuta","Outros"].map((t) => (
+                                <option key={t} value={t}>{t}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                       </div>
 
                       <button

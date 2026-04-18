@@ -12,6 +12,7 @@ const ALL_TAGS = Object.keys(getAllTags())
 const CATEGORIAS = [
   "Apartamento", "Casa", "Casa em Condomínio", "Cobertura", "Duplex",
   "Flat / Apart-hotel", "Kitnet / Studio", "Loft", "Terreno",
+  "Lote em Condomínio Fechado", "Lote em Rua",
   "Sala Comercial", "Loja", "Galpão / Depósito", "Sítio / Fazenda", "Outro",
 ]
 
@@ -611,9 +612,10 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
                 <div>
                   <label className={lc}>Visibilidade</label>
                   <select value={visibility} onChange={(e) => setVis(e.target.value as PropertyVisibility)} className={ic}>
-                    <option value="publico">Público — todos os corretores</option>
-                    <option value="equipe">Equipe — somente sua organização</option>
-                    <option value="privado">Privado — somente você</option>
+                    <option value="privado">Somente eu</option>
+                    <option value="equipe">Minha equipe</option>
+                    <option value="corretores">Corretores (todos os profissionais)</option>
+                    <option value="publico">Geral (público e clientes)</option>
                   </select>
                 </div>
               )}
