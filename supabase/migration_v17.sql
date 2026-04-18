@@ -15,18 +15,28 @@ begin
 end $$;
 
 -- RLS: allow any logged-in professional to read visibility='corretores' properties
--- (assumes existing "public_read_properties" policy covers visibility='publico')
-create policy if not exists "professionals_read_corretores_properties"
-  on properties
-  for select
-  using (
-    visibility = 'corretores'
-    and exists (
-      select 1 from profiles
-      where id = auth.uid()
-        and role in ('admin', 'imobiliaria', 'corretor', 'construtora')
-    )
-  );
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where tablename = 'properties'
+      and policyname = 'professionals_read_corretores_properties'
+  ) then
+    execute $policy$
+      create policy "professionals_read_corretores_properties"
+        on properties
+        for select
+        using (
+          visibility = 'corretores'
+          and exists (
+            select 1 from profiles
+            where id = auth.uid()
+              and role in ('admin', 'imobiliaria', 'corretor', 'construtora')
+          )
+        )
+    $policy$;
+  end if;
+end $$;
 
 -- ── Phase 10: CRM fields for leads ─────────────────────────────────────────
 
