@@ -30,27 +30,36 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   if (!user) redirect("/login")
 
   const adminClient = createAdminClient()
+
+  // Query essencial — colunas que sempre existiram, nunca falha
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("full_name, avatar_url, role, plan, organization_id, subscription_status, payment_due_date, organization:organizations(plan, subscription_status, payment_due_date, slug, type)")
+    .select("full_name, avatar_url, role, organization_id")
+    .eq("id", user.id)
+    .single()
+
+  // Query estendida — colunas adicionadas pelas migrations (pode falhar graciosamente)
+  const { data: extProfile } = await adminClient
+    .from("profiles")
+    .select("plan, subscription_status, payment_due_date, organization:organizations(plan, subscription_status, payment_due_date, slug, type)")
     .eq("id", user.id)
     .single()
 
   // Suspension check (admins are never suspended)
-  if (profile && profile.role !== "admin") {
-    const org = profile.organization as unknown as { plan: string; subscription_status: string; payment_due_date: string | null; slug: string | null } | null
-    const effectivePlan = org?.plan ?? profile.plan ?? "free"
-    const effectiveStatus = org?.subscription_status ?? profile.subscription_status ?? "trial"
-    const effectiveDueDate = org?.payment_due_date ?? profile.payment_due_date ?? null
+  if (profile?.role && profile.role !== "admin" && extProfile) {
+    const org = (extProfile as unknown as { organization?: { plan: string; subscription_status: string; payment_due_date: string | null; slug: string | null } }).organization ?? null
+    const effectivePlan = org?.plan ?? (extProfile as unknown as { plan?: string }).plan ?? "free"
+    const effectiveStatus = org?.subscription_status ?? (extProfile as unknown as { subscription_status?: string }).subscription_status ?? "trial"
+    const effectiveDueDate = org?.payment_due_date ?? (extProfile as unknown as { payment_due_date?: string | null }).payment_due_date ?? null
     if (isEffectivelySuspended(effectivePlan, effectiveStatus, effectiveDueDate)) {
       redirect("/suspenso")
     }
   }
 
-  const orgId = profile?.organization_id ?? null
-  const org = profile?.organization as unknown as { plan?: string; slug: string | null; type?: string } | null
+  const extAny = extProfile as unknown as Record<string, unknown> | null
+  const org = (extAny?.organization ?? null) as { plan?: string; slug?: string | null; type?: string } | null
   const orgSlug = org?.slug ?? null
-  const effectivePlan = ((org?.plan ?? profile?.plan ?? "free") as OrgPlan)
+  const effectivePlan = ((org?.plan ?? (extAny?.plan as string | undefined) ?? "free") as OrgPlan)
   const orgType = (org?.type ?? null) as OrgType | null
 
   const safeProfile = {
