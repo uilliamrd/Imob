@@ -11,10 +11,15 @@ export default async function PlanosPage() {
   await requireAuth(["admin"])
   const admin = createAdminClient()
 
-  const [{ data: orgs }, { data: profiles }] = await Promise.all([
+  const [
+    { data: orgs },
+    { data: profiles },
+    { data: corretoresAll },
+    { data: propertiesAll },
+  ] = await Promise.all([
     admin
       .from("organizations")
-      .select("id, name, type, plan, subscription_status, subscription_expires_at, payment_due_date, logo")
+      .select("id, name, type, plan, subscription_status, subscription_expires_at, payment_due_date, logo, highlight_quota, super_highlight_quota, is_section_highlighted")
       .order("name"),
     admin
       .from("profiles")
@@ -22,7 +27,26 @@ export default async function PlanosPage() {
       .eq("role", "corretor")
       .is("organization_id", null)
       .order("full_name"),
+    admin
+      .from("profiles")
+      .select("organization_id")
+      .eq("role", "corretor")
+      .not("organization_id", "is", null),
+    admin
+      .from("properties")
+      .select("org_id")
+      .not("org_id", "is", null),
   ])
+
+  // Build count maps
+  const corretoresMap: Record<string, number> = {}
+  for (const p of corretoresAll ?? []) {
+    if (p.organization_id) corretoresMap[p.organization_id] = (corretoresMap[p.organization_id] ?? 0) + 1
+  }
+  const propertiesMap: Record<string, number> = {}
+  for (const p of propertiesAll ?? []) {
+    if (p.org_id) propertiesMap[p.org_id] = (propertiesMap[p.org_id] ?? 0) + 1
+  }
 
   const orgRows = (orgs ?? []).map((o) => ({
     id: o.id,
@@ -34,6 +58,11 @@ export default async function PlanosPage() {
     subscription_status: (o.subscription_status ?? "trial") as SubscriptionStatus,
     subscription_expires_at: o.subscription_expires_at as string | null,
     payment_due_date: o.payment_due_date as string | null,
+    highlight_quota: o.highlight_quota as number | null,
+    super_highlight_quota: o.super_highlight_quota as number | null,
+    is_section_highlighted: (o.is_section_highlighted ?? false) as boolean,
+    corretores_count: corretoresMap[o.id] ?? 0,
+    imoveis_count: propertiesMap[o.id] ?? 0,
   }))
 
   const corretorRows = (profiles ?? []).map((p) => ({
@@ -46,6 +75,11 @@ export default async function PlanosPage() {
     subscription_status: (p.subscription_status ?? "trial") as SubscriptionStatus,
     subscription_expires_at: p.subscription_expires_at as string | null,
     payment_due_date: p.payment_due_date as string | null,
+    highlight_quota: null,
+    super_highlight_quota: null,
+    is_section_highlighted: false,
+    corretores_count: 0,
+    imoveis_count: 0,
   }))
 
   return (

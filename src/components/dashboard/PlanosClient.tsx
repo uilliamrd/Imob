@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { ChevronDown, ChevronUp, Save, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Save, Loader2, Star, Users, Home } from "lucide-react"
 import type { OrgPlan, OrgType, SubscriptionStatus } from "@/types/database"
-import { getPlanName, type PlanEntityType } from "@/lib/plans"
+import { getPlanName, getPlanLimits, type PlanEntityType } from "@/lib/plans"
 import Image from "next/image"
 
 export type ClientRow = {
@@ -16,6 +16,11 @@ export type ClientRow = {
   subscription_status: SubscriptionStatus
   subscription_expires_at: string | null
   payment_due_date: string | null
+  highlight_quota: number | null
+  super_highlight_quota: number | null
+  is_section_highlighted: boolean
+  corretores_count: number
+  imoveis_count: number
 }
 
 type EditDraft = {
@@ -23,6 +28,9 @@ type EditDraft = {
   subscription_status?: SubscriptionStatus
   subscription_expires_at?: string | null
   payment_due_date?: string | null
+  highlight_quota?: number | null
+  super_highlight_quota?: number | null
+  is_section_highlighted?: boolean
 }
 
 const PLANS: OrgPlan[] = ["free", "starter", "pro", "enterprise"]
@@ -59,20 +67,14 @@ function toIso(date: string): string | null {
   return new Date(date + "T00:00:00").toISOString()
 }
 
-function PlanRow({
-  row,
-  onSaved,
-}: {
-  row: ClientRow
-  onSaved: (id: string, draft: EditDraft) => void
-}) {
+function PlanRow({ row, onSaved }: { row: ClientRow; onSaved: (id: string, draft: EditDraft) => void }) {
   const [expanded, setExpanded] = useState(false)
   const [draft, setDraft] = useState<EditDraft>({})
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
 
-  const effective: ClientRow = { ...row, ...draft }
+  const effective = { ...row, ...draft }
   const isDirty = Object.keys(draft).length > 0
 
   function setField<K extends keyof EditDraft>(key: K, value: EditDraft[K]) {
@@ -83,17 +85,12 @@ function PlanRow({
     if (!isDirty) return
     setSaving(true)
     setError(null)
-
-    const url = row.kind === "org"
-      ? `/api/organizations/${row.id}`
-      : `/api/admin/profiles/${row.id}`
-
+    const url = row.kind === "org" ? `/api/organizations/${row.id}` : `/api/admin/profiles/${row.id}`
     const res = await fetch(url, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(draft),
     })
-
     if (res.ok) {
       onSaved(row.id, draft)
       setDraft({})
@@ -105,6 +102,14 @@ function PlanRow({
     }
     setSaving(false)
   }
+
+  // Highlight limits from plan (for reference display)
+  const planLimits = row.kind === "org"
+    ? getPlanLimits(row.entityType as PlanEntityType, effective.plan)
+    : null
+
+  const effectiveHighlight = effective.highlight_quota ?? planLimits?.max_highlights ?? 0
+  const effectiveSuperHighlight = effective.super_highlight_quota ?? planLimits?.max_super_highlights ?? 0
 
   return (
     <div className="border-b border-white/5 last:border-0">
@@ -119,7 +124,24 @@ function PlanRow({
           ) : (
             <div className="w-7 h-7 rounded-md bg-muted/40 shrink-0" />
           )}
-          <span className="text-foreground/90 text-sm font-sans truncate">{row.name}</span>
+          <div className="min-w-0">
+            <span className="text-foreground/90 text-sm font-sans truncate block">{row.name}</span>
+            {row.kind === "org" && (
+              <div className="flex items-center gap-3 mt-0.5">
+                {row.entityType === "imobiliaria" && (
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground/50 font-sans">
+                    <Users size={9} />{row.corretores_count} corretores
+                  </span>
+                )}
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground/50 font-sans">
+                  <Home size={9} />{row.imoveis_count} imóveis
+                </span>
+                <span className="flex items-center gap-1 text-[10px] text-gold/50 font-sans">
+                  <Star size={9} />{effectiveHighlight} dest. · {effectiveSuperHighlight} super
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tipo */}
@@ -147,55 +169,86 @@ function PlanRow({
 
       {expanded && (
         <div className="px-5 pb-5 pt-3 bg-white/[0.01] border-t border-border space-y-4">
+
+          {/* Assinatura */}
+          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-sans">Assinatura</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Plano</label>
-              <select
-                value={effective.plan}
-                onChange={(e) => setField("plan", e.target.value as OrgPlan)}
-                className={inputClass}
-              >
+              <select value={effective.plan} onChange={(e) => setField("plan", e.target.value as OrgPlan)} className={inputClass}>
                 {PLANS.map((p) => (
-                  <option key={p} value={p}>
-                    {getPlanName(row.entityType as PlanEntityType, p)} ({p})
-                  </option>
+                  <option key={p} value={p}>{getPlanName(row.entityType as PlanEntityType, p)} ({p})</option>
                 ))}
               </select>
             </div>
-
             <div>
-              <label className={labelClass}>Status da assinatura</label>
-              <select
-                value={effective.subscription_status}
-                onChange={(e) => setField("subscription_status", e.target.value as SubscriptionStatus)}
-                className={inputClass}
-              >
-                {STATUSES.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
-                ))}
+              <label className={labelClass}>Status</label>
+              <select value={effective.subscription_status} onChange={(e) => setField("subscription_status", e.target.value as SubscriptionStatus)} className={inputClass}>
+                {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
-
             <div>
-              <label className={labelClass}>Expiração da assinatura</label>
-              <input
-                type="date"
-                value={toLocalDate(effective.subscription_expires_at ?? null)}
-                onChange={(e) => setField("subscription_expires_at", toIso(e.target.value))}
-                className={inputClass}
-              />
+              <label className={labelClass}>Expiração</label>
+              <input type="date" value={toLocalDate(effective.subscription_expires_at ?? null)} onChange={(e) => setField("subscription_expires_at", toIso(e.target.value))} className={inputClass} />
             </div>
-
             <div>
               <label className={labelClass}>Próximo vencimento</label>
-              <input
-                type="date"
-                value={toLocalDate(effective.payment_due_date ?? null)}
-                onChange={(e) => setField("payment_due_date", toIso(e.target.value))}
-                className={inputClass}
-              />
+              <input type="date" value={toLocalDate(effective.payment_due_date ?? null)} onChange={(e) => setField("payment_due_date", toIso(e.target.value))} className={inputClass} />
             </div>
           </div>
+
+          {/* Destaques — apenas orgs */}
+          {row.kind === "org" && (
+            <>
+              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-sans pt-1">Destaques</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className={labelClass}>
+                    Destaques
+                    {planLimits && <span className="ml-1 text-muted-foreground/40">(plano: {planLimits.max_highlights})</span>}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder={String(planLimits?.max_highlights ?? 0)}
+                    value={effective.highlight_quota ?? ""}
+                    onChange={(e) => setField("highlight_quota", e.target.value === "" ? null : Number(e.target.value))}
+                    className={inputClass}
+                  />
+                  <p className="text-[10px] text-muted-foreground/40 font-sans mt-1">Deixe vazio para usar o limite do plano</p>
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Super Destaques
+                    {planLimits && <span className="ml-1 text-muted-foreground/40">(plano: {planLimits.max_super_highlights})</span>}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder={String(planLimits?.max_super_highlights ?? 0)}
+                    value={effective.super_highlight_quota ?? ""}
+                    onChange={(e) => setField("super_highlight_quota", e.target.value === "" ? null : Number(e.target.value))}
+                    className={inputClass}
+                  />
+                </div>
+                <div className="flex flex-col justify-end">
+                  <label className={labelClass}>Destaque de Seção no Portal</label>
+                  <button
+                    type="button"
+                    onClick={() => setField("is_section_highlighted", !effective.is_section_highlighted)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-sans transition-colors ${
+                      effective.is_section_highlighted
+                        ? "border-gold/40 bg-gold/10 text-gold"
+                        : "border-border text-muted-foreground hover:border-border/80"
+                    }`}
+                  >
+                    <Star size={13} className={effective.is_section_highlighted ? "fill-gold text-gold" : ""} />
+                    {effective.is_section_highlighted ? "Ativo" : "Inativo"}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
 
           {error && <p className="text-red-400 text-xs font-sans">{error}</p>}
 
@@ -225,7 +278,7 @@ export function PlanosClient({ rows: initialRows }: { rows: ClientRow[] }) {
   const [filterPlan, setFilterPlan] = useState<FilterPlan>("todos")
 
   function handleSaved(id: string, draft: EditDraft) {
-    setRows((prev) => prev.map((r) => r.id === id ? { ...r, ...draft } : r))
+    setRows((prev) => prev.map((r) => r.id === id ? { ...r, ...draft } as ClientRow : r))
   }
 
   const counts = useMemo(() => ({
@@ -235,18 +288,16 @@ export function PlanosClient({ rows: initialRows }: { rows: ClientRow[] }) {
     suspended: rows.filter((r) => r.subscription_status === "suspended" || r.subscription_status === "expired").length,
   }), [rows])
 
-  const filtered = useMemo(() => {
-    return rows.filter((r) => {
-      if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false
-      if (filterStatus !== "todos") {
-        if (filterStatus === "suspended" && r.subscription_status !== "suspended" && r.subscription_status !== "expired") return false
-        if (filterStatus !== "suspended" && r.subscription_status !== filterStatus) return false
-      }
-      if (filterType !== "todos" && r.entityType !== filterType) return false
-      if (filterPlan !== "todos" && r.plan !== filterPlan) return false
-      return true
-    })
-  }, [rows, search, filterStatus, filterType, filterPlan])
+  const filtered = useMemo(() => rows.filter((r) => {
+    if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false
+    if (filterStatus !== "todos") {
+      if (filterStatus === "suspended" && r.subscription_status !== "suspended" && r.subscription_status !== "expired") return false
+      if (filterStatus !== "suspended" && r.subscription_status !== filterStatus) return false
+    }
+    if (filterType !== "todos" && r.entityType !== filterType) return false
+    if (filterPlan !== "todos" && r.plan !== filterPlan) return false
+    return true
+  }), [rows, search, filterStatus, filterType, filterPlan])
 
   return (
     <div className="space-y-6">
@@ -258,11 +309,9 @@ export function PlanosClient({ rows: initialRows }: { rows: ClientRow[] }) {
           { label: "Trial", value: counts.trial, key: "trial" as FilterStatus, color: "text-amber-400" },
           { label: "Suspensos/Expirados", value: counts.suspended, key: "suspended" as FilterStatus, color: "text-red-400" },
         ].map((card) => (
-          <button
-            key={card.key}
+          <button key={card.key}
             onClick={() => setFilterStatus(filterStatus === card.key ? "todos" : card.key)}
-            className={`bg-card border rounded-xl p-5 text-left transition-colors ${filterStatus === card.key ? "border-gold/40 bg-gold/5" : "border-border hover:border-border/80"}`}
-          >
+            className={`bg-card border rounded-xl p-5 text-left transition-colors ${filterStatus === card.key ? "border-gold/40 bg-gold/5" : "border-border hover:border-border/80"}`}>
             <p className={`text-2xl font-serif font-bold ${card.color}`}>{card.value}</p>
             <p className="text-muted-foreground text-xs font-sans mt-1 uppercase tracking-wider">{card.label}</p>
           </button>
@@ -272,40 +321,27 @@ export function PlanosClient({ rows: initialRows }: { rows: ClientRow[] }) {
       {/* Filtros + Busca */}
       <div className="bg-card border border-border rounded-2xl">
         <div className="px-5 py-4 border-b border-border flex flex-wrap gap-3 items-center">
-          <input
-            type="text"
-            placeholder="Buscar por nome..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-background border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:outline-none focus:border-gold/50 w-48"
-          />
-
+          <input type="text" placeholder="Buscar por nome..." value={search} onChange={(e) => setSearch(e.target.value)}
+            className="bg-background border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:outline-none focus:border-gold/50 w-48" />
           <div className="flex gap-1 flex-wrap">
-            {(["todos", "imobiliaria", "construtora", "corretor"] as (FilterType)[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setFilterType(t)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-sans transition-colors ${filterType === t ? "bg-gold text-graphite" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}
-              >
+            {(["todos", "imobiliaria", "construtora", "corretor"] as FilterType[]).map((t) => (
+              <button key={t} onClick={() => setFilterType(t)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-sans transition-colors ${filterType === t ? "bg-gold text-graphite" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
                 {t === "todos" ? "Todos" : TYPE_LABEL[t as OrgType | "corretor"]}
               </button>
             ))}
           </div>
-
           <div className="flex gap-1 flex-wrap">
-            {(["todos", ...PLANS] as (FilterPlan)[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setFilterPlan(p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-sans transition-colors ${filterPlan === p ? "bg-gold text-graphite" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}
-              >
+            {(["todos", ...PLANS] as FilterPlan[]).map((p) => (
+              <button key={p} onClick={() => setFilterPlan(p)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-sans transition-colors ${filterPlan === p ? "bg-gold text-graphite" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
                 {p === "todos" ? "Todos" : p}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Cabeçalho da tabela */}
+        {/* Cabeçalho */}
         <div className="px-5 py-3 border-b border-border hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-4 items-center">
           <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/50 font-sans">Cliente</span>
           <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/50 font-sans w-24 text-right">Tipo</span>
@@ -315,13 +351,10 @@ export function PlanosClient({ rows: initialRows }: { rows: ClientRow[] }) {
           <span className="w-4" />
         </div>
 
-        {/* Linhas */}
         {filtered.length === 0 ? (
           <p className="py-12 text-center text-muted-foreground/50 text-sm font-sans">Nenhum cliente encontrado.</p>
         ) : (
-          filtered.map((row) => (
-            <PlanRow key={row.id} row={row} onSaved={handleSaved} />
-          ))
+          filtered.map((row) => <PlanRow key={row.id} row={row} onSaved={handleSaved} />)
         )}
       </div>
 
