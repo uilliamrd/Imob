@@ -12,13 +12,15 @@ import {
   ListChecks,
 } from "lucide-react"
 import Link from "next/link"
-import type { UserRole, Organization, Property, PropertyFeatures } from "@/types/database"
+import { PlanUsage } from "@/components/dashboard/PlanUsage"
+import type { UserRole, OrgPlan, OrgType, Organization, Property, PropertyFeatures } from "@/types/database"
 
 const ROLE_WELCOME: Record<UserRole, string> = {
   admin:       "Painel de Controle",
   imobiliaria: "Painel da Imobiliária",
   corretor:    "Painel do Corretor",
   construtora: "Painel da Construtora",
+  secretaria:  "Painel da Secretária",
 }
 
 function formatPrice(price: number) {
@@ -80,11 +82,12 @@ export default async function DashboardPage() {
   const adminClient = createAdminClient()
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("full_name, role, organization_id, whatsapp, creci")
+    .select("full_name, role, plan, organization_id, whatsapp, creci")
     .eq("id", user.id)
     .single()
 
   const role = (profile?.role as UserRole) ?? "corretor"
+  const profilePlan = (profile?.plan ?? "free") as OrgPlan
   const firstName = (profile?.full_name ?? user.email ?? "Usuário").split(" ")[0]
 
   // ── Admin / Construtora dashboard ─────────────────────────────
@@ -104,11 +107,16 @@ export default async function DashboardPage() {
       ? adminClient.from("properties").select("price").eq("org_id", constrOrgId).eq("status", "vendido").gte("updated_at", monthStart)
       : adminClient.from("properties").select("price").eq("status", "vendido").gte("updated_at", monthStart)
 
+    const devQ = constrOrgId
+      ? adminClient.from("developments").select("*", { count: "exact", head: true }).eq("org_id", constrOrgId)
+      : { count: 0 }
+
     const [
       { count: totalProperties },
       { count: availableProperties },
       { data: soldThisMonth },
-    ] = await Promise.all([totalQ, availQ, soldQ])
+      { count: devCount },
+    ] = await Promise.all([totalQ, availQ, soldQ, devQ])
 
     const vgvMes = (soldThisMonth ?? []).reduce((sum, p) => sum + (p.price ?? 0), 0)
 
@@ -173,6 +181,17 @@ export default async function DashboardPage() {
             )
           })}
         </div>
+
+        {role === "construtora" && (
+          <div className="mt-6">
+            <PlanUsage
+              role={role}
+              plan={profilePlan}
+              orgType={"construtora" as OrgType}
+              counts={{ properties: totalProperties ?? 0, developments: devCount ?? 0, corretores: 0 }}
+            />
+          </div>
+        )}
       </div>
     )
   }
@@ -219,6 +238,11 @@ export default async function DashboardPage() {
     ? await supabase.from("selections").select("*", { count: "exact", head: true }).eq("corretor_id", user.id)
     : { count: 0 }
 
+  const { count: equipeCount } = role === "imobiliaria" && orgId
+    ? await adminClient.from("profiles").select("*", { count: "exact", head: true })
+        .eq("organization_id", orgId).eq("role", "corretor")
+    : { count: 0 }
+
   const { data: recentProperties } = role === "corretor"
     ? await adminClient
         .from("properties")
@@ -258,6 +282,15 @@ export default async function DashboardPage() {
           <AnimatedGradientText className="font-serif text-3xl lg:text-4xl font-bold italic">{firstName}</AnimatedGradientText>
         </h1>
         <div className="divider-gold mt-4 w-20" />
+      </div>
+
+      <div className="mb-6">
+        <PlanUsage
+          role={role}
+          plan={profilePlan}
+          orgType={orgId ? (role === "imobiliaria" ? "imobiliaria" as OrgType : null) : null}
+          counts={{ properties: myProperties ?? 0, developments: 0, corretores: equipeCount ?? 0 }}
+        />
       </div>
 
       {/* ── Profile hint ───────────────────────────────────── */}

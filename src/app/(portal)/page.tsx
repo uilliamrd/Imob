@@ -39,14 +39,18 @@ export default async function PortalPage() {
       .order("created_at", { ascending: false }),
     admin
       .from("organizations")
-      .select("id, name, slug, logo, brand_colors, hero_tagline")
+      .select("id, name, slug, logo, brand_colors, hero_tagline, is_section_highlighted")
       .eq("type", "construtora")
-      .not("slug", "is", null),
+      .not("slug", "is", null)
+      .order("is_section_highlighted", { ascending: false })
+      .order("name"),
     admin
       .from("organizations")
-      .select("id, name, slug, logo, brand_colors, hero_tagline")
+      .select("id, name, slug, logo, brand_colors, hero_tagline, is_section_highlighted")
       .eq("type", "imobiliaria")
-      .not("slug", "is", null),
+      .not("slug", "is", null)
+      .order("is_section_highlighted", { ascending: false })
+      .order("name"),
     admin
       .from("property_ads")
       .select(`*, property:properties(${PROPERTY_SELECT})`)
@@ -58,11 +62,34 @@ export default async function PortalPage() {
   const properties = (rawProperties ?? []) as unknown as PortalProperty[]
   const ads = (rawAds ?? []) as unknown as PropertyAd[]
 
-  const superDestaques = ads
-    .filter((a) => a.tier === "super_destaque" && a.property)
-    .map((a) => a.property as unknown as PortalProperty)
+  // Rodízio: agrupar ads por property_id e selecionar um por hora
+  const hourSlot = Math.floor(Date.now() / 3_600_000)
+  function pickAdForProperty(adsForProp: PropertyAd[]): PropertyAd {
+    return adsForProp[hourSlot % adsForProp.length]
+  }
+
+  // Agrupar super_destaque por property_id
+  const superAdsMap = new Map<string, PropertyAd[]>()
+  ads.filter((a) => a.tier === "super_destaque" && a.property).forEach((a) => {
+    const list = superAdsMap.get(a.property_id) ?? []
+    list.push(a)
+    superAdsMap.set(a.property_id, list)
+  })
+  const superDestaques = Array.from(superAdsMap.values())
+    .map((list) => pickAdForProperty(list).property as unknown as PortalProperty)
+
+  // Agrupar destaque por property_id (deduplicado)
+  const destaqueAdsMap = new Map<string, PropertyAd[]>()
+  ads.filter((a) => a.tier === "destaque").forEach((a) => {
+    const list = destaqueAdsMap.get(a.property_id) ?? []
+    list.push(a)
+    destaqueAdsMap.set(a.property_id, list)
+  })
   const destaqueIds = new Set(
-    ads.filter((a) => a.tier === "destaque").map((a) => a.property_id)
+    Array.from(destaqueAdsMap.entries()).map(([propId, list]) => {
+      pickAdForProperty(list) // consume slot for rotation tracking
+      return propId
+    })
   )
 
   async function buildOrgList(orgs: typeof construtorасData): Promise<PortalOrg[]> {

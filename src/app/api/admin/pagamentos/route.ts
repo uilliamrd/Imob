@@ -12,32 +12,31 @@ async function requireAdmin() {
   return admin
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET() {
   const admin = await requireAdmin()
   if (!admin) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
 
-  const { id } = await params
-  const body = await request.json()
+  const { data, error } = await admin
+    .from("payment_records")
+    .select("*, organization:organizations(id, name, type, plan), profile:profiles(id, full_name, role)")
+    .order("due_date", { ascending: true, nullsFirst: false })
 
-  // Allow updating profile fields
-  const allowed = ["role", "organization_id", "is_active", "full_name", "whatsapp", "creci", "bio", "plan", "subscription_status", "subscription_expires_at", "payment_due_date"]
-  const patch: Record<string, unknown> = {}
-  for (const key of allowed) {
-    if (key in body) patch[key] = body[key]
-  }
-
-  const { error } = await admin.from("profiles").update(patch).eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json({ ok: true })
+  return NextResponse.json(data)
 }
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request) {
   const admin = await requireAdmin()
   if (!admin) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
 
-  const { id } = await params
-  // Deleting from auth.users cascades to profiles
-  const { error } = await admin.auth.admin.deleteUser(id)
+  const body = await request.json()
+  const allowed = ["org_id", "profile_id", "amount", "type", "status", "due_date", "paid_at", "notes"]
+  const payload: Record<string, unknown> = {}
+  for (const key of allowed) {
+    if (key in body) payload[key] = body[key]
+  }
+
+  const { data, error } = await admin.from("payment_records").insert(payload).select("*").single()
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json({ ok: true })
+  return NextResponse.json(data, { status: 201 })
 }

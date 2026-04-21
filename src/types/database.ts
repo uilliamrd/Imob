@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'imobiliaria' | 'corretor' | 'construtora'
+export type UserRole = 'admin' | 'imobiliaria' | 'corretor' | 'construtora' | 'secretaria'
 export type OrgType = 'imobiliaria' | 'construtora'
 export type PropertyStatus = 'disponivel' | 'vendido' | 'reserva'
 export type PropertyVisibility = 'publico' | 'corretores' | 'equipe' | 'privado'
@@ -6,6 +6,7 @@ export type LeadStatus = 'novo' | 'em_contato' | 'convertido' | 'perdido'
 export type LeadSource = 'imovel' | 'minisite' | 'selecao' | 'manual'
 
 export type OrgPlan = 'free' | 'starter' | 'pro' | 'enterprise'
+export type SubscriptionStatus = 'trial' | 'active' | 'suspended' | 'expired'
 
 export interface Organization {
   id: string
@@ -24,6 +25,12 @@ export interface Organization {
   website: string | null
   whatsapp: string | null
   created_at: string
+  subscription_status: SubscriptionStatus
+  subscription_expires_at: string | null
+  payment_due_date: string | null
+  highlight_quota: number | null
+  super_highlight_quota: number | null
+  is_section_highlighted: boolean
 }
 
 export interface Profile {
@@ -39,6 +46,9 @@ export interface Profile {
   is_active: boolean
   slug: string | null
   last_lead_at: string | null
+  subscription_status: SubscriptionStatus
+  subscription_expires_at: string | null
+  payment_due_date: string | null
   organization?: Organization
 }
 
@@ -228,4 +238,22 @@ export interface IngestPropertyPayload {
   address?: string
   neighborhood?: string
   city?: string
+}
+
+export type PaymentRecordType = 'implantacao' | 'mensal' | 'landing_page' | 'outro'
+export type PaymentRecordStatus = 'pendente' | 'pago' | 'cancelado'
+
+export interface PaymentRecord {
+  id: string
+  org_id: string | null
+  profile_id: string | null
+  amount: number
+  type: PaymentRecordType
+  status: PaymentRecordStatus
+  due_date: string | null
+  paid_at: string | null
+  notes: string | null
+  created_at: string
+  organization?: Pick<Organization, 'id' | 'name' | 'type' | 'plan'>
+  profile?: Pick<Profile, 'id' | 'full_name' | 'role'>
 }

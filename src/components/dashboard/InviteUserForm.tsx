@@ -11,6 +11,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   imobiliaria: "Imobiliária",
   corretor: "Corretor",
   construtora: "Construtora",
+  secretaria: "Secretária",
 }
 
 const CRECI_ROLES: UserRole[] = ["corretor", "imobiliaria"]

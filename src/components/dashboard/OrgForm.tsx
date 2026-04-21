@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ImageUpload } from "@/components/ui/ImageUpload"
-import { Save, ExternalLink, Globe, FileText, Image, Flame } from "lucide-react"
-import type { OrgType } from "@/types/database"
+import { Save, ExternalLink, Globe, FileText, Image, Flame, CreditCard, Star } from "lucide-react"
+import type { OrgPlan, OrgType, SubscriptionStatus } from "@/types/database"
+import { getPlanName } from "@/lib/plans"
 
 interface OrgFormProps {
   userId: string
@@ -22,6 +23,13 @@ interface OrgFormProps {
     has_lancamentos?: boolean
     slug?: string
     brand_color?: string
+    plan?: OrgPlan
+    subscription_status?: SubscriptionStatus
+    subscription_expires_at?: string | null
+    payment_due_date?: string | null
+    highlight_quota?: number | null
+    super_highlight_quota?: number | null
+    is_section_highlighted?: boolean
   }
   isAdmin?: boolean
 }
@@ -36,6 +44,13 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
   const [website, setWebsite] = useState(initialData.website)
   const [hasLancamentos, setHasLancamentos] = useState(initialData.has_lancamentos ?? false)
   const [brandColor, setBrandColor] = useState(initialData.brand_color ?? "#C4A052")
+  const [plan, setPlan] = useState<OrgPlan>(initialData.plan ?? "free")
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>(initialData.subscription_status ?? "trial")
+  const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState(initialData.subscription_expires_at ? initialData.subscription_expires_at.slice(0, 10) : "")
+  const [paymentDueDate, setPaymentDueDate] = useState(initialData.payment_due_date ? initialData.payment_due_date.slice(0, 10) : "")
+  const [highlightQuota, setHighlightQuota] = useState<string>(initialData.highlight_quota != null ? String(initialData.highlight_quota) : "")
+  const [superHighlightQuota, setSuperHighlightQuota] = useState<string>(initialData.super_highlight_quota != null ? String(initialData.super_highlight_quota) : "")
+  const [isSectionHighlighted, setIsSectionHighlighted] = useState(initialData.is_section_highlighted ?? false)
 
   const [logoUrls, setLogoUrls] = useState<string[]>(initialData.logo ? [initialData.logo] : [])
   const [heroImageUrls, setHeroImageUrls] = useState<string[]>(initialData.hero_image ? [initialData.hero_image] : [])
@@ -71,6 +86,13 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
 
     if (isAdmin) {
       payload.has_lancamentos = hasLancamentos
+      payload.plan = plan
+      payload.subscription_status = subscriptionStatus
+      payload.subscription_expires_at = subscriptionExpiresAt ? new Date(subscriptionExpiresAt).toISOString() : null
+      payload.payment_due_date = paymentDueDate ? new Date(paymentDueDate).toISOString() : null
+      payload.highlight_quota = highlightQuota !== "" ? parseInt(highlightQuota) : null
+      payload.super_highlight_quota = superHighlightQuota !== "" ? parseInt(superHighlightQuota) : null
+      payload.is_section_highlighted = isSectionHighlighted
     }
 
     if (orgId) {
@@ -158,7 +180,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
               <Flame size={16} className={hasLancamentos ? "text-gold" : "text-muted-foreground/50"} />
               <div>
                 <p className="text-foreground/80 text-sm font-sans font-medium">Plano com Lançamentos</p>
-                <p className="text-muted-foreground text-xs font-sans">Ativa a seção de Lançamentos no minisite (max 5)</p>
+                <p className="text-muted-foreground text-xs font-sans">Ativa a seção de Lançamentos no minisite</p>
               </div>
             </div>
             <button type="button" onClick={() => setHasLancamentos(!hasLancamentos)}
@@ -168,6 +190,91 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
           </div>
         )}
       </section>
+
+      {/* Admin-only: Plan & Subscription */}
+      {isAdmin && (
+        <section className="bg-card border border-gold/20 rounded-2xl p-6 space-y-5">
+          <div className="flex items-center gap-2 border-b border-border pb-4">
+            <CreditCard size={15} className="text-gold" />
+            <h2 className="font-serif text-lg font-semibold text-white">Plano & Assinatura</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className={labelClass}>Plano</label>
+              <select value={plan} onChange={(e) => setPlan(e.target.value as OrgPlan)} className={inputClass}>
+                {(["free", "starter", "pro", "enterprise"] as OrgPlan[]).map((p) => (
+                  <option key={p} value={p}>
+                    {getPlanName(type as OrgType, p)} ({p})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>Status da Assinatura</label>
+              <select value={subscriptionStatus} onChange={(e) => setSubscriptionStatus(e.target.value as SubscriptionStatus)} className={inputClass}>
+                <option value="trial">Trial</option>
+                <option value="active">Ativo</option>
+                <option value="suspended">Suspenso</option>
+                <option value="expired">Expirado</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>Vencimento da Assinatura</label>
+              <input type="date" value={subscriptionExpiresAt} onChange={(e) => setSubscriptionExpiresAt(e.target.value)}
+                className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Próximo Pagamento Due</label>
+              <input type="date" value={paymentDueDate} onChange={(e) => setPaymentDueDate(e.target.value)}
+                className={inputClass} />
+              <p className="text-muted-foreground/50 text-xs font-sans mt-1">Acesso suspenso 3 dias após esta data</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Admin-only: Destaques */}
+      {isAdmin && (
+        <section className="bg-card border border-amber-900/20 rounded-2xl p-6 space-y-5">
+          <div className="flex items-center gap-2 border-b border-border pb-4">
+            <Star size={15} className="text-amber-400" />
+            <h2 className="font-serif text-lg font-semibold text-white">Destaques</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className={labelClass}>Quota de Destaques (override)</label>
+              <input type="number" min="0" value={highlightQuota}
+                onChange={(e) => setHighlightQuota(e.target.value)}
+                placeholder="Deixe vazio para usar o plano"
+                className={inputClass} />
+              <p className="text-muted-foreground/40 text-xs mt-1">Sobrescreve o limite do plano</p>
+            </div>
+            <div>
+              <label className={labelClass}>Quota de Super Destaques (override)</label>
+              <input type="number" min="0" value={superHighlightQuota}
+                onChange={(e) => setSuperHighlightQuota(e.target.value)}
+                placeholder="Deixe vazio para usar o plano"
+                className={inputClass} />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/50">
+            <div className="flex items-center gap-3">
+              <Star size={16} className={isSectionHighlighted ? "text-amber-400" : "text-muted-foreground/50"} />
+              <div>
+                <p className="text-foreground/80 text-sm font-sans font-medium">Destaque na Seção do Portal</p>
+                <p className="text-muted-foreground text-xs font-sans">Aparece primeiro na lista de construtoras/imobiliárias</p>
+              </div>
+            </div>
+            <button type="button" onClick={() => setIsSectionHighlighted(!isSectionHighlighted)}
+              className={`w-12 h-6 rounded-full transition-colors relative ${isSectionHighlighted ? "bg-amber-500" : "bg-muted"}`}>
+              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${isSectionHighlighted ? "left-7" : "left-1"}`} />
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Hero section */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">

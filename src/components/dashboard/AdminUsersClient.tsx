@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronUp, UserCheck, UserX, Phone, Star, Save, Mail, User, Trash2 } from "lucide-react"
-import type { UserRole } from "@/types/database"
+import { ChevronDown, ChevronUp, UserCheck, UserX, Phone, Star, Save, Mail, User, Trash2, CreditCard } from "lucide-react"
+import type { OrgPlan, SubscriptionStatus, UserRole } from "@/types/database"
+import { getPlanName } from "@/lib/plans"
 
 interface UserRow {
   id: string
@@ -15,6 +16,10 @@ interface UserRow {
   is_active: boolean
   organization_id: string | null
   organization?: { name: string } | null
+  plan: OrgPlan
+  subscription_status: SubscriptionStatus
+  subscription_expires_at: string | null
+  payment_due_date: string | null
 }
 
 interface OrgOption {
@@ -28,6 +33,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   imobiliaria: "Imobiliária",
   corretor: "Corretor",
   construtora: "Construtora",
+  secretaria: "Secretária",
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -35,6 +41,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   imobiliaria: "text-blue-400 bg-blue-900/20 border-blue-800/40",
   corretor: "text-green-400 bg-green-900/20 border-green-800/40",
   construtora: "text-amber-400 bg-amber-900/20 border-amber-800/40",
+  secretaria: "text-purple-400 bg-purple-900/20 border-purple-800/40",
 }
 
 const inputClass = "w-full bg-[#0a0a0a] border border-border text-white placeholder-muted-foreground/40 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
@@ -251,6 +258,55 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
                       </select>
                     </div>
                   </div>
+
+                  {/* Plan & Subscription — only for users without org (corretores avulsos) */}
+                  {!draft.organization_id && (
+                    <div className="p-4 rounded-xl border border-gold/20 bg-gold/[0.02] space-y-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CreditCard size={12} className="text-gold" />
+                        <p className="text-xs uppercase tracking-[0.15em] text-gold/70 font-sans">Plano & Assinatura</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className={labelClass}>Plano</label>
+                          <select value={draft.plan ?? "free"}
+                            onChange={(e) => setField(u.id, "plan", e.target.value as OrgPlan)}
+                            className={inputClass}>
+                            {(["free", "starter", "pro", "enterprise"] as OrgPlan[]).map((p) => (
+                              <option key={p} value={p}>
+                                {getPlanName("corretor", p)} ({p})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelClass}>Status</label>
+                          <select value={draft.subscription_status ?? "trial"}
+                            onChange={(e) => setField(u.id, "subscription_status", e.target.value as SubscriptionStatus)}
+                            className={inputClass}>
+                            <option value="trial">Trial</option>
+                            <option value="active">Ativo</option>
+                            <option value="suspended">Suspenso</option>
+                            <option value="expired">Expirado</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelClass}>Vencimento</label>
+                          <input type="date"
+                            value={draft.subscription_expires_at ? draft.subscription_expires_at.slice(0, 10) : ""}
+                            onChange={(e) => setField(u.id, "subscription_expires_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
+                            className={inputClass} />
+                        </div>
+                        <div>
+                          <label className={labelClass}>Próx. Pagamento</label>
+                          <input type="date"
+                            value={draft.payment_due_date ? draft.payment_due_date.slice(0, 10) : ""}
+                            onChange={(e) => setField(u.id, "payment_due_date", e.target.value ? new Date(e.target.value).toISOString() : null)}
+                            className={inputClass} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Status + Save + Delete */}
                   <div className="flex items-center justify-between flex-wrap gap-3 pt-1">

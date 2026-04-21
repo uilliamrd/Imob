@@ -8,7 +8,7 @@ import type { UserRole } from "@/types/database"
 import Link from "next/link"
 
 export default async function MinisitePage() {
-  const user = await requireAuth(["imobiliaria", "corretor", "construtora"])
+  const user = await requireAuth(["imobiliaria", "corretor", "construtora", "secretaria"])
   const admin = createAdminClient()
 
   const { data: profile } = await admin

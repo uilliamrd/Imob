@@ -26,10 +26,12 @@ import {
   RotateCcw,
   Megaphone,
   Inbox,
+  CreditCard,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
-import type { UserRole } from "@/types/database"
+import { PlanBadge } from "@/components/dashboard/PlanBadge"
+import type { UserRole, OrgPlan, OrgType } from "@/types/database"
 
 interface NavItem {
   href: string
@@ -45,12 +47,16 @@ const NAV_ITEMS: NavItem[] = [
   // ── Admin
   { href: "/dashboard/imoveis",           label: "Imóveis",          icon: Home,      roles: ["admin"] },
   { href: "/dashboard/usuarios",          label: "Usuários",         icon: Users,     roles: ["admin"] },
+  { href: "/dashboard/planos",            label: "Planos",           icon: Layers,    roles: ["admin"] },
   { href: "/dashboard/imobiliarias",       label: "Imobiliárias",     icon: Building2, roles: ["admin"] },
   { href: "/dashboard/construtoras",       label: "Construtoras",     icon: Building2, roles: ["admin"] },
   { href: "/dashboard/empreendimentos",   label: "Empreendimentos",  icon: Layers,    roles: ["admin"] },
   { href: "/dashboard/locais",            label: "Locais",           icon: MapPin,    roles: ["admin"] },
-  { href: "/dashboard/anuncios",         label: "Anúncios",         icon: Megaphone, roles: ["admin"] },
-  { href: "/dashboard/submissoes",       label: "Submissões",       icon: Inbox,     roles: ["admin"] },
+  { href: "/dashboard/anuncios",         label: "Anúncios",         icon: Megaphone,  roles: ["admin"] },
+  { href: "/dashboard/submissoes",       label: "Submissões",       icon: Inbox,      roles: ["admin"] },
+  { href: "/dashboard/mercado",          label: "Mercado",          icon: BarChart3,  roles: ["admin"] },
+  { href: "/dashboard/financeiro",       label: "Financeiro",       icon: CreditCard, roles: ["admin"] },
+  { href: "/dashboard/assinaturas",      label: "Assinaturas",      icon: CreditCard, roles: ["admin"] },
   { href: "/dashboard/datacenter",     label: "Data Center",      icon: Database,        roles: ["admin"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["admin"] },
 
@@ -60,6 +66,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["imobiliaria"] },
   { href: "/dashboard/rodizio",        label: "Rodízio",          icon: RotateCcw,       roles: ["imobiliaria", "admin"] },
   { href: "/dashboard/equipe",         label: "Minha Equipe",     icon: Users,           roles: ["imobiliaria"] },
+  { href: "/dashboard/mercado",        label: "Mercado",          icon: BarChart3,       roles: ["imobiliaria"] },
   { href: "/dashboard/minisite",       label: "Meu Site",         icon: ExternalLink,    roles: ["imobiliaria"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["imobiliaria"] },
 
@@ -76,8 +83,16 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/lancamentos",    label: "Lançamentos",      icon: Flame,           roles: ["construtora"] },
   { href: "/dashboard/disponibilidade",label: "Disponibilidade",  icon: ClipboardList,   roles: ["construtora"] },
   { href: "/dashboard/analytics",      label: "Analytics",        icon: BarChart3,       roles: ["construtora"] },
+  { href: "/dashboard/mercado",        label: "Mercado",          icon: BarChart3,       roles: ["construtora"] },
   { href: "/dashboard/minisite",       label: "Meu Site",         icon: ExternalLink,    roles: ["construtora"] },
   { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["construtora"] },
+
+  // ── Secretária
+  { href: "/dashboard/imoveis",        label: "Imóveis",          icon: Home,            roles: ["secretaria"] },
+  { href: "/dashboard/leads",          label: "Leads",            icon: MessageSquare,   roles: ["secretaria"] },
+  { href: "/dashboard/mercado",        label: "Mercado",          icon: BarChart3,       roles: ["secretaria"] },
+  { href: "/dashboard/minisite",       label: "Meu Site",         icon: ExternalLink,    roles: ["secretaria"] },
+  { href: "/dashboard/configuracoes",  label: "Configurações",    icon: Settings,        roles: ["secretaria"] },
 ]
 
 interface SidebarProps {
@@ -86,9 +101,11 @@ interface SidebarProps {
   userAvatar?: string | null
   orgSlug?: string | null
   userId?: string
+  plan?: OrgPlan
+  orgType?: OrgType | null
 }
 
-export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: SidebarProps) {
+export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "free", orgType }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(role))
@@ -105,6 +122,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
     imobiliaria: "Imobiliária",
     corretor: "Corretor",
     construtora: "Construtora",
+    secretaria: "Secretária",
   }
 
   const minisiteHref =
@@ -139,6 +157,9 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId }: Sidebar
             <p className="text-sidebar-foreground/90 text-sm font-sans font-medium truncate">{userName}</p>
             <p className="text-gold/60 text-[10px] uppercase tracking-wider">{roleLabels[role]}</p>
           </div>
+        </div>
+        <div className="mt-2.5">
+          <PlanBadge role={role} plan={plan} orgType={orgType} />
         </div>
       </div>
 

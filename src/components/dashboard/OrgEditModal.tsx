@@ -37,6 +37,13 @@ export function OrgEditModal({ org, onClose }: OrgEditModalProps) {
               logo: org.logo ?? "",
               has_lancamentos: org.has_lancamentos ?? false,
               slug: org.slug ?? "",
+              plan: org.plan,
+              subscription_status: org.subscription_status,
+              subscription_expires_at: org.subscription_expires_at,
+              payment_due_date: org.payment_due_date,
+              highlight_quota: org.highlight_quota,
+              super_highlight_quota: org.super_highlight_quota,
+              is_section_highlighted: org.is_section_highlighted,
             }}
           />
         </div>

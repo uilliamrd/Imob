@@ -18,15 +18,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { id } = await params
   const body = await request.json()
-
-  // Allow updating profile fields
-  const allowed = ["role", "organization_id", "is_active", "full_name", "whatsapp", "creci", "bio", "plan", "subscription_status", "subscription_expires_at", "payment_due_date"]
+  const allowed = ["amount", "type", "status", "due_date", "paid_at", "notes", "org_id", "profile_id"]
   const patch: Record<string, unknown> = {}
   for (const key of allowed) {
     if (key in body) patch[key] = body[key]
   }
 
-  const { error } = await admin.from("profiles").update(patch).eq("id", id)
+  const { error } = await admin.from("payment_records").update(patch).eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ ok: true })
 }
@@ -36,8 +34,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!admin) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
 
   const { id } = await params
-  // Deleting from auth.users cascades to profiles
-  const { error } = await admin.auth.admin.deleteUser(id)
+  const { error } = await admin.from("payment_records").delete().eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ ok: true })
 }

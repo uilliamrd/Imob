@@ -8,7 +8,7 @@ import type { Lead, LeadConflict, OrgPlan, OrgType } from "@/types/database"
 import { getPlanLimits, getPlanName, resolveEntityType } from "@/lib/plans"
 
 export default async function LeadsPage() {
-  const user = await requireAuth(["imobiliaria", "corretor"])
+  const user = await requireAuth(["imobiliaria", "corretor", "secretaria"])
   const supabase = await createClient()
   const admin = createAdminClient()
 

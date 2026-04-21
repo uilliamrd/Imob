@@ -11,32 +11,36 @@ async function getCallerOrgAccess(orgId: string) {
   const { data: profile } = await admin.from("profiles").select("role, organization_id").eq("id", user.id).single()
   if (!profile) return null
 
-  // Admin can update any org
-  if (profile.role === "admin") return admin
-
-  // Org owner (imobiliaria/construtora) can update their own org
-  if (profile.organization_id === orgId) return admin
+  if (profile.role === "admin") return { admin, isAdmin: true }
+  if (profile.organization_id === orgId) return { admin, isAdmin: false }
 
   return null
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const adminClient = await getCallerOrgAccess(id)
-  if (!adminClient) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+  const auth = await getCallerOrgAccess(id)
+  if (!auth) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
 
   const body = await request.json()
 
-  const allowed = [
+  const baseAllowed = [
     "name", "type", "slug", "portfolio_desc", "about_text", "hero_tagline",
     "hero_image", "about_image", "website", "logo", "brand_colors", "has_lancamentos",
   ]
+  const adminAllowed = [
+    ...baseAllowed,
+    "plan", "subscription_status", "subscription_expires_at", "payment_due_date",
+    "highlight_quota", "super_highlight_quota", "is_section_highlighted",
+  ]
+  const allowed = auth.isAdmin ? adminAllowed : baseAllowed
+
   const patch: Record<string, unknown> = {}
   for (const key of allowed) {
     if (key in body) patch[key] = body[key]
   }
 
-  const { error } = await adminClient.from("organizations").update(patch).eq("id", id)
+  const { error } = await auth.admin.from("organizations").update(patch).eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ ok: true })
 }
@@ -61,7 +65,6 @@ export async function POST(request: Request) {
   const { data: newOrg, error } = await admin.from("organizations").insert(payload).select("id").single()
   if (error || !newOrg) return NextResponse.json({ error: error?.message ?? "Erro ao criar." }, { status: 400 })
 
-  // Link user to the new org
   await admin.from("profiles").update({ organization_id: newOrg.id }).eq("id", user.id)
 
   return NextResponse.json({ id: newOrg.id })
@@ -78,7 +81,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
   const { id } = await params
 
-  // Unlink all users from this org first
   await admin.from("profiles").update({ organization_id: null }).eq("organization_id", id)
 
   const { error } = await admin.from("organizations").delete().eq("id", id)

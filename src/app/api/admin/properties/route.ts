@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 import { getPlanLimits, resolveEntityType } from "@/lib/plans"
 import type { OrgPlan, OrgType } from "@/types/database"
 
-const ALLOWED_ROLES = ["admin", "imobiliaria", "corretor", "construtora"]
+const ALLOWED_ROLES = ["admin", "imobiliaria", "corretor", "construtora", "secretaria"]
 
 async function getAuth() {
   const supabase = await createClient()
@@ -32,15 +32,17 @@ export async function POST(request: Request) {
     const limits = getPlanLimits(entityType, plan)
 
     if (limits.max_properties !== null) {
-      const scopeId = auth.profile.organization_id ?? auth.userId
-      const scopeField = auth.profile.organization_id ? "org_id" : "created_by"
+      // Imobiliária: limite por corretor (created_by); construtora/corretor: org ou user total
+      const isImobiliaria = entityType === "imobiliaria"
+      const scopeId = isImobiliaria ? auth.userId : (auth.profile.organization_id ?? auth.userId)
+      const scopeField = isImobiliaria ? "created_by" : (auth.profile.organization_id ? "org_id" : "created_by")
       const { count } = await auth.admin
         .from("properties")
         .select("id", { count: "exact", head: true })
         .eq(scopeField, scopeId)
       if ((count ?? 0) >= limits.max_properties) {
         return NextResponse.json(
-          { error: `Limite do plano atingido: máximo de ${limits.max_properties} imóveis. Faça upgrade para continuar.` },
+          { error: `Limite do plano atingido: máximo de ${limits.max_properties} imóveis por corretor. Faça upgrade para continuar.` },
           { status: 403 }
         )
       }

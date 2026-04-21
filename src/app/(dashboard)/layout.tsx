@@ -8,7 +8,20 @@ import { Sidebar } from "@/components/dashboard/Sidebar"
 import { BottomNav } from "@/components/dashboard/BottomNav"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { ReactNode } from "react"
-import type { UserRole } from "@/types/database"
+import type { UserRole, OrgPlan, OrgType } from "@/types/database"
+
+function isEffectivelySuspended(
+  plan: string,
+  status: string,
+  paymentDueDate: string | null,
+): boolean {
+  if (plan === "free") return false
+  if (status === "suspended") return true
+  if (status === "active") return false
+  if (!paymentDueDate) return false
+  const graceCutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+  return new Date(paymentDueDate) < graceCutoff
+}
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient()
@@ -19,20 +32,26 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const adminClient = createAdminClient()
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("full_name, avatar_url, role, organization_id")
+    .select("full_name, avatar_url, role, plan, organization_id, subscription_status, payment_due_date, organization:organizations(plan, subscription_status, payment_due_date, slug, type)")
     .eq("id", user.id)
     .single()
 
-  const orgId = profile?.organization_id ?? null
-  let orgSlug: string | null = null
-  if (orgId) {
-    const { data: org } = await adminClient
-      .from("organizations")
-      .select("slug")
-      .eq("id", orgId)
-      .single()
-    orgSlug = org?.slug ?? null
+  // Suspension check (admins are never suspended)
+  if (profile && profile.role !== "admin") {
+    const org = profile.organization as unknown as { plan: string; subscription_status: string; payment_due_date: string | null; slug: string | null } | null
+    const effectivePlan = org?.plan ?? profile.plan ?? "free"
+    const effectiveStatus = org?.subscription_status ?? profile.subscription_status ?? "trial"
+    const effectiveDueDate = org?.payment_due_date ?? profile.payment_due_date ?? null
+    if (isEffectivelySuspended(effectivePlan, effectiveStatus, effectiveDueDate)) {
+      redirect("/suspenso")
+    }
   }
+
+  const orgId = profile?.organization_id ?? null
+  const org = profile?.organization as unknown as { plan?: string; slug: string | null; type?: string } | null
+  const orgSlug = org?.slug ?? null
+  const effectivePlan = ((org?.plan ?? profile?.plan ?? "free") as OrgPlan)
+  const orgType = (org?.type ?? null) as OrgType | null
 
   const safeProfile = {
     full_name: profile?.full_name ?? user.email ?? "Usuário",
@@ -49,6 +68,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         userAvatar={safeProfile.avatar_url}
         orgSlug={orgSlug}
         userId={user.id}
+        plan={effectivePlan}
+        orgType={orgType}
       />
 
       <main className="flex-1 overflow-auto min-w-0">

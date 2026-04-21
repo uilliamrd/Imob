@@ -46,6 +46,12 @@ const PRIMARY: Record<UserRole, NavItemDef[]> = {
     { href: "/dashboard/usuarios",  label: "Usuários", icon: Users },
     { href: "/dashboard/admin",     label: "Orgs",     icon: Building2 },
   ],
+  secretaria: [
+    { href: "/dashboard",          label: "Início",  icon: LayoutDashboard },
+    { href: "/dashboard/imoveis",  label: "Imóveis", icon: Home },
+    { href: "/dashboard/leads",    label: "Leads",   icon: MessageSquare },
+    { href: "/dashboard/minisite", label: "Meu Site",icon: ExternalLink },
+  ],
 }
 
 const SECONDARY: Record<UserRole, NavItemDef[]> = {
@@ -69,6 +75,10 @@ const SECONDARY: Record<UserRole, NavItemDef[]> = {
     { href: "/dashboard/locais",          label: "Locais",     icon: MapPin },
     { href: "/dashboard/datacenter",      label: "Data",       icon: Database },
     { href: "/dashboard/configuracoes",   label: "Config",     icon: Settings },
+  ],
+  secretaria: [
+    { href: "/dashboard/mercado",        label: "Mercado",  icon: BarChart3 },
+    { href: "/dashboard/configuracoes",  label: "Config",   icon: Settings },
   ],
 }
 
