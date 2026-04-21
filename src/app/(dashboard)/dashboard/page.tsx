@@ -82,12 +82,21 @@ export default async function DashboardPage() {
   const adminClient = createAdminClient()
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("full_name, role, plan, organization_id, whatsapp, creci")
+    .select("full_name, role, organization_id, whatsapp, creci")
     .eq("id", user.id)
     .single()
 
   const role = (profile?.role as UserRole) ?? "corretor"
-  const profilePlan = (profile?.plan ?? "free") as OrgPlan
+
+  let profilePlan: OrgPlan = "free"
+  if (role !== "admin") {
+    const { data: planRow } = await adminClient
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .single()
+    profilePlan = ((planRow as { plan?: string } | null)?.plan ?? "free") as OrgPlan
+  }
   const firstName = (profile?.full_name ?? user.email ?? "Usuário").split(" ")[0]
 
   // ── Admin / Construtora dashboard ─────────────────────────────
