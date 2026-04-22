@@ -1,7 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnunciosClient } from "@/components/dashboard/AnunciosClient"
-import type { PropertyAd } from "@/types/database"
+import { getPlanLimits } from "@/lib/plans"
+import type { PropertyAd, OrgPlan, OrgType } from "@/types/database"
 
 export const dynamic = "force-dynamic"
 
@@ -13,7 +14,7 @@ export default async function AnunciosPage() {
 
   const admin = createAdminClient()
 
-  const [{ data: rawAds }, { data: rawProperties }] = await Promise.all([
+  const [{ data: rawAds }, { data: rawProperties }, { data: rawOrgs }] = await Promise.all([
     admin
       .from("property_ads")
       .select(`*, property:properties(${PROPERTY_SELECT})`)
@@ -24,7 +25,19 @@ export default async function AnunciosPage() {
       .eq("visibility", "publico")
       .eq("status", "disponivel")
       .order("title"),
+    admin
+      .from("organizations")
+      .select("id, plan, type, highlight_quota, super_highlight_quota"),
   ])
+
+  const orgQuotas: Record<string, { highlight_limit: number; super_limit: number }> = {}
+  for (const org of rawOrgs ?? []) {
+    const limits = getPlanLimits((org.type ?? "imobiliaria") as OrgType, (org.plan ?? "free") as OrgPlan)
+    orgQuotas[org.id] = {
+      highlight_limit: (org.highlight_quota as number | null) ?? limits.max_highlights,
+      super_limit: (org.super_highlight_quota as number | null) ?? limits.max_super_highlights,
+    }
+  }
 
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto">
@@ -44,6 +57,7 @@ export default async function AnunciosPage() {
           org_id: string | null
           organization: { id: string; name: string } | null
         }>}
+        orgQuotas={orgQuotas}
       />
     </div>
   )

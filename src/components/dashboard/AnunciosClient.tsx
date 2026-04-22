@@ -20,6 +20,7 @@ type SimpleProperty = {
 interface Props {
   initialAds: PropertyAd[]
   allProperties: SimpleProperty[]
+  orgQuotas: Record<string, { highlight_limit: number; super_limit: number }>
 }
 
 const TIER_CONFIG: Record<AdTier, { label: string; color: string; icon: React.ElementType }> = {
@@ -67,7 +68,7 @@ const EMPTY_FORM: FormState = {
   starts_at: "", expires_at: "", notes: "",
 }
 
-export function AnunciosClient({ initialAds, allProperties }: Props) {
+export function AnunciosClient({ initialAds, allProperties, orgQuotas }: Props) {
   const supabase = createClient()
   const [ads, setAds] = useState<PropertyAd[]>(initialAds)
   const [statusFilter, setStatusFilter] = useState<AdStatus | "all">("all")
@@ -511,6 +512,32 @@ export function AnunciosClient({ initialAds, allProperties }: Props) {
                 </div>
               )}
             </div>
+
+            {/* Quota info for selected org */}
+            {selectedProp?.org_id && (() => {
+              const quota = orgQuotas[selectedProp.org_id]
+              if (!quota) return null
+              const activeAds = ads.filter((a) => a.status === "active" && a.org_id === selectedProp.org_id)
+              const destUsed = activeAds.filter((a) => a.tier === "destaque").length
+              const superUsed = activeAds.filter((a) => a.tier === "super_destaque").length
+              const destAtLimit = destUsed >= quota.highlight_limit
+              const superAtLimit = superUsed >= quota.super_limit
+              return (
+                <div className="mb-4 text-xs font-sans text-muted-foreground/60 bg-muted/20 rounded-lg px-3 py-2 flex items-center gap-3 flex-wrap">
+                  <span>Quota da org:</span>
+                  <span className={destAtLimit ? "text-red-400" : "text-gold"}>
+                    {destUsed}/{quota.highlight_limit} dest.
+                  </span>
+                  <span>·</span>
+                  <span className={superAtLimit ? "text-red-400" : "text-gold"}>
+                    {superUsed}/{quota.super_limit} super
+                  </span>
+                  {(destAtLimit || superAtLimit) && (
+                    <span className="text-amber-400">⚠ Quota atingida</span>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Tier */}
             <div className="mb-4">

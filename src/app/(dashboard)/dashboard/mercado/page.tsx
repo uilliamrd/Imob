@@ -35,7 +35,7 @@ export default async function MercadoPage() {
           <p className="text-muted-foreground font-sans text-sm max-w-sm">
             Seu plano atual (<strong>{planName}</strong>) não inclui acesso à análise de mercado. Faça upgrade para acessar relatórios de vendas, ticket médio, inventário e valorização.
           </p>
-          <a href="/dashboard/configuracoes"
+          <a href="/dashboard/upgrade"
             className="mt-2 px-6 py-3 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.2em] font-sans rounded-lg">
             Ver planos
           </a>

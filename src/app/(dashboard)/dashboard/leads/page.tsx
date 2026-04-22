@@ -40,7 +40,7 @@ export default async function LeadsPage() {
             Seu plano atual (<strong>{planName}</strong>) não inclui acesso ao CRM de leads. Faça upgrade para receber e gerenciar contatos de clientes.
           </p>
           <a
-            href="/dashboard/configuracoes"
+            href="/dashboard/upgrade"
             className="mt-2 px-6 py-3 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.2em] font-sans rounded-lg"
           >
             Ver planos

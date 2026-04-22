@@ -16,6 +16,7 @@ export default async function PlanosPage() {
     { data: profiles },
     { data: corretoresAll },
     { data: propertiesAll },
+    { data: adsActive },
   ] = await Promise.all([
     admin
       .from("organizations")
@@ -36,6 +37,10 @@ export default async function PlanosPage() {
       .from("properties")
       .select("org_id")
       .not("org_id", "is", null),
+    admin
+      .from("property_ads")
+      .select("org_id, tier")
+      .eq("status", "active"),
   ])
 
   // Build count maps
@@ -46,6 +51,14 @@ export default async function PlanosPage() {
   const propertiesMap: Record<string, number> = {}
   for (const p of propertiesAll ?? []) {
     if (p.org_id) propertiesMap[p.org_id] = (propertiesMap[p.org_id] ?? 0) + 1
+  }
+
+  const adsUsageMap: Record<string, { destaque: number; super_destaque: number }> = {}
+  for (const ad of adsActive ?? []) {
+    if (!ad.org_id) continue
+    if (!adsUsageMap[ad.org_id]) adsUsageMap[ad.org_id] = { destaque: 0, super_destaque: 0 }
+    if (ad.tier === "destaque") adsUsageMap[ad.org_id].destaque++
+    if (ad.tier === "super_destaque") adsUsageMap[ad.org_id].super_destaque++
   }
 
   const orgRows = (orgs ?? []).map((o) => ({
@@ -63,6 +76,8 @@ export default async function PlanosPage() {
     is_section_highlighted: (o.is_section_highlighted ?? false) as boolean,
     corretores_count: corretoresMap[o.id] ?? 0,
     imoveis_count: propertiesMap[o.id] ?? 0,
+    highlights_used: adsUsageMap[o.id]?.destaque ?? 0,
+    super_highlights_used: adsUsageMap[o.id]?.super_destaque ?? 0,
   }))
 
   const corretorRows = (profiles ?? []).map((p) => ({
@@ -80,6 +95,8 @@ export default async function PlanosPage() {
     is_section_highlighted: false,
     corretores_count: 0,
     imoveis_count: 0,
+    highlights_used: 0,
+    super_highlights_used: 0,
   }))
 
   return (

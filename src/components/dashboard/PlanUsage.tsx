@@ -78,7 +78,7 @@ export function PlanUsage({ role, plan, orgType, counts }: PlanUsageProps) {
 
       {isAtLimit && (
         <a
-          href="/dashboard/configuracoes"
+          href="/dashboard/upgrade"
           className="mt-4 flex items-center justify-center w-full py-2.5 bg-gold/10 border border-gold/30 text-gold hover:bg-gold hover:text-graphite transition-colors text-[11px] uppercase tracking-[0.15em] font-sans rounded-lg"
         >
           Fazer upgrade

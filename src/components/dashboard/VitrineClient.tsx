@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
-import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X, Eye, ChevronDown, ChevronUp, MapPin, Hash, StickyNote, Save, Loader2 } from "lucide-react"
+import { Search, Plus, Check, BedDouble, Car, Maximize2, SlidersHorizontal, X, Eye, ChevronUp, MapPin, Hash, StickyNote, Save, Loader2, Building2 } from "lucide-react"
 import { CopyDescriptionButton, DownloadPhotosButton } from "@/components/property/PropertyActions"
 import type { Property, UserRole } from "@/types/database"
 
@@ -49,6 +49,8 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
         .map((p) => [p.organization!.id, p.organization!] as [string, NonNullable<typeof p.organization>])
     ).values()
   ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+
+  const construtoraOptions = orgOptions.filter((o) => o.type === "construtora")
   const [expanded, setExpanded] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -193,6 +195,47 @@ export function VitrineClient({ properties, listedIds: initial, userId, orgId, r
               className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground/60 text-xs font-sans transition-colors">
               <X size={12} /> Limpar filtros
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Construtoras em destaque */}
+      {construtoraOptions.length > 0 && (
+        <div className="mb-6">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground/40 font-sans mb-3 flex items-center gap-2">
+            <Building2 size={10} />Construtoras
+          </p>
+          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
+            {construtoraOptions.map((org) => {
+              const accent = (org as { brand_colors?: { primary?: string } }).brand_colors?.primary ?? "#C4A052"
+              const count = properties.filter((p) => p.org_id === org.id).length
+              const isActive = filterOrg === org.id
+              return (
+                <button
+                  key={org.id}
+                  onClick={() => setFilterOrg(isActive ? "" : org.id)}
+                  className={`flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-left transition-all duration-200 ${
+                    isActive
+                      ? "border-gold/50 bg-gold/10 text-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-white/20 hover:text-foreground/70"
+                  }`}
+                  style={isActive ? { borderColor: `${accent}60`, backgroundColor: `${accent}12` } : undefined}
+                >
+                  {org.logo ? (
+                    <Image src={org.logo} alt={org.name} width={48} height={20} className="h-5 w-auto object-contain flex-shrink-0" />
+                  ) : (
+                    <Building2 size={14} className="flex-shrink-0" style={{ color: accent }} />
+                  )}
+                  <div>
+                    <p className="text-xs font-sans font-medium leading-none">{org.name}</p>
+                    <p className="text-[10px] font-sans text-muted-foreground/50 mt-0.5">{count} imóvel{count !== 1 ? "is" : ""}</p>
+                  </div>
+                  {isActive && (
+                    <X size={12} className="ml-1 flex-shrink-0 text-muted-foreground/60" />
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       )}

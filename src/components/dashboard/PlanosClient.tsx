@@ -21,6 +21,8 @@ export type ClientRow = {
   is_section_highlighted: boolean
   corretores_count: number
   imoveis_count: number
+  highlights_used: number
+  super_highlights_used: number
 }
 
 type EditDraft = {
@@ -201,6 +203,35 @@ function PlanRow({ row, onSaved }: { row: ClientRow; onSaved: (id: string, draft
           {row.kind === "org" && (
             <>
               <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-sans pt-1">Destaques</p>
+
+              {/* Barras de uso */}
+              <div className="grid grid-cols-2 gap-3 p-3 bg-muted/20 rounded-xl">
+                <div>
+                  <div className="flex justify-between text-[10px] font-sans text-muted-foreground/60 mb-1">
+                    <span>Destaques em uso</span>
+                    <span className={row.highlights_used >= effectiveHighlight ? "text-red-400" : "text-gold"}>
+                      {row.highlights_used} / {effectiveHighlight}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full rounded-full bg-gold transition-all"
+                      style={{ width: `${Math.min((row.highlights_used / Math.max(effectiveHighlight, 1)) * 100, 100)}%` }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[10px] font-sans text-muted-foreground/60 mb-1">
+                    <span>Super destaques em uso</span>
+                    <span className={row.super_highlights_used >= effectiveSuperHighlight ? "text-red-400" : "text-gold"}>
+                      {row.super_highlights_used} / {effectiveSuperHighlight}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full rounded-full bg-gold transition-all"
+                      style={{ width: `${Math.min((row.super_highlights_used / Math.max(effectiveSuperHighlight, 1)) * 100, 100)}%` }} />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className={labelClass}>
