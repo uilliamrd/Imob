@@ -3,8 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { VitrineClient } from "@/components/dashboard/VitrineClient"
-import { Globe } from "lucide-react"
-import type { Property, UserRole } from "@/types/database"
+import { Globe, Lock } from "lucide-react"
+import type { Property, UserRole, OrgPlan, OrgType } from "@/types/database"
+import { getPlanLimits, getPlanName, resolveEntityType } from "@/lib/plans"
 
 interface PageProps {
   searchParams: Promise<{ search?: string }>
@@ -24,6 +25,39 @@ export default async function VitrinePage({ searchParams }: PageProps) {
 
   const role = (profile?.role ?? "corretor") as UserRole
   const orgId = profile?.organization_id ?? null
+
+  // Plan gate
+  {
+    let entityType = resolveEntityType(role, null)
+    let plan: OrgPlan = "free"
+    if (orgId) {
+      const { data: org } = await admin.from("organizations").select("type, plan").eq("id", orgId).single()
+      if (org) { entityType = resolveEntityType(role, (org.type ?? null) as OrgType | null); plan = (org.plan ?? "free") as OrgPlan }
+    } else {
+      const { data: pr } = await admin.from("profiles").select("plan").eq("id", user.id).single()
+      plan = (((pr as unknown as { plan?: string } | null)?.plan) ?? "free") as OrgPlan
+    }
+    const limits = getPlanLimits(entityType, plan)
+    if (!limits.can_access_listings) {
+      return (
+        <div className="px-4 py-6 lg:p-8 max-w-2xl">
+          <div className="flex flex-col items-center text-center py-20 gap-4">
+            <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center">
+              <Lock size={24} className="text-gold" />
+            </div>
+            <h2 className="font-serif text-2xl font-bold text-foreground">Base de imóveis bloqueada</h2>
+            <p className="text-muted-foreground font-sans text-sm max-w-sm">
+              Seu plano <strong>{getPlanName(entityType, plan)}</strong> não inclui acesso ao catálogo de imóveis do sistema. Faça upgrade para promover imóveis.
+            </p>
+            <a href="/dashboard/upgrade"
+              className="mt-2 px-6 py-3 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.2em] font-sans rounded-lg">
+              Ver planos
+            </a>
+          </div>
+        </div>
+      )
+    }
+  }
 
   // Use admin client so the org join bypasses RLS and construtora badges always load
   const { data: properties } = await admin

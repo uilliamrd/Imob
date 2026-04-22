@@ -20,8 +20,9 @@ function FeatureCell({ val }: { val: FeatureVal }) {
   return <span className="text-foreground/80 font-sans text-sm font-medium">{val}</span>
 }
 
-function whatsappLink(planName: string) {
-  const msg = encodeURIComponent(`Olá! Gostaria de solicitar upgrade para o plano *${planName}*.`)
+function whatsappLink(planName: string, implDiff: number) {
+  const diffText = implDiff > 0 ? ` (diferença de implantação: R$ ${implDiff.toLocaleString("pt-BR")})` : ""
+  const msg = encodeURIComponent(`Olá! Gostaria de solicitar upgrade para o plano *${planName}*${diffText}.`)
   return `https://wa.me/${WHATSAPP}?text=${msg}`
 }
 
@@ -48,8 +49,13 @@ export function UpgradeCards({ entityType, currentPlan }: Props) {
             {PLAN_ORDER.map((plan) => {
               const name = getPlanName(entityType, plan)
               const prices = PLAN_PRICES[entityType][plan]
+              const currentPrices = PLAN_PRICES[entityType][currentPlan]
               const isCurrent = plan === currentPlan
               const isHighlighted = plan === "pro"
+              const planIdx = PLAN_ORDER.indexOf(plan)
+              const currentIdx = PLAN_ORDER.indexOf(currentPlan)
+              const isUpgrade = planIdx > currentIdx
+              const implDiff = isUpgrade ? Math.max(0, prices.implantacao - currentPrices.implantacao) : 0
               return (
                 <th
                   key={plan}
@@ -87,13 +93,18 @@ export function UpgradeCards({ entityType, currentPlan }: Props) {
                         </span>
                         <span className="text-muted-foreground/40 text-[10px] font-sans">/mês</span>
                       </div>
-                      {prices.implantacao > 0 && (
+                      {isUpgrade && implDiff > 0 && (
+                        <div className="text-[9px] text-amber-400/80 font-sans mt-1 px-2 py-0.5 rounded-full bg-amber-900/20 border border-amber-700/20 inline-block">
+                          + R$ {fmtPrice(implDiff)} na implantação
+                        </div>
+                      )}
+                      {!isUpgrade && !isCurrent && prices.implantacao > 0 && (
                         <div className="text-[9px] text-muted-foreground/30 font-sans mt-0.5">
-                          + R$ {fmtPrice(prices.implantacao)} implantação
+                          R$ {fmtPrice(prices.implantacao)} implantação
                         </div>
                       )}
                       {prices.landing_page_adicional && (
-                        <div className="text-[9px] text-muted-foreground/30 font-sans">
+                        <div className="text-[9px] text-muted-foreground/30 font-sans mt-0.5">
                           LP adicional: R$ {fmtPrice(prices.landing_page_adicional)}
                         </div>
                       )}
@@ -135,8 +146,14 @@ export function UpgradeCards({ entityType, currentPlan }: Props) {
             <td className="px-6 py-5" />
             {PLAN_ORDER.map((plan) => {
               const name = getPlanName(entityType, plan)
+              const prices = PLAN_PRICES[entityType][plan]
+              const currentPrices = PLAN_PRICES[entityType][currentPlan]
               const isCurrent = plan === currentPlan
               const isHighlighted = plan === "pro"
+              const planIdx = PLAN_ORDER.indexOf(plan)
+              const currentIdx = PLAN_ORDER.indexOf(currentPlan)
+              const isUpgrade = planIdx > currentIdx
+              const implDiff = isUpgrade ? Math.max(0, prices.implantacao - currentPrices.implantacao) : 0
               return (
                 <td
                   key={plan}
@@ -148,7 +165,7 @@ export function UpgradeCards({ entityType, currentPlan }: Props) {
                     </div>
                   ) : (
                     <a
-                      href={whatsappLink(name)}
+                      href={whatsappLink(name, implDiff)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[10px] uppercase tracking-[0.15em] font-sans transition-colors ${

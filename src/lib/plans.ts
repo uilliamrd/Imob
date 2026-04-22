@@ -10,29 +10,32 @@ export interface PlanLimits {
   max_users: number | null          // usuários por org
   can_view_leads: boolean
   can_view_market_data: boolean
+  has_minisite: boolean
+  can_access_listings: boolean
+  has_ref_links: boolean
 }
 
 export type PlanEntityType = OrgType | 'corretor'
 
 const LIMITS: Record<PlanEntityType, Record<OrgPlan, PlanLimits>> = {
   construtora: {
-    free:       { max_properties: 20,   max_developments: 1,    max_corretores: null, max_highlights: 0,  max_super_highlights: 0, max_section_highlights: 0,    max_users: 2, can_view_leads: true, can_view_market_data: true },
-    starter:    { max_properties: 60,   max_developments: 2,    max_corretores: null, max_highlights: 2,  max_super_highlights: 1, max_section_highlights: 0,    max_users: 2, can_view_leads: true, can_view_market_data: true },
-    pro:        { max_properties: 150,  max_developments: 5,    max_corretores: null, max_highlights: 5,  max_super_highlights: 3, max_section_highlights: 1,    max_users: 2, can_view_leads: true, can_view_market_data: true },
-    enterprise: { max_properties: null, max_developments: null, max_corretores: null, max_highlights: 10, max_super_highlights: 5, max_section_highlights: null, max_users: 2, can_view_leads: true, can_view_market_data: true },
+    free:       { max_properties: 20,   max_developments: 1,    max_corretores: null, max_highlights: 0,  max_super_highlights: 0, max_section_highlights: 0,    max_users: 2, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
+    starter:    { max_properties: 60,   max_developments: 2,    max_corretores: null, max_highlights: 2,  max_super_highlights: 1, max_section_highlights: 0,    max_users: 2, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
+    pro:        { max_properties: 150,  max_developments: 5,    max_corretores: null, max_highlights: 5,  max_super_highlights: 3, max_section_highlights: 1,    max_users: 2, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
+    enterprise: { max_properties: null, max_developments: null, max_corretores: null, max_highlights: 10, max_super_highlights: 5, max_section_highlights: null, max_users: 2, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
   },
   imobiliaria: {
     // max_properties e max_highlights são POR CORRETOR
-    free:       { max_properties: 15,   max_developments: 0,    max_corretores: 5,    max_highlights: 1,  max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: true, can_view_market_data: true },
-    starter:    { max_properties: 50,   max_developments: 0,    max_corretores: 15,   max_highlights: 3,  max_super_highlights: 1, max_section_highlights: 0, max_users: null, can_view_leads: true, can_view_market_data: true },
-    pro:        { max_properties: 150,  max_developments: 0,    max_corretores: 25,   max_highlights: 5,  max_super_highlights: 3, max_section_highlights: 1, max_users: null, can_view_leads: true, can_view_market_data: true },
-    enterprise: { max_properties: null, max_developments: null, max_corretores: null, max_highlights: 10, max_super_highlights: 5, max_section_highlights: 1, max_users: null, can_view_leads: true, can_view_market_data: true },
+    free:       { max_properties: 15,   max_developments: 0,    max_corretores: 5,    max_highlights: 1,  max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
+    starter:    { max_properties: 50,   max_developments: 0,    max_corretores: 15,   max_highlights: 3,  max_super_highlights: 1, max_section_highlights: 0, max_users: null, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
+    pro:        { max_properties: 150,  max_developments: 0,    max_corretores: 25,   max_highlights: 5,  max_super_highlights: 3, max_section_highlights: 1, max_users: null, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
+    enterprise: { max_properties: null, max_developments: null, max_corretores: null, max_highlights: 10, max_super_highlights: 5, max_section_highlights: 1, max_users: null, can_view_leads: true, can_view_market_data: true, has_minisite: true, can_access_listings: true, has_ref_links: true },
   },
   corretor: {
-    free:       { max_properties: 5,   max_developments: 0, max_corretores: null, max_highlights: 0, max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: false, can_view_market_data: false },
-    starter:    { max_properties: 15,  max_developments: 1, max_corretores: null, max_highlights: 1, max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: false },
-    pro:        { max_properties: 50,  max_developments: 1, max_corretores: null, max_highlights: 3, max_super_highlights: 1, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: true },
-    enterprise: { max_properties: 150, max_developments: 10,max_corretores: null, max_highlights: 5, max_super_highlights: 3, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: true },
+    free:       { max_properties: 5,   max_developments: 0, max_corretores: null, max_highlights: 0, max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: false, can_view_market_data: false, has_minisite: false, can_access_listings: false, has_ref_links: false },
+    starter:    { max_properties: 15,  max_developments: 1, max_corretores: null, max_highlights: 1, max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: false, has_minisite: true,  can_access_listings: true,  has_ref_links: true  },
+    pro:        { max_properties: 50,  max_developments: 1, max_corretores: null, max_highlights: 3, max_super_highlights: 1, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: true,  has_minisite: true,  can_access_listings: true,  has_ref_links: true  },
+    enterprise: { max_properties: 150, max_developments: 10,max_corretores: null, max_highlights: 5, max_super_highlights: 3, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: true,  has_minisite: true,  can_access_listings: true,  has_ref_links: true  },
   },
 }
 

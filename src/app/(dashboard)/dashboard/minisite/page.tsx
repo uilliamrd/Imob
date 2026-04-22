@@ -3,8 +3,9 @@ import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { OrgForm } from "@/components/dashboard/OrgForm"
 import { ProfileForm } from "@/components/dashboard/ProfileForm"
-import { ExternalLink, Monitor, Edit3 } from "lucide-react"
-import type { UserRole } from "@/types/database"
+import { ExternalLink, Monitor, Edit3, Lock } from "lucide-react"
+import type { UserRole, OrgPlan, OrgType } from "@/types/database"
+import { getPlanLimits, getPlanName, resolveEntityType } from "@/lib/plans"
 import Link from "next/link"
 
 export default async function MinisitePage() {
@@ -19,6 +20,37 @@ export default async function MinisitePage() {
 
   const role = (profile?.role ?? "corretor") as UserRole
   const orgId = profile?.organization_id ?? null
+
+  // Plan gate
+  let entityType = resolveEntityType(role, null)
+  let plan: OrgPlan = "free"
+  if (orgId) {
+    const { data: org } = await admin.from("organizations").select("type, plan").eq("id", orgId).single()
+    if (org) { entityType = resolveEntityType(role, (org.type ?? null) as OrgType | null); plan = (org.plan ?? "free") as OrgPlan }
+  } else {
+    const { data: pr } = await admin.from("profiles").select("plan").eq("id", user.id).single()
+    plan = (((pr as unknown as { plan?: string } | null)?.plan) ?? "free") as OrgPlan
+  }
+  const limits = getPlanLimits(entityType, plan)
+  if (!limits.has_minisite) {
+    return (
+      <div className="px-4 py-6 lg:p-8 max-w-2xl">
+        <div className="flex flex-col items-center text-center py-20 gap-4">
+          <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center">
+            <Lock size={24} className="text-gold" />
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-foreground">Minisite não disponível</h2>
+          <p className="text-muted-foreground font-sans text-sm max-w-sm">
+            Seu plano <strong>{getPlanName(entityType, plan)}</strong> não inclui minisite próprio. Faça upgrade para ter sua página personalizada.
+          </p>
+          <a href="/dashboard/upgrade"
+            className="mt-2 px-6 py-3 bg-gold text-graphite hover:bg-gold-light transition-colors text-xs uppercase tracking-[0.2em] font-sans rounded-lg">
+            Ver planos
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   // For imobiliaria: fetch org data
   const { data: org } = orgId
