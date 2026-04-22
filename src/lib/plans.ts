@@ -18,8 +18,8 @@ const LIMITS: Record<PlanEntityType, Record<OrgPlan, PlanLimits>> = {
   construtora: {
     free:       { max_properties: 20,   max_developments: 1,    max_corretores: null, max_highlights: 0,  max_super_highlights: 0, max_section_highlights: 0,    max_users: 2, can_view_leads: true, can_view_market_data: true },
     starter:    { max_properties: 60,   max_developments: 2,    max_corretores: null, max_highlights: 2,  max_super_highlights: 1, max_section_highlights: 0,    max_users: 2, can_view_leads: true, can_view_market_data: true },
-    pro:        { max_properties: 150,  max_developments: 2,    max_corretores: null, max_highlights: 5,  max_super_highlights: 3, max_section_highlights: 1,    max_users: 2, can_view_leads: true, can_view_market_data: true },
-    enterprise: { max_properties: null, max_developments: 5,    max_corretores: null, max_highlights: 10, max_super_highlights: 5, max_section_highlights: null, max_users: 2, can_view_leads: true, can_view_market_data: true },
+    pro:        { max_properties: 150,  max_developments: 5,    max_corretores: null, max_highlights: 5,  max_super_highlights: 3, max_section_highlights: 1,    max_users: 2, can_view_leads: true, can_view_market_data: true },
+    enterprise: { max_properties: null, max_developments: null, max_corretores: null, max_highlights: 10, max_super_highlights: 5, max_section_highlights: null, max_users: 2, can_view_leads: true, can_view_market_data: true },
   },
   imobiliaria: {
     // max_properties e max_highlights são POR CORRETOR
@@ -30,7 +30,7 @@ const LIMITS: Record<PlanEntityType, Record<OrgPlan, PlanLimits>> = {
   },
   corretor: {
     free:       { max_properties: 5,   max_developments: 0, max_corretores: null, max_highlights: 0, max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: false, can_view_market_data: false },
-    starter:    { max_properties: 15,  max_developments: 1, max_corretores: null, max_highlights: 0, max_super_highlights: 1, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: false },
+    starter:    { max_properties: 15,  max_developments: 1, max_corretores: null, max_highlights: 1, max_super_highlights: 0, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: false },
     pro:        { max_properties: 50,  max_developments: 1, max_corretores: null, max_highlights: 3, max_super_highlights: 1, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: true },
     enterprise: { max_properties: 150, max_developments: 10,max_corretores: null, max_highlights: 5, max_super_highlights: 3, max_section_highlights: 0, max_users: null, can_view_leads: true,  can_view_market_data: true },
   },
@@ -62,6 +62,65 @@ export const PLAN_PRICES: Record<PlanEntityType, Record<OrgPlan, { implantacao: 
     pro:        { implantacao: 120, mensal: 120 },
     enterprise: { implantacao: 120, mensal: 199 },
   },
+}
+
+// ── Tabela de funcionalidades para exibição na página de upgrade ─────────────
+// Ordem das colunas: [free, starter, pro, enterprise]
+// null = ilimitado, false = não incluso, true = incluso, number = quantidade
+export type FeatureVal = boolean | number | null
+export type PlanFeatureRow = { label: string; values: [FeatureVal, FeatureVal, FeatureVal, FeatureVal] }
+
+export const PLAN_FEATURES: Record<PlanEntityType, PlanFeatureRow[]> = {
+  construtora: [
+    { label: "Imóveis cadastrados",                values: [20,    60,    150,   null ] },
+    { label: "Lançamentos / landing pages",        values: [1,     2,     5,     null ] },
+    { label: "Destaques no portal",                values: [0,     2,     5,     10   ] },
+    { label: "Super destaques no portal",          values: [0,     1,     3,     5    ] },
+    { label: "Destaque na seção Construtoras",     values: [false, false, true,  true ] },
+    { label: "Número de usuários",                 values: [2,     2,     2,     2    ] },
+    { label: "Minisite próprio",                   values: [true,  true,  true,  true ] },
+    { label: "Apresentação de portfólio",          values: [true,  true,  true,  true ] },
+    { label: "PDF do empreendimento para download",values: [true,  true,  true,  true ] },
+    { label: "Análise de informações de mercado",  values: [true,  true,  true,  true ] },
+    { label: "Análise de leads",                   values: [true,  true,  true,  true ] },
+    { label: "Análise de corretores engajados",    values: [true,  true,  true,  true ] },
+    { label: "Controle de disponibilidade",        values: [true,  true,  true,  true ] },
+    { label: "Atualização automática do estoque",  values: [true,  true,  true,  true ] },
+  ],
+  imobiliaria: [
+    { label: "Corretores na equipe",                  values: [5,     15,    25,    null ] },
+    { label: "Imóveis na vitrine (por corretor)",      values: [15,    50,    150,   null ] },
+    { label: "Destaques (por corretor)",               values: [1,     3,     5,     10   ] },
+    { label: "Super destaques (por corretor)",         values: [0,     1,     3,     5    ] },
+    { label: "Destaque na seção Imobiliárias",         values: [false, false, true,  true ] },
+    { label: "Cadastro com controle de visibilidade",  values: [true,  true,  true,  true ] },
+    { label: "Acesso aos anúncios das construtoras",   values: [true,  true,  true,  true ] },
+    { label: "Acesso aos agenciamentos do sistema",    values: [true,  true,  true,  true ] },
+    { label: "Acesso aos anúncios de terceiros",       values: [true,  true,  true,  true ] },
+    { label: "Minisite próprio",                       values: [true,  true,  true,  true ] },
+    { label: "Marcação de cliente por link",           values: [true,  true,  true,  true ] },
+    { label: "Sistema Antipelota",                     values: [true,  true,  true,  true ] },
+    { label: "CRM de leads",                           values: [true,  true,  true,  true ] },
+    { label: "Rodízio de leads",                       values: [true,  true,  true,  true ] },
+    { label: "Análise de informações de mercado",      values: [true,  true,  true,  true ] },
+    { label: "Análise de leads",                       values: [true,  true,  true,  true ] },
+    { label: "Análise de atividades da equipe",        values: [true,  true,  true,  true ] },
+  ],
+  corretor: [
+    { label: "Imóveis na vitrine",                    values: [5,     15,    50,    150  ] },
+    { label: "Destaques de imóveis",                  values: [0,     1,     3,     5    ] },
+    { label: "Super destaques de imóveis",            values: [0,     0,     1,     3    ] },
+    { label: "Cadastro com controle de visibilidade", values: [true,  true,  true,  true ] },
+    { label: "Acesso aos agenciamentos do sistema",   values: [false, true,  true,  true ] },
+    { label: "Acesso aos anúncios de terceiros",      values: [false, true,  true,  true ] },
+    { label: "Minisite próprio",                      values: [false, true,  true,  true ] },
+    { label: "Marcação de cliente por link",          values: [false, true,  true,  true ] },
+    { label: "Sistema Antipelota",                    values: [false, false, true,  true ] },
+    { label: "CRM de leads",                          values: [false, true,  true,  true ] },
+    { label: "Rodízio de leads",                      values: [false, true,  true,  true ] },
+    { label: "Análise de informações de mercado",     values: [false, false, true,  true ] },
+    { label: "Análise de leads",                      values: [false, true,  true,  true ] },
+  ],
 }
 
 export function getPlanLimits(entityType: PlanEntityType, plan: OrgPlan): PlanLimits {

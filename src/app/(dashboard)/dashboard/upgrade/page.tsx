@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/auth"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text"
 import { Zap } from "lucide-react"
 import type { OrgPlan, OrgType } from "@/types/database"
-import { getPlanLimits, getPlanName, resolveEntityType, PLAN_PRICES } from "@/lib/plans"
+import { resolveEntityType } from "@/lib/plans"
+import type { PlanEntityType } from "@/lib/plans"
 import { UpgradeCards } from "@/components/dashboard/UpgradeCards"
 
 export const dynamic = "force-dynamic"
@@ -12,27 +13,37 @@ export default async function UpgradePage() {
   const user = await requireAuth(["imobiliaria", "construtora", "corretor", "secretaria"])
   const admin = createAdminClient()
 
+  // Query essencial — role e org_id sempre existem
   const { data: profile } = await admin
     .from("profiles")
-    .select("role, plan, organization:organizations(type, plan)")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single()
 
-  const role = profile?.role ?? "corretor"
-  const org = profile?.organization as unknown as { type: OrgType; plan: OrgPlan } | null
-  const entityType = resolveEntityType(role, org?.type ?? null)
-  const currentPlan = (org?.plan ?? (profile as unknown as { plan?: string } | null)?.plan ?? "free") as OrgPlan
+  const role = (profile?.role ?? "corretor") as string
+  const orgId = profile?.organization_id ?? null
 
-  const plans: OrgPlan[] = ["free", "starter", "pro", "enterprise"]
+  let entityType: PlanEntityType = resolveEntityType(role, null)
+  let currentPlan: OrgPlan = "free"
 
-  const planData = plans.map((plan) => ({
-    plan,
-    name: getPlanName(entityType, plan),
-    prices: PLAN_PRICES[entityType][plan],
-    limits: getPlanLimits(entityType, plan),
-    isCurrent: plan === currentPlan,
-    isHighlighted: plan === "pro",
-  }))
+  if (orgId) {
+    const { data: org } = await admin
+      .from("organizations")
+      .select("type, plan")
+      .eq("id", orgId)
+      .single()
+    if (org) {
+      entityType = resolveEntityType(role, (org.type ?? null) as OrgType | null)
+      currentPlan = ((org.plan ?? "free") as OrgPlan)
+    }
+  } else {
+    const { data: planRow } = await admin
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .single()
+    currentPlan = (((planRow as unknown as { plan?: string } | null)?.plan) ?? "free") as OrgPlan
+  }
 
   return (
     <div className="px-4 py-6 lg:p-8 max-w-6xl">
@@ -42,15 +53,15 @@ export default async function UpgradePage() {
           <p className="text-xs uppercase tracking-[0.3em] text-gold/60 font-sans">Planos</p>
         </div>
         <h1 className="font-serif text-4xl font-bold text-white">
-          <AnimatedGradientText className="font-serif text-4xl font-bold">Faça Upgrade</AnimatedGradientText>
+          <AnimatedGradientText className="font-serif text-4xl font-bold">Escolha seu Plano</AnimatedGradientText>
         </h1>
         <p className="text-muted-foreground font-sans text-sm mt-2 max-w-xl">
-          Escolha o plano ideal para o seu negócio. Entre em contato para solicitar a mudança.
+          Compare os planos disponíveis e entre em contato para solicitar a mudança.
         </p>
         <div className="divider-gold mt-4 w-20" />
       </div>
 
-      <UpgradeCards plans={planData} entityType={entityType} />
+      <UpgradeCards entityType={entityType} currentPlan={currentPlan} />
     </div>
   )
 }
