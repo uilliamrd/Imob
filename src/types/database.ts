@@ -240,6 +240,57 @@ export interface IngestPropertyPayload {
   city?: string
 }
 
+// ── Destaques avulsos (upsell) ────────────────────────────────────────────────
+
+export type HighlightUpsellId =
+  | 'destaque_simples'
+  | 'destaque_regional'
+  | 'destaque_topo'
+  | 'super_destaque'
+
+export type HighlightStatus = 'ativo' | 'expirado' | 'cancelado'
+
+export interface PropertyHighlight {
+  id: string
+  property_id: string
+  user_id: string | null
+  org_id: string | null
+  highlight: HighlightUpsellId
+  prioridade: number
+  status: HighlightStatus
+  expires_at: string | null
+  paid_amount: number | null
+  created_at: string
+  property?: Pick<Property, 'id' | 'title' | 'slug'>
+}
+
+// ── Boosts de anúncio ─────────────────────────────────────────────────────────
+
+export type BoostId =
+  | 'boost_3_dias'
+  | 'boost_7_dias'
+  | 'boost_15_dias'
+  | 'boost_30_dias'
+
+export type BoostStatus = 'ativo' | 'expirado' | 'cancelado'
+
+export interface PropertyBoost {
+  id: string
+  property_id: string
+  user_id: string | null
+  org_id: string | null
+  boost: BoostId
+  duracao_dias: number
+  status: BoostStatus
+  starts_at: string
+  expires_at: string
+  paid_amount: number | null
+  created_at: string
+  property?: Pick<Property, 'id' | 'title' | 'slug'>
+}
+
+// ── Pagamentos ────────────────────────────────────────────────────────────────
+
 export type PaymentRecordType = 'implantacao' | 'mensal' | 'landing_page' | 'outro'
 export type PaymentRecordStatus = 'pendente' | 'pago' | 'cancelado'
 
