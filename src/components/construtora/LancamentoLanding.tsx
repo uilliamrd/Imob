@@ -102,7 +102,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           {(development.neighborhood || development.city) && (
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8 }}
               className="flex items-center gap-2 text-white/70 font-sans text-base mt-3">
-              <MapPin size={14} className="text-gold/60" />
+              <MapPin size={14} className="text-gold/80" />
               {development.neighborhood}{development.city ? `, ${development.city}` : ""}
             </motion.p>
           )}
@@ -173,7 +173,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                   className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
                     activeFilter === f.id
                       ? "bg-gold text-[#1C1C1C] font-semibold"
-                      : "border border-white/20 text-white/50 hover:border-gold/50 hover:text-gold"
+                      : "border border-white/30 text-white/70 hover:border-gold/50 hover:text-gold"
                   }`}>
                   {f.label}
                 </button>
@@ -210,7 +210,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                       <div className="flex-1 min-w-0">
                         <p className="font-serif text-white font-semibold text-base leading-tight">{p.title}</p>
                         {p.code && (
-                          <p className="text-white/40 text-[11px] font-sans mt-0.5 flex items-center gap-1">
+                          <p className="text-white/60 text-[11px] font-sans mt-0.5 flex items-center gap-1">
                             <Hash size={9} /> Cód. {p.code}
                           </p>
                         )}
@@ -222,19 +222,19 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                         {status.label}
                       </span>
                       {p.features.area_m2 && (
-                        <span className="flex items-center gap-1 text-white/50 text-xs font-sans">
-                          <Maximize2 size={11} className="text-gold/60" />{p.features.area_m2} m²
+                        <span className="flex items-center gap-1 text-white/80 text-xs font-sans">
+                          <Maximize2 size={11} className="text-gold/80" />{p.features.area_m2} m²
                         </span>
                       )}
                       {(p.features.suites || p.features.dormitorios) && (
-                        <span className="flex items-center gap-1 text-white/50 text-xs font-sans">
-                          <BedDouble size={11} className="text-gold/60" />
+                        <span className="flex items-center gap-1 text-white/80 text-xs font-sans">
+                          <BedDouble size={11} className="text-gold/80" />
                           {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
                         </span>
                       )}
                       {p.features.vagas && (
-                        <span className="flex items-center gap-1 text-white/50 text-xs font-sans">
-                          <Car size={11} className="text-gold/60" />{p.features.vagas} vg
+                        <span className="flex items-center gap-1 text-white/80 text-xs font-sans">
+                          <Car size={11} className="text-gold/80" />{p.features.vagas} vg
                         </span>
                       )}
                     </div>
@@ -255,31 +255,31 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                           {status.label}
                         </span>
                         {p.code && (
-                          <span className="text-white/40 text-[10px] font-sans flex items-center gap-0.5">
+                          <span className="text-white/60 text-[10px] font-sans flex items-center gap-0.5">
                             <Hash size={8} />{p.code}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/50">
-                      <Maximize2 size={12} className="text-gold/60" />
+                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/80">
+                      <Maximize2 size={12} className="text-gold/80" />
                       <span className="font-sans text-sm">{p.features.area_m2 ? `${p.features.area_m2} m²` : "—"}</span>
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/50">
+                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/80">
                       {(p.features.suites || p.features.dormitorios) && (
                         <span className="flex items-center gap-1 font-sans text-sm">
-                          <BedDouble size={12} className="text-gold/60" />
+                          <BedDouble size={12} className="text-gold/80" />
                           {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
                         </span>
                       )}
                     </div>
 
-                    <div className="col-span-1 flex items-center justify-center text-white/50">
+                    <div className="col-span-1 flex items-center justify-center text-white/80">
                       {p.features.vagas && (
                         <span className="flex items-center gap-1 font-sans text-sm">
-                          <Car size={12} className="text-gold/60" />{p.features.vagas}
+                          <Car size={12} className="text-gold/80" />{p.features.vagas}
                         </span>
                       )}
                     </div>
@@ -293,7 +293,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                         const info = getTagInfo(tag)
                         const Icon = info.icon
                         return (
-                          <span key={tag} title={info.label} className="flex items-center justify-center w-6 h-6 rounded-full border border-gold/20 text-gold/50">
+                          <span key={tag} title={info.label} className="flex items-center justify-center w-6 h-6 rounded-full border border-gold/40 text-gold/80">
                             <Icon size={10} />
                           </span>
                         )
@@ -336,17 +336,17 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-5 py-4 bg-white/[0.03] border border-white/10 hover:border-gold/40 hover:bg-gold/5 transition-all duration-300 group rounded-xl"
                   >
-                    <FileDown size={16} className="text-gold/60 group-hover:text-gold transition-colors flex-shrink-0" />
+                    <FileDown size={16} className="text-gold/80 group-hover:text-gold transition-colors flex-shrink-0" />
                     <div>
                       <p className="text-white/80 font-sans text-sm font-medium">{doc.name}</p>
-                      <p className="text-white/40 font-sans text-[10px] uppercase tracking-wider mt-0.5">{doc.type}</p>
+                      <p className="text-white/60 font-sans text-[10px] uppercase tracking-wider mt-0.5">{doc.type}</p>
                     </div>
-                    <ArrowRight size={12} className="text-white/20 group-hover:text-gold/60 ml-1 transition-colors" />
+                    <ArrowRight size={12} className="text-white/20 group-hover:text-gold/80 ml-1 transition-colors" />
                   </a>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center gap-3 px-5 py-4 bg-white/[0.03] border border-white/10 rounded-xl text-white/50 text-sm font-sans">
+              <div className="flex items-center gap-3 px-5 py-4 bg-white/[0.03] border border-white/10 rounded-xl text-white/80 text-sm font-sans">
                 <Lock size={14} className="flex-shrink-0 text-white/30" />
                 <span>Disponível apenas para corretores e imobiliárias cadastrados.</span>
                 <a href="/login" className="text-gold hover:underline ml-1 text-xs">Entrar</a>
@@ -365,7 +365,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-3">
           Garanta Sua Unidade
         </h2>
-        <p className="text-white/40 font-sans text-base max-w-md mx-auto mb-8 px-2">
+        <p className="text-white/60 font-sans text-base max-w-md mx-auto mb-8 px-2">
           As melhores unidades são reservadas nos primeiros dias. Fale com um consultor agora.
         </p>
         <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
