@@ -1,11 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Image from "next/image"
-import { Plus, X, ChevronDown, ChevronUp, Save, Trash2, Building2, Flame, CheckCircle, MapPin, Images, Code2, ExternalLink } from "lucide-react"
+import { Plus, X, ChevronDown, ChevronUp, Save, Trash2, Building2, Flame, CheckCircle, MapPin, Images, Code2, ExternalLink, FileDown, Loader2 } from "lucide-react"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
+import { createClient } from "@/lib/supabase/client"
 import type { Development } from "@/types/database"
+
+type DocEntry = { name: string; url: string; type: string }
 
 interface OrgOption { id: string; name: string }
 interface BairroOption { id: string; name: string; city: string; state: string }
@@ -36,6 +39,38 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
   const [editImages, setEditImages] = useState<Record<string, string[]>>({})
   const [editCustomHtml, setEditCustomHtml] = useState<Record<string, string>>({})
   const [editCustomType, setEditCustomType] = useState<Record<string, "html" | "json" | null>>({})
+  const [newDocuments, setNewDocuments] = useState<DocEntry[]>([])
+  const [editDocuments, setEditDocuments] = useState<Record<string, DocEntry[]>>({})
+  const [uploadingDoc, setUploadingDoc] = useState(false)
+  const newDocInputRef = useRef<HTMLInputElement>(null)
+  const editDocInputRef = useRef<Record<string, HTMLInputElement | null>>({})
+
+  async function uploadDoc(file: File, devId?: string): Promise<string | null> {
+    const supabase = createClient()
+    const folder = devId ? `developments/${devId}/docs` : `developments/docs`
+    const ext = file.name.split(".").pop()
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from("property-images").upload(path, file, { cacheControl: "3600", upsert: false })
+    if (error) return null
+    return supabase.storage.from("property-images").getPublicUrl(path).data.publicUrl
+  }
+
+  async function handleDocUpload(files: FileList | null, devId?: string) {
+    if (!files?.length) return
+    setUploadingDoc(true)
+    for (const file of Array.from(files)) {
+      const url = await uploadDoc(file, devId)
+      if (!url) continue
+      const name = file.name.replace(/\.[^/.]+$/, "")
+      const entry: DocEntry = { name, url, type: file.type.includes("pdf") ? "pdf" : "documento" }
+      if (devId) {
+        setEditDocuments((p) => ({ ...p, [devId]: [...(p[devId] ?? []), entry] }))
+      } else {
+        setNewDocuments((p) => [...p, entry])
+      }
+    }
+    setUploadingDoc(false)
+  }
 
   const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5"
@@ -53,6 +88,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
         cover_image: newImages[0] ?? null,
         custom_page_html: newCustomHtml || null,
         custom_page_type: newCustomType,
+        documents: newDocuments,
       }),
     })
     const data = await res.json()
@@ -62,6 +98,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
       setNewImages([])
       setNewCustomHtml("")
       setNewCustomType(null)
+      setNewDocuments([])
       setShowNew(false)
     }
     setSaving(false)
@@ -72,12 +109,14 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
     const images = editImages[id] ?? devs.find((d) => d.id === id)?.images ?? []
     const customHtml = id in editCustomHtml ? editCustomHtml[id] : (devs.find((d) => d.id === id)?.custom_page_html ?? null)
     const customType = id in editCustomType ? editCustomType[id] : (devs.find((d) => d.id === id)?.custom_page_type ?? null)
+    const documents = editDocuments[id] ?? devs.find((d) => d.id === id)?.documents ?? []
     const patch = {
       ...editForms[id],
       images,
       cover_image: images[0] ?? null,
       custom_page_html: customHtml || null,
       custom_page_type: customType,
+      documents,
     }
     const res = await fetch(`/api/admin/developments/${id}`, {
       method: "PATCH",
@@ -100,6 +139,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
   function startEdit(dev: Development) {
     setEditForms((prev) => ({ ...prev, [dev.id]: { ...dev } }))
     setEditImages((prev) => ({ ...prev, [dev.id]: dev.images?.length ? dev.images : (dev.cover_image ? [dev.cover_image] : []) }))
+    setEditDocuments((prev) => ({ ...prev, [dev.id]: dev.documents?.length ? [...dev.documents] : [] }))
     setExpanded(dev.id)
   }
 
@@ -172,6 +212,45 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
               </label>
               <ImageUpload bucket="property-images" folder="developments"
                 value={newImages} onChange={setNewImages} maxFiles={40} />
+            </div>
+            <div className="md:col-span-2">
+              <label className={labelClass}>
+                <span className="flex items-center gap-1.5"><FileDown size={11} /> Documentos / Apresentação PDF</span>
+              </label>
+              <input
+                ref={newDocInputRef}
+                type="file"
+                accept=".pdf,.ppt,.pptx,.doc,.docx"
+                multiple
+                className="hidden"
+                onChange={(e) => handleDocUpload(e.target.files)}
+              />
+              <button
+                type="button"
+                onClick={() => newDocInputRef.current?.click()}
+                disabled={uploadingDoc}
+                className="flex items-center gap-2 px-4 py-2 border border-dashed border-border hover:border-gold/40 text-muted-foreground hover:text-gold transition-colors text-xs font-sans rounded-lg disabled:opacity-50"
+              >
+                {uploadingDoc ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                {uploadingDoc ? "Enviando..." : "Adicionar arquivo"}
+              </button>
+              {newDocuments.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {newDocuments.map((doc, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <FileDown size={12} className="text-gold/50 flex-shrink-0" />
+                      <input
+                        type="text"
+                        value={doc.name}
+                        onChange={(e) => setNewDocuments((p) => p.map((d, j) => j === i ? { ...d, name: e.target.value } : d))}
+                        className="flex-1 bg-muted/30 border border-border text-white/80 px-2.5 py-1.5 rounded-lg font-sans text-xs focus:outline-none focus:border-gold/40"
+                      />
+                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground/50 hover:text-gold transition-colors" title="Abrir"><ExternalLink size={12} /></a>
+                      <button type="button" onClick={() => setNewDocuments((p) => p.filter((_, j) => j !== i))} className="text-muted-foreground/40 hover:text-red-400 transition-colors"><X size={12} /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="md:col-span-2">
               <label className={labelClass}>
@@ -320,6 +399,52 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                     </label>
                     <ImageUpload bucket="property-images" folder={`developments/${dev.id}`}
                       value={images} onChange={(u) => setEditImages((p) => ({ ...p, [dev.id]: u }))} maxFiles={40} />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className={labelClass}>
+                      <span className="flex items-center gap-1.5"><FileDown size={11} /> Documentos / Apresentação PDF</span>
+                    </label>
+                    <input
+                      ref={(el) => { editDocInputRef.current[dev.id] = el }}
+                      type="file"
+                      accept=".pdf,.ppt,.pptx,.doc,.docx"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleDocUpload(e.target.files, dev.id)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => editDocInputRef.current[dev.id]?.click()}
+                      disabled={uploadingDoc}
+                      className="flex items-center gap-2 px-4 py-2 border border-dashed border-border hover:border-gold/40 text-muted-foreground hover:text-gold transition-colors text-xs font-sans rounded-lg disabled:opacity-50"
+                    >
+                      {uploadingDoc ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                      {uploadingDoc ? "Enviando..." : "Adicionar arquivo"}
+                    </button>
+                    {(editDocuments[dev.id] ?? []).length > 0 && (
+                      <div className="mt-2 space-y-2">
+                        {(editDocuments[dev.id] ?? []).map((doc, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <FileDown size={12} className="text-gold/50 flex-shrink-0" />
+                            <input
+                              type="text"
+                              value={doc.name}
+                              onChange={(e) => setEditDocuments((p) => ({
+                                ...p,
+                                [dev.id]: (p[dev.id] ?? []).map((d, j) => j === i ? { ...d, name: e.target.value } : d),
+                              }))}
+                              className="flex-1 bg-muted/30 border border-border text-white/80 px-2.5 py-1.5 rounded-lg font-sans text-xs focus:outline-none focus:border-gold/40"
+                            />
+                            <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground/50 hover:text-gold transition-colors" title="Abrir"><ExternalLink size={12} /></a>
+                            <button
+                              type="button"
+                              onClick={() => setEditDocuments((p) => ({ ...p, [dev.id]: (p[dev.id] ?? []).filter((_, j) => j !== i) }))}
+                              className="text-muted-foreground/40 hover:text-red-400 transition-colors"
+                            ><X size={12} /></button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className={labelClass}>
