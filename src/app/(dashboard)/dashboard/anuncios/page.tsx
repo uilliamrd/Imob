@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { AnunciosClient } from "@/components/dashboard/AnunciosClient"
+import type { PendingHighlight, PendingBoost } from "@/components/dashboard/AnunciosClient"
 import { getPlanLimits } from "@/lib/plans"
 import type { PropertyAd, OrgPlan, OrgType } from "@/types/database"
 
@@ -14,7 +15,7 @@ export default async function AnunciosPage() {
 
   const admin = createAdminClient()
 
-  const [{ data: rawAds }, { data: rawProperties }, { data: rawOrgs }] = await Promise.all([
+  const [{ data: rawAds }, { data: rawProperties }, { data: rawOrgs }, { data: rawPH }, { data: rawPB }] = await Promise.all([
     admin
       .from("property_ads")
       .select(`*, property:properties(${PROPERTY_SELECT})`)
@@ -28,6 +29,16 @@ export default async function AnunciosPage() {
     admin
       .from("organizations")
       .select("id, plan, type, highlight_quota, super_highlight_quota"),
+    admin
+      .from("property_highlights")
+      .select("id, property_id, highlight, paid_amount, created_at, property:properties(title)")
+      .eq("status", "pendente")
+      .order("created_at", { ascending: true }),
+    admin
+      .from("property_boosts")
+      .select("id, property_id, boost, duracao_dias, paid_amount, created_at, property:properties(title)")
+      .eq("status", "pendente")
+      .order("created_at", { ascending: true }),
   ])
 
   const orgQuotas: Record<string, { highlight_limit: number; super_limit: number }> = {}
@@ -58,6 +69,8 @@ export default async function AnunciosPage() {
           organization: { id: string; name: string } | null
         }>}
         orgQuotas={orgQuotas}
+        pendingHighlights={(rawPH ?? []) as unknown as PendingHighlight[]}
+        pendingBoosts={(rawPB ?? []) as unknown as PendingBoost[]}
       />
     </div>
   )

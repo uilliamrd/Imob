@@ -13,6 +13,7 @@ import { Footer } from "@/components/landing/Footer"
 import { JsonLd } from "@/components/seo/JsonLd"
 import { getTagInfo } from "@/lib/tag-icons"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
+import { ViewTracker } from "@/components/property/ViewTracker"
 import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink } from "lucide-react"
 import type { Property, Organization, Development } from "@/types/database"
 import Link from "next/link"
@@ -172,6 +173,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
   return (
     <main className="min-h-screen bg-background">
+      <ViewTracker propertyId={property.id} orgId={property.org_id ?? undefined} />
       <JsonLd data={{
         "@context": "https://schema.org",
         "@type": "RealEstateListing",

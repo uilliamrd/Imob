@@ -3,10 +3,11 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { PlusCircle, Edit, Maximize2, BedDouble, Car, Hash, Search, ListPlus, Trash2, ExternalLink } from "lucide-react"
+import { PlusCircle, Edit, Maximize2, BedDouble, Car, Hash, Search, ListPlus, Trash2, ExternalLink, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { getTagInfo } from "@/lib/tag-icons"
 import { PropertyPickerModal } from "@/components/dashboard/PropertyPickerModal"
+import { UpsellModal } from "@/components/dashboard/UpsellModal"
 import type { Property, UserRole } from "@/types/database"
 
 const STATUS_STYLE = {
@@ -39,8 +40,9 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
   const [filterCategoria, setCategoria] = useState("all")
   const [filterDev, setFilterDev]       = useState("all")
   const [filterOrg, setFilterOrg]       = useState("all")
-  const [showPicker, setShowPicker] = useState(false)
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const [showPicker, setShowPicker]     = useState(false)
+  const [deleting, setDeleting]         = useState<string | null>(null)
+  const [upsellProperty, setUpsellProp] = useState<Property | null>(null)
 
   const isAdmin = role === "admin"
   const canAddNew = true
@@ -248,6 +250,15 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
               <div className="px-5 pb-5 pt-3 border-t border-border/50 flex items-center justify-between mt-auto">
                 <p className="font-serif text-xl font-bold text-white">{formatPrice(p.price)}</p>
                 <div className="flex gap-2">
+                  {p.status === "disponivel" && (isAdmin || isOwn || (orgId && p.org_id === orgId)) && (
+                    <button
+                      onClick={() => setUpsellProp(p)}
+                      title="Destacar ou impulsionar este imóvel"
+                      className="p-2 rounded-lg border border-gold/30 text-gold/60 hover:text-gold hover:border-gold/60 hover:bg-gold/5 transition-colors"
+                    >
+                      <Sparkles size={14} />
+                    </button>
+                  )}
                   {(isAdmin || isOwn) && (
                     <Link href={`/dashboard/imoveis/${p.id}/editar`}
                       className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
@@ -286,6 +297,10 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           orgId={orgId}
           userId={userId}
         />
+      )}
+
+      {upsellProperty && (
+        <UpsellModal property={upsellProperty} onClose={() => setUpsellProp(null)} />
       )}
     </>
   )

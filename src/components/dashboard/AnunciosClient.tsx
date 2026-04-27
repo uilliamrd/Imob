@@ -8,6 +8,7 @@ import {
   CheckCircle, Clock, PauseCircle, XCircle, Trash2, Edit3, Search,
   AlertTriangle, TrendingUp, BarChart2,
 } from "lucide-react"
+import { HIGHLIGHT_UPSELLS, BOOST_OPTIONS } from "@/lib/plans"
 import type { PropertyAd, AdTier, AdStatus } from "@/types/database"
 
 type SimpleProperty = {
@@ -17,10 +18,24 @@ type SimpleProperty = {
   organization: { id: string; name: string } | null
 }
 
+export type PendingHighlight = {
+  id: string; property_id: string; highlight: string
+  paid_amount: number | null; created_at: string
+  property: { title: string } | null
+}
+
+export type PendingBoost = {
+  id: string; property_id: string; boost: string; duracao_dias: number
+  paid_amount: number | null; created_at: string
+  property: { title: string } | null
+}
+
 interface Props {
   initialAds: PropertyAd[]
   allProperties: SimpleProperty[]
   orgQuotas: Record<string, { highlight_limit: number; super_limit: number }>
+  pendingHighlights?: PendingHighlight[]
+  pendingBoosts?: PendingBoost[]
 }
 
 const TIER_CONFIG: Record<AdTier, { label: string; color: string; icon: React.ElementType }> = {
@@ -68,9 +83,11 @@ const EMPTY_FORM: FormState = {
   starts_at: "", expires_at: "", notes: "",
 }
 
-export function AnunciosClient({ initialAds, allProperties, orgQuotas }: Props) {
+export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHighlights: initialPH = [], pendingBoosts: initialPB = [] }: Props) {
   const supabase = createClient()
   const [ads, setAds] = useState<PropertyAd[]>(initialAds)
+  const [pendingHL, setPendingHL] = useState<PendingHighlight[]>(initialPH)
+  const [pendingBT, setPendingBT] = useState<PendingBoost[]>(initialPB)
   const [statusFilter, setStatusFilter] = useState<AdStatus | "all">("all")
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -191,8 +208,107 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas }: Props) 
 
   const selectedProp = allProperties.find((p) => p.id === form.property_id)
 
+  async function approveHighlight(item: PendingHighlight) {
+    const expires = new Date()
+    expires.setDate(expires.getDate() + 30)
+    const { error: err } = await supabase
+      .from("property_highlights")
+      .update({ status: "ativo", expires_at: expires.toISOString() })
+      .eq("id", item.id)
+    if (!err) setPendingHL((prev) => prev.filter((h) => h.id !== item.id))
+  }
+
+  async function rejectHighlight(item: PendingHighlight) {
+    if (!confirm(`Recusar solicitação de destaque para "${item.property?.title}"?`)) return
+    const { error: err } = await supabase
+      .from("property_highlights")
+      .update({ status: "cancelado" })
+      .eq("id", item.id)
+    if (!err) setPendingHL((prev) => prev.filter((h) => h.id !== item.id))
+  }
+
+  async function approveBoost(item: PendingBoost) {
+    const starts = new Date()
+    const expires = new Date()
+    expires.setDate(expires.getDate() + item.duracao_dias)
+    const { error: err } = await supabase
+      .from("property_boosts")
+      .update({ status: "ativo", starts_at: starts.toISOString(), expires_at: expires.toISOString() })
+      .eq("id", item.id)
+    if (!err) setPendingBT((prev) => prev.filter((b) => b.id !== item.id))
+  }
+
+  async function rejectBoost(item: PendingBoost) {
+    if (!confirm(`Recusar solicitação de boost para "${item.property?.title}"?`)) return
+    const { error: err } = await supabase
+      .from("property_boosts")
+      .update({ status: "cancelado" })
+      .eq("id", item.id)
+    if (!err) setPendingBT((prev) => prev.filter((b) => b.id !== item.id))
+  }
+
   return (
     <div>
+      {/* ── Solicitações Pendentes ─────────────────────────────── */}
+      {(pendingHL.length > 0 || pendingBT.length > 0) && (
+        <div className="mb-8 bg-card border border-gold/20 rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-border bg-gold/5">
+            <Clock size={13} className="text-gold" />
+            <p className="text-xs uppercase tracking-[0.2em] text-gold font-sans font-semibold">
+              Solicitações Pendentes ({pendingHL.length + pendingBT.length})
+            </p>
+          </div>
+          <div className="divide-y divide-border">
+            {pendingHL.map((item) => {
+              const opt = HIGHLIGHT_UPSELLS[item.highlight as keyof typeof HIGHLIGHT_UPSELLS]
+              return (
+                <div key={item.id} className="flex items-center gap-4 px-5 py-3.5 flex-wrap">
+                  <Sparkles size={13} className="text-amber-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-foreground/80 text-sm font-sans truncate">{item.property?.title ?? item.property_id}</p>
+                    <p className="text-muted-foreground text-xs font-sans">{opt?.nome ?? item.highlight} · R$ {item.paid_amount ?? opt?.preco}</p>
+                  </div>
+                  <p className="text-muted-foreground/40 text-xs font-sans flex-shrink-0">{formatDate(item.created_at)}</p>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button onClick={() => rejectHighlight(item)}
+                      className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans text-red-400 hover:bg-red-900/20 rounded-lg transition-colors border border-transparent hover:border-red-900/40">
+                      Recusar
+                    </button>
+                    <button onClick={() => approveHighlight(item)}
+                      className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans text-emerald-400 hover:bg-emerald-900/20 rounded-lg transition-colors border border-transparent hover:border-emerald-700/40">
+                      Aprovar
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+            {pendingBT.map((item) => {
+              const opt = BOOST_OPTIONS[item.boost as keyof typeof BOOST_OPTIONS]
+              return (
+                <div key={item.id} className="flex items-center gap-4 px-5 py-3.5 flex-wrap">
+                  <Sparkles size={13} className="text-blue-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-foreground/80 text-sm font-sans truncate">{item.property?.title ?? item.property_id}</p>
+                    <p className="text-muted-foreground text-xs font-sans">{opt?.nome ?? item.boost} · {item.duracao_dias}d · R$ {item.paid_amount ?? opt?.preco}</p>
+                  </div>
+                  <p className="text-muted-foreground/40 text-xs font-sans flex-shrink-0">{formatDate(item.created_at)}</p>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button onClick={() => rejectBoost(item)}
+                      className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans text-red-400 hover:bg-red-900/20 rounded-lg transition-colors border border-transparent hover:border-red-900/40">
+                      Recusar
+                    </button>
+                    <button onClick={() => approveBoost(item)}
+                      className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans text-emerald-400 hover:bg-emerald-900/20 rounded-lg transition-colors border border-transparent hover:border-emerald-700/40">
+                      Aprovar
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
