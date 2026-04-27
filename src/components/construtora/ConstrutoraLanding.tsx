@@ -15,9 +15,9 @@ function formatPrice(price: number) {
 }
 
 const STATUS_MAP = {
-  disponivel: { label: "Disponível", cls: "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700/50" },
-  reserva:    { label: "Reservado",  cls: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700/50" },
-  vendido:    { label: "Vendido",    cls: "bg-zinc-100 text-zinc-500 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-500 dark:border-zinc-700/50" },
+  disponivel: { label: "Disponível", cls: "bg-emerald-900/30 text-emerald-300 border-emerald-700/50" },
+  reserva:    { label: "Reservado",  cls: "bg-amber-900/30 text-amber-300 border-amber-700/50" },
+  vendido:    { label: "Vendido",    cls: "bg-zinc-800/60 text-zinc-400 border-zinc-600/50" },
 } as const
 
 type Section = "sobre" | "portfolio" | "imoveis" | "lancamentos"
@@ -165,7 +165,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
 
       {/* ── CTA ───────────────────────────────────────────────── */}
       <section className="py-16 md:py-28 px-5 bg-[#1C1C1C] text-center border-t border-white/5">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-gold/60 font-sans mb-3">Entre em Contato</p>
+        <p className="text-[10px] uppercase tracking-[0.4em] text-gold/80 font-sans mb-3">Entre em Contato</p>
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-5">
           Pronto para <span className="italic" style={{ color: "#C9A96E" }}>dar o próximo passo?</span>
         </h2>
@@ -286,21 +286,21 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
             {status.label}
           </span>
           {property.features.area_m2 && (
-            <span className="flex items-center gap-1 text-[#F5F0E8]/50 text-xs font-sans">
-              <Maximize2 size={11} className="text-gold/60" />{property.features.area_m2} m²
+            <span className="flex items-center gap-1 text-[#F5F0E8]/80 text-xs font-sans">
+              <Maximize2 size={11} className="text-gold/80" />{property.features.area_m2} m²
             </span>
           )}
           {(property.features.suites || (property as { features: { dormitorios?: number } }).features.dormitorios) && (
-            <span className="flex items-center gap-1 text-[#F5F0E8]/50 text-xs font-sans">
-              <BedDouble size={11} className="text-gold/60" />
+            <span className="flex items-center gap-1 text-[#F5F0E8]/80 text-xs font-sans">
+              <BedDouble size={11} className="text-gold/80" />
               {property.features.suites
                 ? `${property.features.suites} suítes`
                 : `${(property as { features: { dormitorios?: number } }).features.dormitorios} dorms`}
             </span>
           )}
           {property.features.vagas && (
-            <span className="flex items-center gap-1 text-[#F5F0E8]/50 text-xs font-sans">
-              <Car size={11} className="text-gold/60" />{property.features.vagas} vg
+            <span className="flex items-center gap-1 text-[#F5F0E8]/80 text-xs font-sans">
+              <Car size={11} className="text-gold/80" />{property.features.vagas} vg
             </span>
           )}
         </div>
@@ -320,14 +320,14 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
             {status.label}
           </span>
         </div>
-        <div className="col-span-2 flex items-center justify-center gap-1 text-[#F5F0E8]/50">
-          <Maximize2 size={12} className="text-gold/60" />
+        <div className="col-span-2 flex items-center justify-center gap-1 text-[#F5F0E8]/80">
+          <Maximize2 size={12} className="text-gold/80" />
           <span className="font-sans text-sm">{property.features.area_m2 ? `${property.features.area_m2} m²` : "—"}</span>
         </div>
-        <div className="col-span-2 flex items-center justify-center gap-2 text-[#F5F0E8]/50">
+        <div className="col-span-2 flex items-center justify-center gap-2 text-[#F5F0E8]/80">
           {(property.features.suites || (property as { features: { dormitorios?: number } }).features.dormitorios) && (
             <span className="flex items-center gap-1 font-sans text-sm">
-              <BedDouble size={12} className="text-gold/60" />
+              <BedDouble size={12} className="text-gold/80" />
               {property.features.suites
                 ? `${property.features.suites} suítes`
                 : `${(property as { features: { dormitorios?: number } }).features.dormitorios} dorms`}
@@ -335,7 +335,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
           )}
           {property.features.vagas && (
             <span className="flex items-center gap-1 font-sans text-sm">
-              <Car size={12} className="text-gold/60" />{property.features.vagas}
+              <Car size={12} className="text-gold/80" />{property.features.vagas}
             </span>
           )}
         </div>
@@ -344,7 +344,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
             const info = getTagInfo(tag)
             const Icon = info.icon
             return (
-              <span key={tag} title={info.label} className="flex items-center justify-center w-7 h-7 rounded-full border border-gold/25 text-gold/60 hover:border-gold transition-colors">
+              <span key={tag} title={info.label} className="flex items-center justify-center w-7 h-7 rounded-full border border-gold/40 text-gold/80 hover:border-gold transition-colors">
                 <Icon size={12} />
               </span>
             )
@@ -412,7 +412,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
                 className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
                   unitFilter === f.id
                     ? "bg-gold text-[#1C1C1C] font-semibold"
-                    : "border border-white/20 text-[#F5F0E8]/55 hover:border-gold/50 hover:text-gold"
+                    : "border border-white/30 text-[#F5F0E8]/70 hover:border-gold/50 hover:text-gold"
                 }`}>
                 {f.label}
               </button>
@@ -423,7 +423,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
         <div className="divider-gold opacity-30 mb-1" />
 
         {/* Desktop table header */}
-        <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-foreground/40 font-sans">
+        <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-[#F5F0E8]/40 font-sans">
           <span className="col-span-3">Unidade</span>
           <span className="col-span-2 text-center">Área</span>
           <span className="col-span-2 text-center">Dormitórios</span>
@@ -437,18 +437,18 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
           {grouped.map(({ dev, units }) => (
             <div key={dev?.id ?? "no-dev"}>
               {dev && (
-                <div className="flex items-center justify-between px-3 md:px-5 py-3 mt-3 border-l-2 border-gold/50 bg-muted/20">
+                <div className="flex items-center justify-between px-3 md:px-5 py-3 mt-3 border-l-2 border-gold/50 bg-white/[0.04]">
                   <div className="flex items-center gap-2">
-                    <Building2 size={13} className="text-gold/60" />
-                    <span className="font-serif text-foreground font-semibold text-base">{dev.name}</span>
+                    <Building2 size={13} className="text-gold" />
+                    <span className="font-serif text-[#F5F0E8] font-semibold text-base">{dev.name}</span>
                     {dev.neighborhood && (
-                      <span className="hidden sm:flex items-center gap-1 text-muted-foreground text-xs font-sans ml-1">
+                      <span className="hidden sm:flex items-center gap-1 text-[#F5F0E8]/80 text-xs font-sans ml-1">
                         <MapPin size={9} />{dev.neighborhood}
                       </span>
                     )}
                   </div>
                   <Link href={`/lancamento/${dev.id}`}
-                    className="flex items-center gap-1.5 text-gold/60 hover:text-gold text-xs uppercase tracking-[0.15em] font-sans transition-colors">
+                    className="flex items-center gap-1.5 text-gold/70 hover:text-gold text-xs uppercase tracking-[0.15em] font-sans transition-colors">
                     Ver <ArrowRight size={11} />
                   </Link>
                 </div>
@@ -463,8 +463,8 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
           {standaloneUnits.length > 0 && (
             <div key="standalone">
               {grouped.length > 0 && (
-                <div className="flex items-center gap-2 px-3 md:px-5 py-3 mt-3 border-l-2 border-muted-foreground/20 bg-muted/10">
-                  <span className="font-serif text-muted-foreground font-semibold text-sm">Outros Imóveis</span>
+                <div className="flex items-center gap-2 px-3 md:px-5 py-3 mt-3 border-l-2 border-white/20 bg-white/[0.03]">
+                  <span className="font-serif text-[#F5F0E8]/60 font-semibold text-sm">Outros Imóveis</span>
                 </div>
               )}
               {standaloneUnits.map((p) => {
