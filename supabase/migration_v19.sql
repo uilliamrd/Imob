@@ -26,8 +26,6 @@ CREATE INDEX IF NOT EXISTS idx_properties_development
   ON properties (development_id, status, price)
   WHERE development_id IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS idx_corretor_scores_org_score
-  ON corretor_scores (organization_id, score DESC, last_lead_at ASC NULLS FIRST);
 
 CREATE INDEX IF NOT EXISTS idx_property_ads_active
   ON property_ads (status, tier, property_id)
