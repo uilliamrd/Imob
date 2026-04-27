@@ -1,3 +1,5 @@
+export const revalidate = 300
+
 import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { PortalHome } from "@/components/portal/PortalHome"
@@ -36,7 +38,8 @@ export default async function PortalPage() {
       .select(PROPERTY_SELECT)
       .eq("visibility", "publico")
       .eq("status", "disponivel")
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .limit(200),
     admin
       .from("organizations")
       .select("id, name, slug, logo, brand_colors, hero_tagline, is_section_highlighted")
@@ -94,25 +97,27 @@ export default async function PortalPage() {
 
   async function buildOrgList(orgs: typeof construtorасData): Promise<PortalOrg[]> {
     if (!orgs?.length) return []
-    return Promise.all(
-      orgs.map(async (org) => {
-        const { count } = await admin
-          .from("properties")
-          .select("*", { count: "exact", head: true })
-          .eq("org_id", org.id)
-          .eq("visibility", "publico")
-          .eq("status", "disponivel")
-        return {
-          id: org.id,
-          name: org.name,
-          slug: org.slug!,
-          logo: org.logo,
-          brand_colors: org.brand_colors,
-          hero_tagline: (org as { hero_tagline?: string | null }).hero_tagline ?? null,
-          availableCount: count ?? 0,
-        }
-      })
-    )
+    const ids = orgs.map((o) => o.id)
+    const { data: propRows } = await admin
+      .from("properties")
+      .select("org_id")
+      .in("org_id", ids)
+      .eq("visibility", "publico")
+      .eq("status", "disponivel")
+      .limit(5000)
+    const countMap = new Map<string, number>()
+    for (const row of propRows ?? []) {
+      countMap.set(row.org_id, (countMap.get(row.org_id) ?? 0) + 1)
+    }
+    return orgs.map((org) => ({
+      id: org.id,
+      name: org.name,
+      slug: org.slug!,
+      logo: org.logo,
+      brand_colors: org.brand_colors,
+      hero_tagline: (org as { hero_tagline?: string | null }).hero_tagline ?? null,
+      availableCount: countMap.get(org.id) ?? 0,
+    }))
   }
 
   const [construtoras, imobiliarias] = await Promise.all([

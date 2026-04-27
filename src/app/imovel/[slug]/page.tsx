@@ -16,6 +16,8 @@ import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink }
 import type { Property, Organization, Development } from "@/types/database"
 import Link from "next/link"
 
+export const revalidate = 3600
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
 
 // ── Fallback mock (dev only) ─────────────────────────────────────────────────

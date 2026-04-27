@@ -6,6 +6,8 @@ import { CorretorLanding } from "@/components/corretor/CorretorLanding"
 import { JsonLd } from "@/components/seo/JsonLd"
 import type { Profile, Property } from "@/types/database"
 
+export const revalidate = 1800
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

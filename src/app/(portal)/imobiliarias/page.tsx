@@ -1,3 +1,5 @@
+export const revalidate = 300
+
 import type { Metadata } from "next"
 import { createAdminClient } from "@/lib/supabase/admin"
 import Image from "next/image"
@@ -19,17 +21,21 @@ export default async function ImobiliariasPage() {
     .not("slug", "is", null)
     .order("name")
 
-  const imobiliarias = await Promise.all(
-    (orgs ?? []).map(async (org) => {
-      const { count } = await admin
+  const orgIds = (orgs ?? []).map((o) => o.id)
+  const { data: propRows } = orgIds.length
+    ? await admin
         .from("properties")
-        .select("*", { count: "exact", head: true })
-        .eq("org_id", org.id)
+        .select("org_id")
+        .in("org_id", orgIds)
         .eq("visibility", "publico")
         .eq("status", "disponivel")
-      return { ...org, availableCount: count ?? 0 }
-    })
-  )
+        .limit(5000)
+    : { data: [] }
+  const countMap = new Map<string, number>()
+  for (const row of propRows ?? []) {
+    countMap.set(row.org_id, (countMap.get(row.org_id) ?? 0) + 1)
+  }
+  const imobiliarias = (orgs ?? []).map((org) => ({ ...org, availableCount: countMap.get(org.id) ?? 0 }))
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen">

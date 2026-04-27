@@ -7,6 +7,8 @@ import { ConstrutoraLanding } from "@/components/construtora/ConstrutoraLanding"
 import { JsonLd } from "@/components/seo/JsonLd"
 import type { Organization, Property, Development } from "@/types/database"
 
+export const revalidate = 600
+
 async function getData(slug: string): Promise<{ org: Organization; properties: Property[]; developments: Development[] } | null> {
   try {
     const supabase = createAdminClient()

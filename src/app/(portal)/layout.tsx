@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"
-
 import { PortalNav } from "@/components/portal/PortalNav"
 import { Footer } from "@/components/landing/Footer"
 
