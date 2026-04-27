@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { IngestPropertyPayload } from '@/types/database'
 
-export async function POST(request: NextRequest) {
-  // Validate API token
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '')
+function isValidToken(provided: string): boolean {
+  const expected = process.env.API_INGEST_TOKEN
+  if (!expected || !provided) return false
+  try {
+    const a = Buffer.from(provided)
+    const b = Buffer.from(expected)
+    if (a.length !== b.length) return false
+    return timingSafeEqual(a, b)
+  } catch { return false }
+}
 
-  if (!token || token !== process.env.API_INGEST_TOKEN) {
+export async function POST(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  const token = authHeader?.replace('Bearer ', '') ?? ""
+
+  if (!isValidToken(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

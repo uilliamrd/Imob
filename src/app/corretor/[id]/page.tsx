@@ -8,15 +8,17 @@ import type { Profile, Property } from "@/types/database"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://realstateintelligence.com.br"
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 async function getProfile(id: string) {
   const admin = createAdminClient()
-  const { data } = await admin
+  const base = admin
     .from("profiles")
     .select("id, full_name, avatar_url, whatsapp, creci, bio, role, organization_id, slug")
-    .or(`id.eq.${id},slug.eq.${id}`)
     .eq("role", "corretor")
     .eq("is_active", true)
-    .maybeSingle()
+  // Use separate eq filters instead of .or() with user input to prevent PostgREST injection
+  const { data } = await (UUID_RE.test(id) ? base.eq("id", id) : base.eq("slug", id)).maybeSingle()
   return data
 }
 

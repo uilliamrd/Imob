@@ -54,7 +54,24 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { data, error } = await auth.admin.from("developments").insert(body).select("*").single()
+  const payload = {
+    name:            String(body.name ?? "").trim(),
+    address:         body.address         ?? null,
+    neighborhood:    body.neighborhood    ?? null,
+    city:            body.city            ?? null,
+    org_id:          body.org_id          ?? auth.profile.organization_id ?? null,
+    is_lancamento:   Boolean(body.is_lancamento),
+    is_delivered:    Boolean(body.is_delivered),
+    description:     body.description     ?? null,
+    cover_image:     body.cover_image     ?? null,
+    images:          Array.isArray(body.images) ? body.images : [],
+    custom_page_html: body.custom_page_html ?? null,
+    custom_page_type: body.custom_page_type ?? null,
+    documents:       Array.isArray(body.documents) ? body.documents : [],
+  }
+  if (!payload.name) return NextResponse.json({ error: "name é obrigatório" }, { status: 400 })
+
+  const { data, error } = await auth.admin.from("developments").insert(payload).select("*").single()
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json(data, { status: 201 })
 }

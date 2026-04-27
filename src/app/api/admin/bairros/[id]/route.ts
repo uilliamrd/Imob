@@ -17,7 +17,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { id } = await params
   const body = await request.json()
-  const { error } = await admin.from("bairros").update(body).eq("id", id)
+  const payload: Record<string, string> = {}
+  if (body.name  !== undefined) payload.name  = String(body.name).trim()
+  if (body.city  !== undefined) payload.city  = String(body.city).trim()
+  if (body.state !== undefined) payload.state = String(body.state).trim()
+
+  const { error } = await admin.from("bairros").update(payload).eq("id", id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ ok: true })
 }

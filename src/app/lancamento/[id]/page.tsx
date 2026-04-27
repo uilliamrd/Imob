@@ -79,7 +79,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
         <>
           <iframe
             srcDoc={development.custom_page_html}
-            sandbox="allow-scripts allow-forms allow-popups"
+            sandbox="allow-forms allow-popups allow-same-origin"
             style={{ width: "100%", border: "none", minHeight: "100vh" }}
             title={development.name}
           />

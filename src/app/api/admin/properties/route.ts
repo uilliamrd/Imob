@@ -85,11 +85,30 @@ export async function POST(request: Request) {
   }
 
   const { data, error } = await auth.admin.from("properties").insert({
-    ...body,
-    created_by: auth.userId,
-    org_id: body.org_id ?? auth.profile.organization_id ?? null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    title:          body.title,
+    slug:           body.slug,
+    description:    body.description     ?? null,
+    price:          body.price,
+    features:       body.features        ?? {},
+    tags:           Array.isArray(body.tags) ? body.tags : [],
+    status:         body.status          ?? "disponivel",
+    visibility:     body.visibility      ?? "publico",
+    development_id: body.development_id  ?? null,
+    images:         Array.isArray(body.images) ? body.images : [],
+    video_url:      body.video_url       ?? null,
+    address:        body.address         ?? null,
+    neighborhood:   body.neighborhood    ?? null,
+    city:           body.city            ?? null,
+    cep:            body.cep             ?? null,
+    categoria:      body.categoria       ?? null,
+    tipo_negocio:   body.tipo_negocio    ?? "venda",
+    bairro_id:      body.bairro_id       ?? null,
+    logradouro_id:  body.logradouro_id   ?? null,
+    // server-controlled fields — not from body
+    created_by:     auth.userId,
+    org_id:         body.org_id ?? auth.profile.organization_id ?? null,
+    created_at:     new Date().toISOString(),
+    updated_at:     new Date().toISOString(),
   }).select("id, slug").single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

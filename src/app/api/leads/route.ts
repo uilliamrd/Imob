@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-// Simple in-memory rate limiter: max 5 lead submissions per IP per minute
+// In-memory rate limiter: max 5 submissions per IP per minute.
+// NOTE: In multi-instance deployments (Vercel Functions) replace with
+// a distributed store (Upstash Redis) — each instance has its own Map.
 const rateMap = new Map<string, { count: number; resetAt: number }>()
 
 function isRateLimited(ip: string): boolean {
@@ -16,38 +18,67 @@ function isRateLimited(ip: string): boolean {
   return false
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const PHONE_RE = /^[\d\s\-()+]{7,20}$/
+
+function validateLeadInput(body: unknown): { ok: true; data: ReturnType<typeof extractFields> } | { ok: false; error: string } {
+  if (!body || typeof body !== "object") return { ok: false, error: "Invalid body" }
+  const b = body as Record<string, unknown>
+
+  const name  = typeof b.name  === "string" ? b.name.trim()  : ""
+  const phone = typeof b.phone === "string" ? b.phone.trim() : ""
+
+  if (name.length < 2 || name.length > 200)
+    return { ok: false, error: "name deve ter entre 2 e 200 caracteres" }
+  if (!PHONE_RE.test(phone))
+    return { ok: false, error: "phone inválido" }
+  if (b.property_id && (typeof b.property_id !== "string" || !UUID_RE.test(b.property_id)))
+    return { ok: false, error: "property_id inválido" }
+  if (b.ref_id && (typeof b.ref_id !== "string" || !UUID_RE.test(b.ref_id)))
+    return { ok: false, error: "ref_id inválido" }
+  if (b.org_id && (typeof b.org_id !== "string" || !UUID_RE.test(b.org_id)))
+    return { ok: false, error: "org_id inválido" }
+
+  return { ok: true, data: extractFields(b, name, phone) }
+}
+
+function extractFields(b: Record<string, unknown>, name: string, phone: string) {
+  return {
+    name,
+    phone,
+    property_id:     typeof b.property_id    === "string" ? b.property_id    : null,
+    property_slug:   typeof b.property_slug  === "string" ? b.property_slug  : null,
+    ref_id:          typeof b.ref_id         === "string" ? b.ref_id         : null,
+    org_id:          typeof b.org_id         === "string" ? b.org_id         : null,
+    source:          typeof b.source         === "string" ? b.source         : "imovel",
+    cidade_cliente:  typeof b.cidade_cliente === "string" ? b.cidade_cliente : null,
+    perfil_imovel:   typeof b.perfil_imovel  === "string" ? b.perfil_imovel  : null,
+    preco_min:       typeof b.preco_min      === "number" ? b.preco_min      : null,
+    preco_max:       typeof b.preco_max      === "number" ? b.preco_max      : null,
+    tipo_negociacao: typeof b.tipo_negociacao === "string" ? b.tipo_negociacao : null,
+  }
+}
+
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
   if (isRateLimited(ip)) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 })
   }
-  let body: {
-    name: string
-    phone: string
-    property_id?: string
-    property_slug?: string
-    ref_id?: string
-    org_id?: string
-    source?: string
-    cidade_cliente?: string
-    perfil_imovel?: string
-    preco_min?: number
-    preco_max?: number
-    tipo_negociacao?: string
+
+  let rawBody: unknown
+  try {
+    rawBody = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
   }
 
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  const validation = validateLeadInput(rawBody)
+  if (!validation.ok) {
+    return NextResponse.json({ error: validation.error }, { status: 400 })
   }
 
   const { name, phone, property_id, property_slug, ref_id, org_id, source,
-          cidade_cliente, perfil_imovel, preco_min, preco_max, tipo_negociacao } = body
-
-  if (!name?.trim() || !phone?.trim()) {
-    return NextResponse.json({ error: 'name and phone are required' }, { status: 400 })
-  }
+          cidade_cliente, perfil_imovel, preco_min, preco_max, tipo_negociacao } = validation.data
 
   const supabase = createAdminClient()
 

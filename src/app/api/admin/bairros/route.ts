@@ -16,7 +16,14 @@ export async function POST(request: Request) {
   if (!admin) return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
 
   const body = await request.json()
-  const { data, error } = await admin.from("bairros").insert(body).select("*").single()
+  const payload = {
+    name:  String(body.name  ?? "").trim(),
+    city:  String(body.city  ?? "").trim(),
+    state: String(body.state ?? "").trim(),
+  }
+  if (!payload.name) return NextResponse.json({ error: "name é obrigatório" }, { status: 400 })
+
+  const { data, error } = await admin.from("bairros").insert(payload).select("*").single()
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json(data, { status: 201 })
 }
