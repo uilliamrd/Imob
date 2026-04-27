@@ -108,7 +108,7 @@ export function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.4 }}
           onClick={() => document.getElementById("unidades")?.scrollIntoView({ behavior: "smooth" })}
-          className="mt-12 px-10 py-4 border border-gold text-gold hover:bg-gold hover:text-graphite transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans"
+          className="mt-12 px-10 py-4 border border-gold text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans"
         >
           Explorar Unidades
         </motion.button>

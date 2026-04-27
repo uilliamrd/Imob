@@ -120,11 +120,11 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.2 }}
             className="flex flex-col sm:flex-row gap-3 w-full max-w-sm sm:max-w-none sm:w-auto">
             <button onClick={() => document.getElementById("unidades")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-graphite transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
+              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
               Ver Unidades {disponiveisCount > 0 && `(${disponiveisCount})`}
             </button>
             <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-              className="px-8 py-4 bg-gold text-graphite hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
+              className="px-8 py-4 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
               <MessageCircle size={15} /> Quero Saber Mais
             </a>
           </motion.div>
@@ -155,7 +155,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
 
       {/* ── TABELA DE UNIDADES ────────────────────────────────── */}
       {/* Fundo sempre escuro (bg-graphite) — todas as cores de texto são fixas, sem variáveis de tema */}
-      <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-graphite">
+      <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-[#1C1C1C]">
         <div className="max-w-6xl mx-auto">
 
           {/* Section header */}

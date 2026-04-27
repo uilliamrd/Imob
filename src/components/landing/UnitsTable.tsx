@@ -39,7 +39,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
   const refParam = refId ? '?ref=' + refId : ''
 
   return (
-    <section id="unidades" className="py-24 px-6 bg-graphite">
+    <section id="unidades" className="py-24 px-6 bg-[#1C1C1C]">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
@@ -53,7 +53,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
               <button
                 key={f.id}
                 onClick={() => setActiveFilter(f.id)}
-                className={'px-5 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 ' + (activeFilter === f.id ? 'bg-gold text-graphite' : 'border border-white/20 text-white/60 hover:border-gold/50 hover:text-gold')}
+                className={'px-5 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 ' + (activeFilter === f.id ? 'bg-gold text-[#1C1C1C]' : 'border border-white/20 text-white/60 hover:border-gold/50 hover:text-gold')}
               >
                 {f.label}
               </button>
@@ -128,7 +128,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
                 </div>
                 <div className="col-span-1 flex items-center justify-end">
                   {isAvailable && (
-                    <Link href={'/imovel/' + property.slug + refParam} className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-graphite transition-all duration-300">
+                    <Link href={'/imovel/' + property.slug + refParam} className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-300">
                       <ArrowRight size={14} />
                     </Link>
                   )}
