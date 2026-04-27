@@ -42,7 +42,7 @@ export function AmenitiesSection() {
           <div className="divider-gold mt-8 mx-auto w-20" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-card/5">
           {AMENITIES.map((amenity, i) => {
             const Icon = amenity.icon
             return (
@@ -51,7 +51,7 @@ export function AmenitiesSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: i * 0.08 }}
-                className="bg-[#111111] p-8 group hover:bg-white/[0.03] transition-colors cursor-default"
+                className="bg-[#111111] p-8 group hover:bg-card/[0.03] transition-colors cursor-default"
               >
                 <div className="w-10 h-10 rounded-xl border border-gold/20 flex items-center justify-center mb-5 group-hover:border-gold/50 group-hover:bg-gold/5 transition-all duration-300">
                   <Icon size={18} className="text-gold/60 group-hover:text-gold transition-colors" />

@@ -8,6 +8,7 @@ import {
   ArrowRight, BedDouble, Car, Maximize2, MapPin, Flame,
 } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { Profile, Property } from "@/types/database"
 
 function formatPrice(price: number) {
@@ -49,6 +50,7 @@ export function CorretorLanding({ profile, orgName, properties, featuredIds = ne
 
   return (
     <>
+      <div className="no-print fixed top-4 right-4 z-50"><ThemeSwitch /></div>
       {/* ── HERO ── */}
       <section className="min-h-[60vh] bg-[#0a0a0a] flex items-center px-6 py-20 relative overflow-hidden">
         {/* Background gradient */}
@@ -71,7 +73,7 @@ export function CorretorLanding({ profile, orgName, properties, featuredIds = ne
                   className="w-40 h-40 rounded-full object-cover border-2 border-gold/40 shadow-2xl"
                 />
               ) : (
-                <div className="w-40 h-40 rounded-full bg-white/5 border-2 border-gold/20 flex items-center justify-center shadow-2xl">
+                <div className="w-40 h-40 rounded-full bg-card/5 border-2 border-gold/20 flex items-center justify-center shadow-2xl">
                   <User size={56} className="text-gold/30" />
                 </div>
               )}

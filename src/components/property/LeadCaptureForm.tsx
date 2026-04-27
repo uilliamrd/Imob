@@ -110,7 +110,7 @@ export function LeadCaptureForm({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center w-full py-4 bg-[#1C1C1C] text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-[#1C1C1C] transition-all duration-500 text-xs uppercase tracking-[0.2em] font-sans rounded-xl mb-3"
+        className="flex items-center justify-center w-full py-4 bg-foreground text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-foreground transition-all duration-500 text-xs uppercase tracking-[0.2em] font-sans rounded-xl mb-3"
       >
         Solicitar Informações
       </button>
@@ -263,7 +263,7 @@ export function LeadCaptureForm({
                       <button
                         type="submit"
                         disabled={loading || !name.trim() || !phone.trim()}
-                        className="flex items-center justify-center gap-2 w-full py-4 bg-[#1C1C1C] text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-[#1C1C1C] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-500 text-xs uppercase tracking-[0.2em] font-sans rounded-xl mt-2"
+                        className="flex items-center justify-center gap-2 w-full py-4 bg-foreground text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-500 text-xs uppercase tracking-[0.2em] font-sans rounded-xl mt-2"
                       >
                         {loading ? (
                           "Aguarde..."

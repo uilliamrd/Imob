@@ -95,7 +95,7 @@ export default function RegisterPage() {
               >
                 {s}
               </div>
-              {s < 2 && <div className={`flex-1 h-px transition-colors ${step > s ? "bg-gold" : "bg-white/10"}`} />}
+              {s < 2 && <div className={`flex-1 h-px transition-colors ${step > s ? "bg-gold" : "bg-card/10"}`} />}
             </div>
           ))}
         </div>
@@ -105,15 +105,15 @@ export default function RegisterPage() {
             <>
               <div>
                 <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">Nome Completo</label>
-                <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="João Silva" className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
+                <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="João Silva" className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
               </div>
               <div>
                 <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">Email</label>
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
               </div>
               <div>
                 <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">Senha</label>
-                <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
+                <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
               </div>
             </>
           ) : (
@@ -142,12 +142,12 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">WhatsApp</label>
-                <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+55 11 99999-9999" className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
+                <input type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+55 11 99999-9999" className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
               </div>
               {(role === "corretor" || role === "imobiliaria") && (
                 <div>
                   <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">CRECI</label>
-                  <input type="text" value={creci} onChange={(e) => setCreci(e.target.value)} placeholder="Ex: 123456-F" className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
+                  <input type="text" value={creci} onChange={(e) => setCreci(e.target.value)} placeholder="Ex: 123456-F" className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
                 </div>
               )}
             </>

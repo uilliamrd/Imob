@@ -46,7 +46,7 @@ function OrgCard({ org, href }: { org: PortalOrg; href: string }) {
   const accent = org.brand_colors?.primary ?? "#C9A96E"
   return (
     <Link href={href}
-      className="group flex flex-col items-center gap-3 p-5 bg-white border border-[#E8E4DC] hover:border-gold/40 hover:shadow-[0_4px_24px_rgba(201,169,110,0.10)] rounded-2xl transition-all duration-300 text-center">
+      className="group flex flex-col items-center gap-3 p-5 bg-card border border-border hover:border-gold/40 hover:shadow-[0_4px_24px_rgba(201,169,110,0.10)] rounded-2xl transition-all duration-300 text-center">
       <div className="w-14 h-14 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0"
         style={{ backgroundColor: accent + "18" }}>
         {org.logo ? (
@@ -56,9 +56,9 @@ function OrgCard({ org, href }: { org: PortalOrg; href: string }) {
         )}
       </div>
       <div className="flex-1 min-w-0 w-full">
-        <p className="font-serif text-sm font-semibold text-[#1C1C1C] leading-tight line-clamp-2">{org.name}</p>
+        <p className="font-serif text-sm font-semibold text-foreground leading-tight line-clamp-2">{org.name}</p>
         {org.hero_tagline && (
-          <p className="text-[10px] font-sans mt-0.5 text-[#8B7355] line-clamp-1">{org.hero_tagline}</p>
+          <p className="text-[10px] font-sans mt-0.5 text-muted-foreground line-clamp-1">{org.hero_tagline}</p>
         )}
         {org.availableCount > 0 && (
           <p className="text-[10px] font-sans mt-1" style={{ color: accent }}>
@@ -74,19 +74,19 @@ function OrgCard({ org, href }: { org: PortalOrg; href: string }) {
 function PropertyCard({ p, isDestaque, isFeatured }: { p: PortalProperty; isDestaque?: boolean; isFeatured?: boolean }) {
   return (
     <Link href={`/imovel/${p.slug}`}
-      className={`group bg-white rounded-2xl overflow-hidden flex flex-col border transition-all duration-300 ${
+      className={`group bg-card rounded-2xl overflow-hidden flex flex-col border transition-all duration-300 ${
         isFeatured
           ? "border-gold/30 shadow-[0_2px_20px_rgba(201,169,110,0.12)] hover:shadow-[0_4px_32px_rgba(201,169,110,0.20)] hover:border-gold/60"
           : isDestaque
           ? "border-gold/25 hover:border-gold/50 hover:shadow-[0_2px_16px_rgba(201,169,110,0.10)]"
-          : "border-[#E8E4DC] hover:border-gold/30 hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
+          : "border-border hover:border-gold/30 hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
       }`}>
-      <div className={`relative overflow-hidden bg-[#F0EBE3] ${isFeatured ? "aspect-[4/3]" : "aspect-video"}`}>
+      <div className={`relative overflow-hidden bg-muted ${isFeatured ? "aspect-[4/3]" : "aspect-video"}`}>
         {p.images?.[0] ? (
           <Image src={p.images[0]} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Home size={22} className="text-[#C9A96E]/30" />
+            <Home size={22} className="text-gold/30" />
           </div>
         )}
         {/* Badges */}
@@ -111,30 +111,30 @@ function PropertyCard({ p, isDestaque, isFeatured }: { p: PortalProperty; isDest
         )}
       </div>
       <div className="p-4 flex flex-col flex-1">
-        <p className="font-serif text-[#1C1C1C] text-sm font-semibold leading-tight line-clamp-2 mb-1">{p.title}</p>
+        <p className="font-serif text-foreground text-sm font-semibold leading-tight line-clamp-2 mb-1">{p.title}</p>
         {(p.neighborhood || p.city) && (
-          <p className="text-[#8B7355] text-xs font-sans flex items-center gap-1 mb-3">
-            <MapPin size={9} className="flex-shrink-0 text-[#C9A96E]" />
+          <p className="text-muted-foreground text-xs font-sans flex items-center gap-1 mb-3">
+            <MapPin size={9} className="flex-shrink-0 text-gold" />
             {[p.neighborhood, p.city].filter(Boolean).join(", ")}
           </p>
         )}
-        <div className="flex items-center gap-3 text-[#8B7355] text-[11px] font-sans mb-3">
+        <div className="flex items-center gap-3 text-muted-foreground text-[11px] font-sans mb-3">
           {p.features.area_m2 && (
-            <span className="flex items-center gap-1"><Maximize2 size={9} className="text-[#C9A96E]" />{p.features.area_m2}m²</span>
+            <span className="flex items-center gap-1"><Maximize2 size={9} className="text-gold" />{p.features.area_m2}m²</span>
           )}
           {(p.features.suites || p.features.dormitorios || p.features.quartos) && (
             <span className="flex items-center gap-1">
-              <BedDouble size={9} className="text-[#C9A96E]" />
+              <BedDouble size={9} className="text-gold" />
               {p.features.suites ?? p.features.dormitorios ?? p.features.quartos}
             </span>
           )}
           {p.features.vagas && (
-            <span className="flex items-center gap-1"><Car size={9} className="text-[#C9A96E]" />{p.features.vagas}v</span>
+            <span className="flex items-center gap-1"><Car size={9} className="text-gold" />{p.features.vagas}v</span>
           )}
         </div>
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#F0EBE3]">
-          <p className="font-serif text-[#C9A96E] text-base font-semibold">{formatPrice(p.price)}</p>
-          <ArrowRight size={13} className="text-[#C9A96E]/40 group-hover:text-[#C9A96E] group-hover:translate-x-0.5 transition-all" />
+        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
+          <p className="font-serif text-gold text-base font-semibold">{formatPrice(p.price)}</p>
+          <ArrowRight size={13} className="text-gold/40 group-hover:text-gold group-hover:translate-x-0.5 transition-all" />
         </div>
       </div>
     </Link>
@@ -146,11 +146,11 @@ function SectionHeader({ label, title, action }: { label: string; title: string;
   return (
     <div className="flex items-end justify-between mb-5">
       <div>
-        <p className="text-[10px] uppercase tracking-[0.35em] text-[#C9A96E] font-sans mb-1">{label}</p>
-        <h2 className="font-serif text-2xl font-bold text-[#1C1C1C] leading-tight">{title}</h2>
+        <p className="text-[10px] uppercase tracking-[0.35em] text-gold font-sans mb-1">{label}</p>
+        <h2 className="font-serif text-2xl font-bold text-foreground leading-tight">{title}</h2>
       </div>
       {action && (
-        <Link href={action.href} className="flex items-center gap-1 text-xs font-sans text-[#8B7355] hover:text-[#C9A96E] transition-colors flex-shrink-0 ml-4">
+        <Link href={action.href} className="flex items-center gap-1 text-xs font-sans text-muted-foreground hover:text-gold transition-colors flex-shrink-0 ml-4">
           {action.text} <ChevronRight size={12} />
         </Link>
       )}
@@ -218,10 +218,10 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
     ? sortedFiltered
     : sortedFiltered.filter((p) => !superDestaqueIds.has(p.id))
 
-  const SELECT_CLASS = "bg-white border border-[#E8E4DC] text-[#1C1C1C]/70 px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[#C9A96E]/40 transition-colors min-w-0"
+  const SELECT_CLASS = "bg-card border border-border text-foreground/70 px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors min-w-0"
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen">
+    <div className="bg-background min-h-screen">
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <div ref={heroRef} className="relative h-[65vw] min-h-[320px] max-h-[520px] overflow-hidden">
@@ -238,7 +238,7 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
         <div className="relative z-10 h-full flex flex-col justify-end px-5 pb-8 max-w-2xl">
           <motion.p
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.7 }}
-            className="text-[9px] uppercase tracking-[0.45em] text-[#C9A96E] font-sans mb-2">
+            className="text-[9px] uppercase tracking-[0.45em] text-gold font-sans mb-2">
             Portal de Imóveis
           </motion.p>
           <motion.h1
@@ -256,28 +256,28 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
           <motion.button
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.5 }}
             onClick={() => document.getElementById("imoveis")?.scrollIntoView({ behavior: "smooth" })}
-            className="self-start flex items-center gap-2 px-6 py-3 bg-[#C9A96E] text-[#1C1C1C] text-xs uppercase tracking-[0.2em] font-sans font-medium hover:bg-[#D4B87A] transition-colors rounded-sm">
+            className="self-start flex items-center gap-2 px-6 py-3 bg-gold text-[#1C1C1C] text-xs uppercase tracking-[0.2em] font-sans font-medium hover:bg-gold-light transition-colors rounded-sm">
             Explorar Imóveis <ChevronDown size={13} />
           </motion.button>
         </div>
       </div>
 
       {/* ── SEARCH BAR ────────────────────────────────────────── */}
-      <div className="sticky top-[64px] z-30 bg-white border-b border-[#E8E4DC] shadow-sm">
+      <div className="sticky top-[64px] z-30 bg-background border-b border-border shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-3">
           {/* Main search row */}
           <div className="flex gap-2 mb-2">
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8B7355]/50" />
+              <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
               <input
                 type="text"
                 placeholder="Busque por título, bairro, cidade ou tipo..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-[#E8E4DC] text-[#1C1C1C] placeholder-[#8B7355]/40 pl-11 pr-4 py-3.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[#C9A96E]/50 transition-colors"
+                className="w-full bg-card border border-border text-foreground placeholder-muted-foreground/40 pl-11 pr-4 py-3.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8B7355]/50 hover:text-[#1C1C1C]">
+                <button onClick={() => setSearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground">
                   <X size={13} />
                 </button>
               )}
@@ -286,13 +286,13 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-1.5 px-4 rounded-xl border font-sans text-sm transition-colors ${
                 activeFilters > 0
-                  ? "border-[#C9A96E]/50 text-[#C9A96E] bg-[#C9A96E]/08"
-                  : "border-[#E8E4DC] text-[#8B7355] hover:border-[#C9A96E]/30 hover:text-[#1C1C1C]"
+                  ? "border-gold/50 text-gold bg-gold/[0.08]"
+                  : "border-border text-muted-foreground hover:border-gold/30 hover:text-foreground"
               }`}
             >
               <SlidersHorizontal size={14} />
               {activeFilters > 0 && (
-                <span className="min-w-[18px] min-h-[18px] rounded-full bg-[#C9A96E] text-[#1C1C1C] text-[9px] font-bold flex items-center justify-center px-1">
+                <span className="min-w-[18px] min-h-[18px] rounded-full bg-gold text-[#1C1C1C] text-[9px] font-bold flex items-center justify-center px-1">
                   {activeFilters}
                 </span>
               )}
@@ -321,7 +321,7 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
 
           {/* Expanded filters */}
           {showFilters && (
-            <div className="mt-2 p-3 bg-[#FAF8F5] border border-[#E8E4DC] rounded-xl grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="mt-2 p-3 bg-card border border-border rounded-xl grid grid-cols-2 sm:grid-cols-3 gap-2">
               <select value={filterNegocio} onChange={(e) => setNegocio(e.target.value)} className={SELECT_CLASS}>
                 <option value="">Tipo de negócio</option>
                 <option value="Venda">Venda</option>
@@ -354,7 +354,7 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
                 {[...construtoras, ...imobiliarias].map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
               </select>
               {activeFilters > 0 && (
-                <button onClick={clearAll} className="flex items-center justify-center gap-1 py-2.5 rounded-xl border border-[#E8E4DC] text-[#8B7355] hover:text-[#1C1C1C] text-xs font-sans transition-colors col-span-2 sm:col-span-1">
+                <button onClick={clearAll} className="flex items-center justify-center gap-1 py-2.5 rounded-xl border border-border text-muted-foreground hover:text-foreground text-xs font-sans transition-colors col-span-2 sm:col-span-1">
                   <X size={11} /> Limpar filtros
                 </button>
               )}
@@ -413,28 +413,28 @@ export function PortalHome({ properties, construtoras, imobiliarias, superDestaq
         <section id="imoveis">
           <div className="flex items-baseline justify-between mb-5">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.35em] text-[#C9A96E] font-sans mb-1">Disponíveis</p>
-              <h2 className="font-serif text-2xl font-bold text-[#1C1C1C]">
+              <p className="text-[10px] uppercase tracking-[0.35em] text-gold font-sans mb-1">Disponíveis</p>
+              <h2 className="font-serif text-2xl font-bold text-foreground">
                 {isSearching ? "Resultados" : "Vivência & Estilo de Vida"}
               </h2>
             </div>
-            <p className="text-sm font-sans text-[#8B7355] flex-shrink-0 ml-4">
-              <span className="text-[#1C1C1C] font-medium">{filtered.length}</span>
-              {filtered.length !== properties.length && <span className="text-[#8B7355]/50"> de {properties.length}</span>}
+            <p className="text-sm font-sans text-muted-foreground flex-shrink-0 ml-4">
+              <span className="text-foreground font-medium">{filtered.length}</span>
+              {filtered.length !== properties.length && <span className="text-muted-foreground/50"> de {properties.length}</span>}
               {" "}imóvel{filtered.length !== 1 ? "is" : ""}
             </p>
           </div>
 
           {listedProperties.length === 0 ? (
             <div className="py-20 text-center">
-              <Home size={28} className="mx-auto text-[#C9A96E]/25 mb-3" />
-              <p className="text-[#8B7355] font-sans text-sm">
+              <Home size={28} className="mx-auto text-gold/25 mb-3" />
+              <p className="text-muted-foreground font-sans text-sm">
                 {properties.length === 0
                   ? "Nenhum imóvel disponível no portal ainda."
                   : "Nenhum imóvel encontrado."}
               </p>
               {activeFilters > 0 && (
-                <button onClick={clearAll} className="mt-2 text-[#C9A96E] text-sm font-sans hover:underline">
+                <button onClick={clearAll} className="mt-2 text-gold text-sm font-sans hover:underline">
                   Limpar filtros
                 </button>
               )}

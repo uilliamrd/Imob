@@ -172,7 +172,7 @@ export function VendaWizard({ corretores }: Props) {
     }
   }
 
-  const inputClass = "w-full bg-white/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const inputClass = "w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
   const labelClass = "text-[10px] uppercase tracking-[0.15em] text-white/50 font-sans block mb-1.5"
 
   return (
@@ -275,8 +275,8 @@ export function VendaWizard({ corretores }: Props) {
                   </p>
                   <div className="flex flex-wrap justify-center gap-3">
                     {corretores.slice(0, 8).map((c) => (
-                      <div key={c.id} className="flex items-center gap-2 bg-white/[0.04] border border-white/8 rounded-full px-3 py-1.5">
-                        <div className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                      <div key={c.id} className="flex items-center gap-2 bg-card/[0.04] border border-white/8 rounded-full px-3 py-1.5">
+                        <div className="w-6 h-6 rounded-full overflow-hidden bg-card/10 flex-shrink-0">
                           {c.avatar_url
                             ? <Image src={c.avatar_url} alt="" width={24} height={24} className="object-cover w-full h-full" />
                             : <div className="w-full h-full flex items-center justify-center"><User size={10} className="text-white/30" /></div>
@@ -286,7 +286,7 @@ export function VendaWizard({ corretores }: Props) {
                       </div>
                     ))}
                     {corretores.length > 8 && (
-                      <div className="flex items-center px-3 py-1.5 bg-white/[0.04] border border-white/8 rounded-full">
+                      <div className="flex items-center px-3 py-1.5 bg-card/[0.04] border border-white/8 rounded-full">
                         <span className="text-white/40 text-xs font-sans">+{corretores.length - 8} mais</span>
                       </div>
                     )}
@@ -487,7 +487,7 @@ export function VendaWizard({ corretores }: Props) {
                 ].map((item) => {
                   const Icon = item.icon
                   return (
-                    <div key={item.title} className="flex gap-4 bg-white/[0.03] border border-white/8 rounded-2xl p-5">
+                    <div key={item.title} className="flex gap-4 bg-card/[0.03] border border-white/8 rounded-2xl p-5">
                       <div className="w-10 h-10 rounded-xl border border-gold/20 flex items-center justify-center flex-shrink-0">
                         <Icon size={16} className="text-gold/70" />
                       </div>
@@ -516,9 +516,9 @@ export function VendaWizard({ corretores }: Props) {
                       initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.05 }}
-                      className="bg-white/[0.03] border border-white/8 rounded-xl p-4 flex flex-col items-center text-center"
+                      className="bg-card/[0.03] border border-white/8 rounded-xl p-4 flex flex-col items-center text-center"
                     >
-                      <div className="w-14 h-14 rounded-full overflow-hidden bg-white/10 mb-3 flex-shrink-0">
+                      <div className="w-14 h-14 rounded-full overflow-hidden bg-card/10 mb-3 flex-shrink-0">
                         {c.avatar_url
                           ? <Image src={c.avatar_url} alt={c.full_name ?? ""} width={56} height={56} className="object-cover w-full h-full" />
                           : <div className="w-full h-full flex items-center justify-center">
@@ -584,8 +584,8 @@ export function VendaWizard({ corretores }: Props) {
                       onClick={() => setPlan(p.id)}
                       className={`relative flex flex-col text-left p-6 rounded-2xl border transition-all duration-300 ${
                         selected
-                          ? `${p.borderColor} bg-white/[0.06]`
-                          : "border-white/8 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+                          ? `${p.borderColor} bg-card/[0.06]`
+                          : "border-white/8 bg-card/[0.02] hover:border-white/20 hover:bg-card/[0.04]"
                       }`}
                     >
                       {selected && (

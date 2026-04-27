@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform, useInView, AnimatePresence } from "fra
 import Link from "next/link"
 import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, Building2, Flame, CheckCircle, MapPin } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { Organization, Property, Development } from "@/types/database"
 
 function formatPrice(price: number) {
@@ -65,6 +66,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
 
   return (
     <>
+      <div className="no-print fixed top-4 right-4 z-50"><ThemeSwitch /></div>
       {/* ── HERO ──────────────────────────────────────────────── */}
       <div ref={heroRef} className="relative h-[100svh] min-h-[580px] overflow-hidden">
         <motion.div className="absolute inset-0 w-full h-[130%] -top-[15%]" style={{ y: yBg }}>
@@ -86,7 +88,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
             {navItems.map((item) => (
               <button key={item.id} onClick={() => { setActiveSection(item.id); scrollToContent() }}
                 className={`px-5 py-2 rounded-full text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 ${
-                  activeSection === item.id ? "bg-gold text-[#1C1C1C]" : "text-white/70 hover:text-white"
+                  activeSection === item.id ? "bg-gold text-foreground" : "text-white/70 hover:text-white"
                 }`}>
                 {item.label}
                 {item.id === "lancamentos" && <Flame size={10} className="inline ml-1 text-orange-400" />}
@@ -113,12 +115,12 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.4 }}
             className="flex flex-col sm:flex-row gap-3 mt-8 w-full max-w-sm sm:max-w-none sm:w-auto">
             <button onClick={() => { setActiveSection("imoveis"); scrollToContent() }}
-              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
+              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-foreground transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
               Ver Imóveis
             </button>
             {org.has_lancamentos && lancamentos.length > 0 && (
               <button onClick={() => { setActiveSection("lancamentos"); scrollToContent() }}
-                className="px-8 py-4 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
+                className="px-8 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
                 <Flame size={13} /> Lançamentos
               </button>
             )}
@@ -132,7 +134,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
       </div>
 
       {/* ── MOBILE NAV ────────────────────────────────────────── */}
-      <div className="md:hidden sticky top-0 z-30 bg-[#1C1C1C] border-b border-white/10 flex overflow-x-auto">
+      <div className="md:hidden sticky top-0 z-30 bg-foreground border-b border-white/10 flex overflow-x-auto">
         {navItems.map((item) => (
           <button key={item.id} onClick={() => setActiveSection(item.id)}
             className={`flex-shrink-0 px-5 py-3.5 text-xs uppercase tracking-[0.15em] font-sans transition-colors border-b-2 ${
@@ -164,13 +166,13 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
       </div>
 
       {/* ── CTA ───────────────────────────────────────────────── */}
-      <section className="py-16 md:py-28 px-5 bg-[#1C1C1C] text-center border-t border-white/5">
+      <section className="py-16 md:py-28 px-5 bg-foreground text-center border-t border-white/5">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold/80 font-sans mb-3">Entre em Contato</p>
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-5">
           Pronto para <span className="italic" style={{ color: "#C9A96E" }}>dar o próximo passo?</span>
         </h2>
         <a href={`https://wa.me/${whatsapp}?text=${waMsgDefault}`} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans mt-2">
+          className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans mt-2">
           <MessageCircle size={15} /> Falar com Consultor
         </a>
       </section>
@@ -211,7 +213,7 @@ function SobreSection({ org, whatsapp, waMsgDefault }: { org: Organization; what
             : null
           }
           <a href={`https://wa.me/${whatsapp}?text=${waMsgDefault}`} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 px-8 py-3.5 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans w-full sm:w-auto justify-center">
+            className="flex items-center gap-2 px-8 py-3.5 bg-gold text-foreground hover:bg-gold-light transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans w-full sm:w-auto justify-center">
             <MessageCircle size={14} /> Falar Conosco
           </a>
         </div>
@@ -223,7 +225,7 @@ function SobreSection({ org, whatsapp, waMsgDefault }: { org: Organization; what
 function PortfolioSection({ developments }: { developments: Development[] }) {
   return (
     <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-      className="py-14 md:py-24 px-5 md:px-6 bg-[#1C1C1C]">
+      className="py-14 md:py-24 px-5 md:px-6 bg-foreground">
       <div className="max-w-6xl mx-auto">
         <div className="mb-10 md:mb-16">
           <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-3">Obras Entregues</p>
@@ -274,7 +276,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
       className={`border-b border-white/10 ${!isAvailable ? "opacity-55" : ""}`}>
 
       {/* ── Mobile card ── */}
-      <div className="md:hidden px-1 py-4 hover:bg-white/[0.03] transition-colors">
+      <div className="md:hidden px-1 py-4 hover:bg-card/[0.03] transition-colors">
         <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="flex-1 min-w-0">
             <p className="font-serif text-[#F5F0E8] font-semibold text-base leading-tight">{property.title}</p>
@@ -313,7 +315,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
       </div>
 
       {/* ── Desktop table row ── */}
-      <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors">
+      <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-card/[0.03] transition-colors">
         <div className="col-span-3 flex flex-col gap-1">
           <span className="font-serif text-[#F5F0E8] font-semibold text-base leading-tight">{property.title}</span>
           <span className={`inline-flex items-center self-start text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
@@ -356,7 +358,7 @@ function PropertyRow({ property, index, refParam }: { property: Property; index:
         <div className="col-span-1 flex items-center justify-end">
           {isAvailable && (
             <Link href={`/imovel/${property.slug}${refParam}`}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-300">
+              className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-foreground transition-all duration-300">
               <ArrowRight size={14} />
             </Link>
           )}
@@ -397,7 +399,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
 
   return (
     <motion.section id="unidades" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-      className="py-12 md:py-20 px-4 md:px-6 bg-[#1C1C1C]">
+      className="py-12 md:py-20 px-4 md:px-6 bg-foreground">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col gap-5 mb-8 md:mb-12 md:flex-row md:items-end md:justify-between">
           <div>
@@ -411,7 +413,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
               <button key={f.id} onClick={() => setUnitFilter(f.id)}
                 className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
                   unitFilter === f.id
-                    ? "bg-gold text-[#1C1C1C] font-semibold"
+                    ? "bg-gold text-foreground font-semibold"
                     : "border border-white/30 text-[#F5F0E8]/70 hover:border-gold/50 hover:text-gold"
                 }`}>
                 {f.label}
@@ -437,7 +439,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
           {grouped.map(({ dev, units }) => (
             <div key={dev?.id ?? "no-dev"}>
               {dev && (
-                <div className="flex items-center justify-between px-3 md:px-5 py-3 mt-3 border-l-2 border-gold/50 bg-white/[0.04]">
+                <div className="flex items-center justify-between px-3 md:px-5 py-3 mt-3 border-l-2 border-gold/50 bg-card/[0.04]">
                   <div className="flex items-center gap-2">
                     <Building2 size={13} className="text-gold" />
                     <span className="font-serif text-[#F5F0E8] font-semibold text-base">{dev.name}</span>
@@ -463,7 +465,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
           {standaloneUnits.length > 0 && (
             <div key="standalone">
               {grouped.length > 0 && (
-                <div className="flex items-center gap-2 px-3 md:px-5 py-3 mt-3 border-l-2 border-white/20 bg-white/[0.03]">
+                <div className="flex items-center gap-2 px-3 md:px-5 py-3 mt-3 border-l-2 border-white/20 bg-card/[0.03]">
                   <span className="font-serif text-[#F5F0E8]/60 font-semibold text-sm">Outros Imóveis</span>
                 </div>
               )}
@@ -525,11 +527,11 @@ function LancamentosSection({ developments, whatsapp, waMsgLanc }:
               )}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href={`/lancamento/${dev.id}`}
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-gold text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans">
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-gold text-gold hover:bg-gold hover:text-foreground transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans">
                   <ArrowRight size={13} /> Ver Unidades
                 </Link>
                 <a href={`https://wa.me/${whatsapp}?text=${waMsgLanc}`} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans">
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gold text-foreground hover:bg-gold-light transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans">
                   <MessageCircle size={13} /> Quero Saber Mais
                 </a>
               </div>

@@ -104,7 +104,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
                     {photo ? (
                       <Image src={photo} alt={name} width={56} height={56} className="w-14 h-14 rounded-full object-cover border-2 border-gold/40" />
                     ) : (
-                      <div className="w-14 h-14 rounded-full border-2 border-gold/40 flex items-center justify-center bg-white/10">
+                      <div className="w-14 h-14 rounded-full border-2 border-gold/40 flex items-center justify-center bg-card/10">
                         <User size={24} className="text-gold/60" />
                       </div>
                     )}
@@ -146,7 +146,7 @@ function CorretorMinisiteInner({ defaultWhatsapp, defaultName, defaultPhoto }: C
                   {photo ? (
                     <Image src={photo} alt={name} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gold/30" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center bg-white/5">
+                    <div className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center bg-card/5">
                       <User size={18} className="text-gold/60" />
                     </div>
                   )}

@@ -8,6 +8,7 @@ import {
   ChevronDown, ArrowRight, Phone, Users,
 } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { Organization, Property } from "@/types/database"
 
 export type CorretorPublic = {
@@ -67,6 +68,7 @@ export function ImobiliariaLanding({ org, properties, corretores, refId, whatsap
 
   return (
     <>
+      <div className="no-print fixed top-4 right-4 z-50"><ThemeSwitch /></div>
       {/* ── HERO ────────────────────────────────────────────────── */}
       <div ref={heroRef} className="relative h-screen overflow-hidden">
         <motion.div className="absolute inset-0 w-full h-[130%] -top-[15%]" style={{ y: yBg }}>
@@ -96,7 +98,7 @@ export function ImobiliariaLanding({ org, properties, corretores, refId, whatsap
                 key={item.id}
                 onClick={() => { setActiveSection(item.id); scrollToContent() }}
                 className={`px-5 py-2 rounded-full text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 ${
-                  activeSection === item.id ? "bg-white/90 text-black" : "text-white/70 hover:text-white"
+                  activeSection === item.id ? "bg-card/90 text-black" : "text-white/70 hover:text-white"
                 }`}
                 style={activeSection === item.id ? { backgroundColor: brandColor, color: "#0a0a0a" } : {}}
               >
@@ -344,7 +346,7 @@ function ImoveisSection({ properties, refParam, brandColor }: {
               placeholder="Buscar por título ou bairro..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-white/5 border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-white/30 transition-colors min-w-64"
+              className="bg-card/5 border border-white/10 text-white placeholder-white/20 pl-9 pr-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-white/30 transition-colors min-w-64"
             />
           </div>
           {(["todos", "disponivel", "reserva", "vendido"] as const).map((s) => (
@@ -373,7 +375,7 @@ function ImoveisSection({ properties, refParam, brandColor }: {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.04 }}
-                className="group block bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300"
+                className="group block bg-card/[0.03] border border-white/5 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300"
               >
                 <div className="aspect-video relative overflow-hidden bg-[#1a1a1a]">
                   {p.images[0] ? (
@@ -478,10 +480,10 @@ function EquipeSection({ corretores, org, brandColor }: {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className="bg-white/[0.03] border border-white/8 rounded-2xl overflow-hidden hover:border-white/15 transition-all duration-300 group"
+              className="bg-card/[0.03] border border-white/8 rounded-2xl overflow-hidden hover:border-white/15 transition-all duration-300 group"
             >
               {/* Avatar */}
-              <div className="aspect-square relative overflow-hidden bg-white/5">
+              <div className="aspect-square relative overflow-hidden bg-card/5">
                 {c.avatar_url ? (
                   <Image
                     src={c.avatar_url}

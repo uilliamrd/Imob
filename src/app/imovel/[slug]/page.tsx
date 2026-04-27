@@ -12,6 +12,7 @@ import { PropertyShare } from "@/components/property/PropertyShare"
 import { Footer } from "@/components/landing/Footer"
 import { JsonLd } from "@/components/seo/JsonLd"
 import { getTagInfo } from "@/lib/tag-icons"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import { BedDouble, Car, Maximize2, MapPin, Building2, ArrowLeft, ExternalLink } from "lucide-react"
 import type { Property, Organization, Development } from "@/types/database"
 import Link from "next/link"
@@ -193,7 +194,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
       }} />
 
       {/* ── Sticky top nav ─────────────────────────────────── */}
-      <nav className="force-light sticky top-0 z-40 bg-[rgba(253,250,244,0.85)] backdrop-blur-xl border-b border-border px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between h-14">
+      <nav className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between h-14">
         <Link
           href={isConstrutora && org?.slug ? `/construtora/${org.slug}` : "/"}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-sans"
@@ -212,7 +213,9 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
         </div>
         {/* Mobile: just the org name centered */}
         <span className="lg:hidden font-sans text-sm text-foreground/70 truncate max-w-[160px]">{org?.name ?? ""}</span>
-        <div className="w-8 lg:hidden" />
+        <div className="flex items-center gap-2">
+          <ThemeSwitch />
+        </div>
       </nav>
 
       {/* ── Construtora brand bar — desktop only ──────────── */}
@@ -449,7 +452,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
           {/* ── Right: Sticky contact card — desktop only ──── */}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="force-light sticky top-24 bg-[#fdf8f2] border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
+            <div className="sticky top-24 bg-card border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans mb-1">
                 Valor
               </p>

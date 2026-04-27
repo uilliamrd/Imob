@@ -39,7 +39,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
   const refParam = refId ? '?ref=' + refId : ''
 
   return (
-    <section id="unidades" className="py-24 px-6 bg-[#1C1C1C]">
+    <section id="unidades" className="py-24 px-6 bg-foreground">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
@@ -53,7 +53,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
               <button
                 key={f.id}
                 onClick={() => setActiveFilter(f.id)}
-                className={'px-5 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 ' + (activeFilter === f.id ? 'bg-gold text-[#1C1C1C]' : 'border border-white/20 text-white/60 hover:border-gold/50 hover:text-gold')}
+                className={'px-5 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 ' + (activeFilter === f.id ? 'bg-gold text-foreground' : 'border border-white/20 text-white/60 hover:border-gold/50 hover:text-gold')}
               >
                 {f.label}
               </button>
@@ -88,7 +88,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
                 transition={{ duration: 0.4, delay: index * 0.05 }}
                 onMouseEnter={() => setHoveredId(property.id)}
                 onMouseLeave={() => setHoveredId(null)}
-                className={'grid grid-cols-12 gap-4 px-6 py-5 transition-colors duration-300 ' + (hoveredId === property.id ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]') + (isAvailable ? '' : ' opacity-50')}
+                className={'grid grid-cols-12 gap-4 px-6 py-5 transition-colors duration-300 ' + (hoveredId === property.id ? 'bg-card/[0.04]' : 'hover:bg-card/[0.02]') + (isAvailable ? '' : ' opacity-50')}
               >
                 <div className="col-span-3 flex flex-col gap-1">
                   <span className="font-serif text-white font-semibold text-base leading-tight">{property.title}</span>
@@ -128,7 +128,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
                 </div>
                 <div className="col-span-1 flex items-center justify-end">
                   {isAvailable && (
-                    <Link href={'/imovel/' + property.slug + refParam} className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-300">
+                    <Link href={'/imovel/' + property.slug + refParam} className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-foreground transition-all duration-300">
                       <ArrowRight size={14} />
                     </Link>
                   )}

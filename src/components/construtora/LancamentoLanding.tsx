@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, MapPin, Flame, ArrowLeft, Hash, FileDown, Lock } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
+import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { Development, Organization, Property } from "@/types/database"
 
 function formatPrice(price: number) {
@@ -58,6 +59,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
 
   return (
     <>
+      <div className="no-print fixed top-4 right-4 z-50"><ThemeSwitch /></div>
       {/* ── HERO ──────────────────────────────────────────────── */}
       <div ref={heroRef} className="relative h-[100svh] min-h-[580px] overflow-hidden">
         <motion.div className="absolute inset-0 w-full h-[130%] -top-[15%]" style={{ y: yBg }}>
@@ -120,11 +122,11 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.2 }}
             className="flex flex-col sm:flex-row gap-3 w-full max-w-sm sm:max-w-none sm:w-auto">
             <button onClick={() => document.getElementById("unidades")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
+              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-foreground transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
               Ver Unidades {disponiveisCount > 0 && `(${disponiveisCount})`}
             </button>
             <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-              className="px-8 py-4 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
+              className="px-8 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
               <MessageCircle size={15} /> Quero Saber Mais
             </a>
           </motion.div>
@@ -155,7 +157,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
 
       {/* ── TABELA DE UNIDADES ────────────────────────────────── */}
       {/* Fundo sempre escuro (bg-graphite) — todas as cores de texto são fixas, sem variáveis de tema */}
-      <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-[#1C1C1C]">
+      <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-foreground">
         <div className="max-w-6xl mx-auto">
 
           {/* Section header */}
@@ -172,7 +174,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                 <button key={f.id} onClick={() => setActiveFilter(f.id)}
                   className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
                     activeFilter === f.id
-                      ? "bg-gold text-[#1C1C1C] font-semibold"
+                      ? "bg-gold text-foreground font-semibold"
                       : "border border-white/30 text-white/70 hover:border-gold/50 hover:text-gold"
                   }`}>
                   {f.label}
@@ -205,7 +207,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                   className={`border-b border-white/10 ${!isAvailable ? "opacity-50" : ""}`}>
 
                   {/* ── Mobile card ── */}
-                  <div className="md:hidden px-1 py-4 hover:bg-white/5 transition-colors">
+                  <div className="md:hidden px-1 py-4 hover:bg-card/5 transition-colors">
                     <div className="flex items-start justify-between gap-3 mb-2.5">
                       <div className="flex-1 min-w-0">
                         <p className="font-serif text-white font-semibold text-base leading-tight">{p.title}</p>
@@ -247,7 +249,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                   </div>
 
                   {/* ── Desktop table row ── */}
-                  <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-white/5 transition-colors">
+                  <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-card/5 transition-colors">
                     <div className="col-span-4 flex flex-col gap-1">
                       <span className="font-serif text-white font-semibold text-base leading-tight">{p.title}</span>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -300,7 +302,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                       })}
                       {isAvailable && (
                         <Link href={`/imovel/${p.slug}${refParam}`}
-                          className="flex items-center justify-center w-7 h-7 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-300 ml-0.5">
+                          className="flex items-center justify-center w-7 h-7 rounded-full border border-gold/40 text-gold hover:bg-gold hover:text-foreground transition-all duration-300 ml-0.5">
                           <ArrowRight size={13} />
                         </Link>
                       )}
@@ -334,7 +336,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                     href={doc.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-5 py-4 bg-white/[0.03] border border-white/10 hover:border-gold/40 hover:bg-gold/5 transition-all duration-300 group rounded-xl"
+                    className="flex items-center gap-3 px-5 py-4 bg-card/[0.03] border border-white/10 hover:border-gold/40 hover:bg-gold/5 transition-all duration-300 group rounded-xl"
                   >
                     <FileDown size={16} className="text-gold/80 group-hover:text-gold transition-colors flex-shrink-0" />
                     <div>
@@ -346,7 +348,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                 ))}
               </div>
             ) : (
-              <div className="flex items-center gap-3 px-5 py-4 bg-white/[0.03] border border-white/10 rounded-xl text-white/80 text-sm font-sans">
+              <div className="flex items-center gap-3 px-5 py-4 bg-card/[0.03] border border-white/10 rounded-xl text-white/80 text-sm font-sans">
                 <Lock size={14} className="flex-shrink-0 text-white/30" />
                 <span>Disponível apenas para corretores e imobiliárias cadastrados.</span>
                 <a href="/login" className="text-gold hover:underline ml-1 text-xs">Entrar</a>
@@ -369,7 +371,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           As melhores unidades são reservadas nos primeiros dias. Fale com um consultor agora.
         </p>
         <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-[#1C1C1C] hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans">
+          className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans">
           <MessageCircle size={15} /> Falar com Consultor
         </a>
       </section>

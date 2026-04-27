@@ -41,7 +41,7 @@ export function PropertyShare({ userId, propertySlug, propertyTitle }: PropertyS
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-center gap-2 w-full py-3 bg-gold/10 border border-gold/40 text-gold hover:bg-gold hover:text-[#1C1C1C] transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-xl"
+        className="flex items-center justify-center gap-2 w-full py-3 bg-gold/10 border border-gold/40 text-gold hover:bg-gold hover:text-foreground transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-xl"
       >
         <Share2 size={13} />
         Compartilhar
