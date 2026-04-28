@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
-import { ImageUpload } from "@/components/ui/ImageUpload"
+import { UploadZone } from "@/components/ui/UploadZone"
 import { Save, Plus, X, Hash, Globe, EyeOff, Sparkles } from "lucide-react"
 import type { PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
@@ -717,8 +717,18 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
       {/* ══ TAB 2: FOTOS ══════════════════════════════════════════ */}
       {activeTab === 2 && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
-          <ImageUpload bucket="property-images" folder={slug || "temp"}
-            value={images} onChange={setImages} maxFiles={40} />
+          <UploadZone
+            bucket="uploads-temp"
+            folder={orgId ? `${orgId}/properties` : "temp"}
+            ownerType="property"
+            ownerId={propertyId}
+            tenantId={orgId ?? undefined}
+            value={images}
+            onChange={setImages}
+            maxFiles={40}
+            acceptMime="image/*"
+            maxSizeMB={30}
+          />
           <div>
             <label className={lc}>URL do Vídeo (YouTube / Vimeo)</label>
             <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}

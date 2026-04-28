@@ -291,6 +291,57 @@ export interface PropertyBoost {
 
 // ── Pagamentos ────────────────────────────────────────────────────────────────
 
+// ── Assets (media pipeline) ───────────────────────────────────────────────────
+
+export type AssetType     = 'image' | 'video' | 'pdf' | 'document'
+export type AssetStatus   = 'processing' | 'ready' | 'error' | 'deleted'
+export type AssetOwner    = 'property' | 'organization' | 'profile' | 'development' | 'pending'
+
+export interface AssetVariant {
+  url: string
+  width?: number
+  height?: number
+  size?: number
+}
+
+export interface Asset {
+  id: string
+  tenant_id: string
+  owner_type: AssetOwner
+  owner_id: string | null
+  type: AssetType
+  mime: string
+  original_name: string
+  size_original: number
+  size_optimized: number | null
+  compression_ratio: number | null
+  width: number | null
+  height: number | null
+  duration: number | null
+  pages: number | null
+  hash: string
+  storage_bucket: string
+  storage_key: string
+  variants: {
+    thumb?:            AssetVariant
+    card?:             AssetVariant
+    detail?:           AssetVariant
+    full?:             AssetVariant
+    original?:         AssetVariant
+    jpg?:              { url: string }
+    blur_placeholder?: string
+    [key: string]: AssetVariant | { url: string } | string | undefined
+  }
+  status: AssetStatus
+  error_msg: string | null
+  metadata: Record<string, unknown>
+  deleted_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ── Pagamentos ────────────────────────────────────────────────────────────────
+
 export type PaymentRecordType = 'implantacao' | 'mensal' | 'landing_page' | 'outro'
 export type PaymentRecordStatus = 'pendente' | 'pago' | 'cancelado'
 

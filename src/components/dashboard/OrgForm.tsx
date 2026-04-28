@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ImageUpload } from "@/components/ui/ImageUpload"
+import { UploadZone } from "@/components/ui/UploadZone"
 import { Save, ExternalLink, Globe, FileText, Image, Flame, CreditCard, Star } from "lucide-react"
 import type { OrgPlan, OrgType, SubscriptionStatus } from "@/types/database"
 import { getPlanName } from "@/lib/plans"
@@ -141,8 +141,10 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
           <Image size={15} className="text-gold" />
           <h2 className="font-serif text-lg font-semibold text-white">Logo</h2>
         </div>
-        <ImageUpload bucket="org-logos" folder={orgId ?? "temp"} value={logoUrls}
-          onChange={(urls) => setLogoUrls(urls.slice(-1))} maxFiles={1} />
+        <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/logo`}
+          ownerType="organization" ownerId={orgId} tenantId={orgId}
+          value={logoUrls} onChange={(urls) => setLogoUrls(urls.slice(-1))}
+          maxFiles={1} acceptMime="image/*" variant="card" />
       </section>
 
       {/* Basic info */}
@@ -289,8 +291,10 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
         </div>
         <div>
           <label className={labelClass}>Imagem de Fundo do Hero</label>
-          <ImageUpload bucket="org-logos" folder={`${orgId ?? "temp"}/hero`} value={heroImageUrls}
-            onChange={(urls) => setHeroImageUrls(urls.slice(-1))} maxFiles={1} />
+          <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/hero`}
+            ownerType="organization" ownerId={orgId} tenantId={orgId}
+            value={heroImageUrls} onChange={(urls) => setHeroImageUrls(urls.slice(-1))}
+            maxFiles={1} acceptMime="image/*" variant="detail" />
         </div>
       </section>
 
@@ -308,8 +312,10 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
         </div>
         <div>
           <label className={labelClass}>Imagem da Seção Sobre</label>
-          <ImageUpload bucket="org-logos" folder={`${orgId ?? "temp"}/about`} value={aboutImageUrls}
-            onChange={(urls) => setAboutImageUrls(urls.slice(-1))} maxFiles={1} />
+          <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/about`}
+            ownerType="organization" ownerId={orgId} tenantId={orgId}
+            value={aboutImageUrls} onChange={(urls) => setAboutImageUrls(urls.slice(-1))}
+            maxFiles={1} acceptMime="image/*" variant="detail" />
         </div>
       </section>
 
