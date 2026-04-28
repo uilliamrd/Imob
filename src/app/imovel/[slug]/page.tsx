@@ -300,10 +300,10 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
             )}
 
             {/* Mobile: price block */}
-            <div className="lg:hidden bg-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between mb-5">
+            <div className="force-light lg:hidden bg-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between mb-5">
               <div>
                 <p className="font-serif text-2xl font-bold text-foreground leading-none">{formatPrice(property.price)}</p>
-                <span className={`text-xs mt-1 font-sans ${STATUS_COLOR[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
+                <span className={`text-xs mt-1 font-sans ${STATUS_COLOR_LIGHT[property.status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
                   {STATUS_LABEL[property.status]}
                 </span>
               </div>
@@ -454,7 +454,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
 
           {/* ── Right: Sticky contact card — desktop only ──── */}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 bg-card border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
+            <div className="force-light sticky top-24 bg-card border border-[rgba(201,169,110,0.25)] rounded-2xl p-6">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans mb-1">
                 Valor
               </p>

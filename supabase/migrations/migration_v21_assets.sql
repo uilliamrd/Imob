@@ -92,6 +92,11 @@ CREATE POLICY "assets_update_own_org" ON public.assets FOR UPDATE
   );
 
 -- Trigger para updated_at
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN NEW.updated_at = now(); RETURN NEW; END;
+$$;
+
 CREATE TRIGGER assets_updated_at
   BEFORE UPDATE ON public.assets
-  FOR EACH ROW EXECUTE FUNCTION moddatetime(updated_at);
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
