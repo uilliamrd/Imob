@@ -42,6 +42,12 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  // /api/admin/* — return JSON 401 if not authenticated
+  if (pathname.startsWith("/api/admin/")) {
+    if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+    return supabaseResponse
+  }
+
   // Protect dashboard routes — redirect to login if not authenticated
   if (pathname.startsWith("/dashboard") && !user) {
     return NextResponse.redirect(new URL("/login", request.url))
