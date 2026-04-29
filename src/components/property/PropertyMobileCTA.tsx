@@ -1,0 +1,66 @@
+"use client"
+
+import { LeadCaptureForm } from "./LeadCaptureForm"
+import { PropertyShare } from "./PropertyShare"
+
+const STATUS_LABEL: Record<string, string> = {
+  disponivel: "Disponível", reserva: "Em Negociação", vendido: "Vendido",
+}
+const STATUS_COLOR: Record<string, string> = {
+  disponivel: "text-emerald-700 bg-emerald-50 border-emerald-300",
+  reserva:    "text-amber-700 bg-amber-50 border-amber-300",
+  vendido:    "text-zinc-500 bg-zinc-100 border-zinc-300",
+}
+
+function formatPrice(price: number) {
+  if (price >= 1_000_000)
+    return "R$ " + (price / 1_000_000).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " Mi"
+  return "R$ " + price.toLocaleString("pt-BR")
+}
+
+interface PropertyMobileCTAProps {
+  price: number
+  status: string
+  propertyId: string
+  propertySlug: string
+  propertyTitle: string
+  orgId: string | null
+  orgWhatsapp: string
+  refId?: string | null
+  userId?: string | null
+}
+
+export function PropertyMobileCTA({
+  price, status, propertyId, propertySlug, propertyTitle, orgId, orgWhatsapp, refId, userId,
+}: PropertyMobileCTAProps) {
+  return (
+    <div className="force-light lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3">
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="font-serif text-2xl font-bold text-foreground leading-none">{formatPrice(price)}</p>
+          <p className={`text-xs mt-0.5 font-sans ${STATUS_COLOR[status] ?? ""} inline-flex px-2 py-0.5 rounded-full border`}>
+            {STATUS_LABEL[status] ?? status}
+          </p>
+        </div>
+        <div className="flex flex-col gap-1.5 flex-shrink-0 w-44">
+          <LeadCaptureForm
+            propertyId={propertyId}
+            propertySlug={propertySlug}
+            propertyTitle={propertyTitle}
+            orgId={orgId}
+            orgWhatsapp={orgWhatsapp}
+            refId={refId}
+            source="imovel"
+          />
+          {userId && (
+            <PropertyShare
+              userId={userId}
+              propertySlug={propertySlug}
+              propertyTitle={propertyTitle}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

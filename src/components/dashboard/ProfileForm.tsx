@@ -1,0 +1,190 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
+import { ImageUpload } from "@/components/ui/ImageUpload"
+import { Save, User, Link as LinkIcon } from "lucide-react"
+
+interface ProfileFormProps {
+  userId: string
+  initialData: {
+    full_name: string
+    whatsapp: string
+    creci: string
+    bio: string
+    avatar_url: string
+    slug?: string
+  }
+}
+
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
+
+export function ProfileForm({ userId, initialData }: ProfileFormProps) {
+  const router = useRouter()
+  const [fullName, setFullName] = useState(initialData.full_name)
+  const [whatsapp, setWhatsapp] = useState(initialData.whatsapp)
+  const [creci, setCreci] = useState(initialData.creci)
+  const [bio, setBio] = useState(initialData.bio)
+  const [slug, setSlug] = useState(initialData.slug ?? "")
+  const [avatarUrls, setAvatarUrls] = useState<string[]>(
+    initialData.avatar_url ? [initialData.avatar_url] : []
+  )
+  const [loading, setLoading] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  function handleNameChange(name: string) {
+    setFullName(name)
+    if (!slug) setSlug(toSlug(name))
+  }
+
+  function handleSlugChange(val: string) {
+    setSlug(val.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-"))
+  }
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const res = await fetch(`/api/profiles/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name: fullName,
+        whatsapp,
+        creci,
+        bio,
+        avatar_url: avatarUrls[0] ?? null,
+        slug: slug || null,
+      }),
+    })
+
+    if (!res.ok) {
+      const d = await res.json()
+      setError(d.error ?? "Erro ao salvar")
+    } else {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+      router.refresh()
+    }
+    setLoading(false)
+  }
+
+  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+
+      {/* Avatar */}
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
+          Foto de Perfil
+        </h2>
+        <div className="flex items-center gap-6">
+          <div className="w-20 h-20 rounded-full border-2 border-gold/20 overflow-hidden flex-shrink-0 bg-muted/50 flex items-center justify-center">
+            {avatarUrls[0] ? (
+              <Image src={avatarUrls[0]} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
+            ) : (
+              <User size={28} className="text-muted-foreground/50" />
+            )}
+          </div>
+          <div className="flex-1">
+            <ImageUpload
+              bucket="avatar-photos"
+              folder={userId}
+              value={avatarUrls}
+              onChange={(urls) => setAvatarUrls(urls.slice(-1))}
+              maxFiles={1}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Info */}
+      <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
+        <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
+          Informações Pessoais
+        </h2>
+
+        <div>
+          <label className={labelClass}>Nome Completo *</label>
+          <input required type="text" value={fullName}
+            onChange={(e) => handleNameChange(e.target.value)}
+            placeholder="João Silva" className={inputClass} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className={labelClass}>WhatsApp</label>
+            <input type="tel" value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              placeholder="+55 11 99999-9999" className={inputClass} />
+            <p className="text-muted-foreground/50 text-xs font-sans mt-1">
+              Usado no minisite quando alguém acessar via seu link
+            </p>
+          </div>
+          <div>
+            <label className={labelClass}>CRECI</label>
+            <input type="text" value={creci}
+              onChange={(e) => setCreci(e.target.value)}
+              placeholder="123456-F" className={inputClass} />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>Bio / Apresentação</label>
+          <textarea value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            placeholder="Especialista em imóveis de alto padrão..."
+            rows={3} className={inputClass + " resize-none"} />
+        </div>
+
+        {/* Slug / URL do minisite */}
+        <div>
+          <label className={labelClass}>URL do Minisite</label>
+          <div className="flex items-center gap-0">
+            <span className="flex items-center gap-1.5 px-3 py-3 bg-muted/30 border border-border border-r-0 rounded-l-lg text-xs font-sans text-muted-foreground/60 whitespace-nowrap">
+              <LinkIcon size={11} />
+              /corretor/
+            </span>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder="joao-silva"
+              className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-r-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+            />
+          </div>
+          <p className="text-muted-foreground/50 text-xs font-sans mt-1">
+            Apenas letras minúsculas, números e hífens. Único por corretor.
+          </p>
+        </div>
+      </section>
+
+      {error && (
+        <p className="text-red-400 text-sm font-sans bg-red-900/10 px-4 py-3 rounded-lg">{error}</p>
+      )}
+
+      <button type="submit" disabled={loading}
+        className="w-full py-3 bg-gold text-graphite hover:bg-gold-light disabled:opacity-50 transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-lg flex items-center justify-center gap-2 font-medium">
+        {loading
+          ? <span className="w-4 h-4 border-2 border-graphite/30 border-t-graphite rounded-full animate-spin" />
+          : saved
+          ? "✓ Salvo com sucesso"
+          : <><Save size={14} /> Salvar Configurações</>}
+      </button>
+    </form>
+  )
+}
