@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     template: "%s — Base Imob",
-    default: "Base Imob | Imóveis de Alto Padrão",
+    default: "Base Imob — Plataforma para Construtoras",
   },
-  description: "Portal de imóveis de alto padrão. Encontre apartamentos, casas e lançamentos com curadoria especializada.",
+  description: "Gerencie empreendimentos, controle estoque, rastreie leads e dispare anúncios profissionais. A plataforma que construtoras escolhem.",
   openGraph: {
     siteName: "Base Imob",
     locale: "pt_BR",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Base Imob" }],
   },
   twitter: { card: "summary_large_image" },
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
 }
 
 export default function RootLayout({

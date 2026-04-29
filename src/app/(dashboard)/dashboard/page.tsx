@@ -17,7 +17,8 @@ import { PageHeader } from "@/components/dashboard/PageHeader"
 import { StatsCard } from "@/components/dashboard/StatsCard"
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed"
 import { BuilderProjectCard } from "@/components/dashboard/BuilderProjectCard"
-import { PropertyCard as PremiumPropertyCard } from "@/components/ui/premium"
+import { BuscarImoveisClient } from "@/components/dashboard/BuscarImoveisClient"
+import type { BuscarProperty, BuscarConstrutora } from "@/components/dashboard/BuscarImoveisClient"
 import type { UserRole, OrgPlan, OrgType, Organization, Property, PropertyFeatures } from "@/types/database"
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -351,255 +352,54 @@ export default async function DashboardPage() {
   // ─────────────────────────────────────────────────────────────────
   const orgId = profile?.organization_id ?? null
 
-  type ConstrRecentItem = {
-    id: string; title: string; slug: string; price: number
-    neighborhood: string | null; city: string | null
-    images: string[] | null; status: string; features: PropertyFeatures; org_id: string | null
-  }
+  type LeadRow = { id: string; name: string | null; source: string | null; created_at: string; property: { title: string } | null }
 
   const [
     { count: myProperties },
     { count: catalogCount },
     { data: construtoras },
-    { data: constrRecent },
+    { data: allPublicProperties },
+    { data: recentLeads },
+    { count: equipeCount },
   ] = await Promise.all([
     adminClient.from("properties").select("*", { count: "exact", head: true }).eq("created_by", user.id),
     supabase.from("property_listings").select("*", { count: "exact", head: true })
       .eq(role === "imobiliaria" ? "org_id" : "user_id", role === "imobiliaria" ? (orgId ?? "") : user.id),
     adminClient.from("organizations").select("id, name, slug, logo, brand_colors")
       .eq("type", "construtora").not("slug", "is", null),
+    // Todos os imóveis públicos com join de organização (reutiliza padrão da vitrine)
     adminClient.from("properties")
-      .select("id, title, slug, price, neighborhood, city, images, status, features, org_id")
-      .not("org_id", "is", null).eq("visibility", "publico")
-      .order("created_at", { ascending: false }).limit(6),
+      .select("id, code, title, slug, price, neighborhood, city, images, status, org_id, features, tipo_negocio, tags, categoria, organization:organizations(id, name, slug, logo, brand_colors)")
+      .eq("visibility", "publico")
+      .order("created_at", { ascending: false }),
+    adminClient
+      .from("leads")
+      .select("id, name, source, created_at, property:properties(title)")
+      .eq(role === "imobiliaria" && orgId ? "org_id" : "corretor_id", role === "imobiliaria" && orgId ? orgId : user.id)
+      .order("created_at", { ascending: false })
+      .limit(5) as unknown as Promise<{ data: LeadRow[] | null }>,
+    role === "imobiliaria" && orgId
+      ? adminClient.from("profiles").select("*", { count: "exact", head: true })
+          .eq("organization_id", orgId).eq("role", "corretor")
+      : Promise.resolve({ count: 0 }),
   ])
 
-  const { count: selectionsCount } = role === "corretor"
-    ? await supabase.from("selections").select("*", { count: "exact", head: true }).eq("corretor_id", user.id)
-    : { count: 0 }
-
-  // Recent leads for ActivityFeed
-  type LeadRow = { id: string; name: string | null; source: string | null; created_at: string; property: { title: string } | null }
-  const { data: recentLeads } = await adminClient
-    .from("leads")
-    .select("id, name, source, created_at, property:properties(title)")
-    .eq(role === "imobiliaria" && orgId ? "org_id" : "corretor_id", role === "imobiliaria" && orgId ? orgId : user.id)
-    .order("created_at", { ascending: false })
-    .limit(5) as { data: LeadRow[] | null }
-
-  const { count: equipeCount } = role === "imobiliaria" && orgId
-    ? await adminClient.from("profiles").select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId).eq("role", "corretor")
-    : { count: 0 }
-
-  const { data: recentProperties } = role === "corretor"
-    ? await adminClient.from("properties")
-        .select("id, title, slug, price, neighborhood, city, images, status, org_id")
-        .eq("visibility", "publico").order("created_at", { ascending: false }).limit(6)
-    : { data: null }
-
-  const construtorasList = (construtoras ?? []) as Array<Organization & { id: string; name: string; slug: string | null; logo: string | null; brand_colors: Organization["brand_colors"] }>
-  const constrRecentList = (constrRecent ?? []) as ConstrRecentItem[]
-  const recentList       = (recentProperties ?? []) as Array<Pick<Property, "id" | "title" | "slug" | "price" | "neighborhood" | "city" | "images" | "status" | "org_id">>
-
-  const heroTitle = role === "imobiliaria" ? "Performance da Equipe" : "Seus Próximos Negócios"
-  const heroSub   = role === "imobiliaria"
-    ? "Acompanhe leads, catálogo e corretores em tempo real."
-    : "Seu catálogo, seleções e oportunidades de negócio."
-  const heroCta   = role === "imobiliaria"
-    ? { label: "Gerenciar equipe",   href: "/dashboard/equipe"        }
-    : { label: "Cadastrar imóvel",   href: "/dashboard/imoveis/novo"  }
-
-  const quickLinks = role === "imobiliaria"
-    ? [
-        { href: "/dashboard/vitrine",  title: "Base de Imóveis", desc: "Todos os imóveis",          icon: Globe         },
-        { href: "/dashboard/catalogo", title: "Vitrine",         desc: "Imóveis do seu minisite",   icon: ListChecks    },
-        { href: "/dashboard/equipe",   title: "Minha Equipe",    desc: "Gerenciar corretores",      icon: Users         },
-        { href: "/dashboard/leads",    title: "Leads",           desc: "Contatos recebidos",        icon: MessageSquare },
-      ]
-    : [
-        { href: "/dashboard/vitrine",  title: "Base de Imóveis", desc: "Todos os imóveis",          icon: Globe         },
-        { href: "/dashboard/catalogo", title: "Vitrine",         desc: "Imóveis do seu minisite",   icon: ListChecks    },
-        { href: "/dashboard/selecoes", title: "Seleções",        desc: "Curadoria para clientes",   icon: BookOpen      },
-        { href: "/dashboard/leads",    title: "Leads",           desc: "Contatos recebidos",        icon: MessageSquare },
-      ]
-
-  const commandItems = [
-    ...((!profile?.whatsapp || !profile?.creci) && role === "corretor"
-      ? [{ label: "Completar perfil (WhatsApp / CRECI)", href: "/dashboard/configuracoes" }]
-      : []
-    ),
-    { label: "Responder leads pendentes",        href: "/dashboard/leads"     },
-    { label: "Revisar catálogo de imóveis",      href: "/dashboard/catalogo"  },
-    { label: "Atualizar imóveis desatualizados", href: "/dashboard/vitrine"   },
-    { label: "Compartilhar seleção com cliente", href: "/dashboard/selecoes"  },
-  ].slice(0, 5)
-
-  const roleLabel = role === "imobiliaria" ? "Imobiliária" : role === "corretor" ? "Corretor" : "Secretária"
+  const construtorasList  = (construtoras ?? []) as BuscarConstrutora[]
+  const propertiesForGrid = (allPublicProperties ?? []).map((p) => ({
+    ...p,
+    organization: Array.isArray(p.organization) ? (p.organization[0] ?? null) : p.organization,
+  })) as unknown as BuscarProperty[]
 
   return (
     <div className="px-6 py-8 lg:px-8 max-w-7xl space-y-8">
 
-      {/* ── Page header ───────────────────────────────── */}
-      <PageHeader
-        title={heroTitle}
-        subtitle={heroSub}
-        category={roleLabel}
-        actions={
-          <Link href={heroCta.href}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--gold)] text-[#0F0F0F] hover:bg-[var(--gold-light)] text-[11px] uppercase tracking-[0.15em] font-sans rounded-xl transition-all duration-200 shadow-md shadow-[var(--gold)]/20 font-medium"
-          >
-            <Zap size={12} />
-            {heroCta.label}
-          </Link>
-        }
+      {/* ── Buscar Imóveis ────────────────────────────── */}
+      <BuscarImoveisClient
+        properties={propertiesForGrid}
+        construtoras={construtorasList}
+        role={role as "corretor" | "imobiliaria"}
+        userName={firstName}
       />
-
-      {/* ── 4 KPI cards ───────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="Imóveis no Catálogo" value={catalogCount ?? 0}    icon={ListChecks}    iconColor="gold"   />
-        <StatsCard title="Imóveis Cadastrados" value={myProperties ?? 0}    icon={Home}          iconColor="muted"  />
-        {role === "imobiliaria"
-          ? <StatsCard title="Corretores Ativos"  value={equipeCount ?? 0}     icon={Users}         iconColor="forest" />
-          : <StatsCard title="Seleções Criadas"   value={selectionsCount ?? 0} icon={Link2}         iconColor="forest" />
-        }
-        <StatsCard title="Leads Recebidos"     value="Ver →"               icon={MessageSquare} iconColor="muted"  href="/dashboard/leads" />
-      </div>
-
-      {/* ── Editorial row: quick links + command center ── */}
-      <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 grid grid-cols-2 gap-3">
-          {quickLinks.map((l) => (
-            <QuickLink key={l.href} {...l} />
-          ))}
-        </div>
-        <CommandCenter items={commandItems} />
-      </div>
-
-      {/* ── Profile hint — corretor ────────────────────── */}
-      {role === "corretor" && (!profile?.whatsapp || !profile?.creci) && (
-        <div className="bg-gradient-to-r from-gold/8 to-transparent border border-gold/20 rounded-2xl p-5 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-gold text-[13px] font-sans font-semibold">Complete seu perfil</p>
-            <p className="text-muted-foreground text-[11px] font-sans mt-0.5">
-              Adicione WhatsApp e CRECI para aparecerem no seu minisite.
-            </p>
-          </div>
-          <Link href="/dashboard/minisite"
-            className="flex items-center gap-1.5 px-4 py-2 border border-gold/30 text-gold text-[11px] uppercase tracking-wider font-sans hover:bg-gold/10 transition-colors rounded-xl flex-shrink-0 whitespace-nowrap">
-            Completar <ArrowRight size={11} />
-          </Link>
-        </div>
-      )}
-
-      {/* ── Construtoras Parceiras ─────────────────────── */}
-      {construtorasList.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-gold/60 font-sans">Construtoras Parceiras</p>
-              <p className="font-serif text-foreground text-base font-semibold mt-0.5">Empreendimentos em Destaque</p>
-            </div>
-          </div>
-          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none">
-            {construtorasList.map((org) => {
-              const accent = org.brand_colors?.primary ?? "#C4A052"
-              return (
-                <a key={org.id} href={`/construtora/${org.slug}`} target="_blank" rel="noopener noreferrer"
-                  className="flex-shrink-0 flex items-center gap-2.5 bg-card border border-border rounded-xl px-4 py-2.5 hover:border-gold/30 hover:shadow-sm dark:hover:shadow-none transition-all group"
-                >
-                  {org.logo ? (
-                    <Image src={org.logo} alt={org.name} width={72} height={20} className="h-5 w-auto object-contain" />
-                  ) : (
-                    <div className="w-5 h-5 rounded flex items-center justify-center" style={{ backgroundColor: accent + "20" }}>
-                      <Building2 size={10} style={{ color: accent }} />
-                    </div>
-                  )}
-                  <span className="text-foreground/70 text-[13px] font-sans group-hover:text-foreground transition-colors whitespace-nowrap">{org.name}</span>
-                  <ExternalLink size={10} className="text-muted-foreground/30 group-hover:text-gold/50 transition-colors" />
-                </a>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ── Unidades Recentes de Construtoras ─────────── */}
-      {constrRecentList.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp size={13} className="text-gold/60" />
-              <p className="text-[10px] uppercase tracking-[0.25em] text-gold/60 font-sans">Unidades Recentes</p>
-            </div>
-            <Link href="/dashboard/vitrine" className="text-muted-foreground hover:text-gold text-[11px] font-sans transition-colors">
-              Ver todas →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {constrRecentList.map((p) => (
-              <PremiumPropertyCard
-                key={p.id}
-                id={p.id}
-                slug={p.slug}
-                title={p.title}
-                price={p.price}
-                neighborhood={p.neighborhood}
-                city={p.city}
-                images={p.images ?? []}
-                quartos={(p.features as PropertyFeatures | undefined)?.suites ?? (p.features as PropertyFeatures | undefined)?.dormitorios ?? null}
-                vagas={(p.features as PropertyFeatures | undefined)?.vagas ?? null}
-                area_m2={(p.features as PropertyFeatures | undefined)?.area_m2 ?? null}
-                statusBadge={{
-                  label: { disponivel: "Disponível", reserva: "Reserva", vendido: "Vendido" }[p.status] ?? p.status,
-                  className: {
-                    disponivel: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
-                    reserva:    "text-amber-600 bg-amber-500/10 border-amber-500/30",
-                    vendido:    "text-muted-foreground bg-muted border-border",
-                  }[p.status] ?? "text-muted-foreground bg-muted border-border",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Recém Adicionados — corretor only ─────────── */}
-      {role === "corretor" && recentList.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Clock size={13} className="text-gold/60" />
-              <p className="text-[10px] uppercase tracking-[0.25em] text-gold/60 font-sans">Recém Adicionados</p>
-            </div>
-            <Link href="/dashboard/vitrine" className="text-muted-foreground hover:text-gold text-[11px] font-sans transition-colors">
-              Ver todos →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {recentList.map((p) => (
-              <PremiumPropertyCard
-                key={p.id}
-                id={p.id}
-                slug={p.slug}
-                title={p.title}
-                price={p.price}
-                neighborhood={p.neighborhood}
-                city={p.city}
-                images={p.images ?? []}
-                statusBadge={{
-                  label: { disponivel: "Disponível", reserva: "Reserva", vendido: "Vendido" }[(p as RecentProp).status] ?? (p as RecentProp).status,
-                  className: {
-                    disponivel: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
-                    reserva:    "text-amber-600 bg-amber-500/10 border-amber-500/30",
-                    vendido:    "text-muted-foreground bg-muted border-border",
-                  }[(p as RecentProp).status] ?? "text-muted-foreground bg-muted border-border",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── Minisite CTA ──────────────────────────────── */}
       <div className="bg-gradient-to-r from-card to-muted/30 border border-border/60 rounded-2xl p-5 flex items-center justify-between gap-4">
@@ -655,14 +455,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       )}
-
-      {/* ── Plan usage ────────────────────────────────── */}
-      <PlanUsage
-        role={role}
-        plan={profilePlan}
-        orgType={orgId ? (role === "imobiliaria" ? "imobiliaria" as OrgType : null) : null}
-        counts={{ properties: myProperties ?? 0, developments: 0, corretores: equipeCount ?? 0 }}
-      />
 
     </div>
   )

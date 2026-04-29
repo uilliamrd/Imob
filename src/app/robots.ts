@@ -6,8 +6,14 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
-        disallow: ["/dashboard/", "/api/", "/_next/", "/register", "/login"],
+        // LPs públicas via link direto devem ser indexáveis
+        allow: [
+          "/empreendimentos/",
+          "/construtora/",
+          "/imobiliaria/",
+          "/corretor/",
+        ],
+        disallow: ["/"],
       },
     ],
     sitemap: `${base}/sitemap.xml`,

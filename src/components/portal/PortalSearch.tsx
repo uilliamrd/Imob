@@ -7,7 +7,7 @@ import {
   Search, X, SlidersHorizontal, Building2, Home, ChevronDown, ChevronUp, Sparkles
 } from "lucide-react"
 import { PropertyCard, EmptyState } from "@/components/ui/premium"
-import type { PortalProperty, PortalOrg } from "@/app/(portal)/page"
+import type { PortalProperty, PortalOrg } from "@/types/portal"
 
 interface Props {
   properties: PortalProperty[]

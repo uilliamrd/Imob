@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { BuilderCard } from "./BuilderCard"
-import type { PortalOrg } from "@/app/(portal)/page"
+import type { PortalOrg } from "@/types/portal"
 
 interface Props {
   construtoras: PortalOrg[]

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { Building2, Star } from "lucide-react"
-import type { PortalOrg } from "@/app/(portal)/page"
+import type { PortalOrg } from "@/types/portal"
 
 interface Props {
   construtoras: PortalOrg[]

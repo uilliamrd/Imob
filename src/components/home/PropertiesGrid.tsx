@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/premium/EmptyState"
 import { SkeletonCard } from "@/components/ui/premium/SkeletonCard"
 import { IntentChip } from "@/components/ui/premium/IntentChip"
 import { Search } from "lucide-react"
-import type { PortalProperty } from "@/app/(portal)/page"
+import type { PortalProperty } from "@/types/portal"
 
 const PAGE_SIZE = 9
 

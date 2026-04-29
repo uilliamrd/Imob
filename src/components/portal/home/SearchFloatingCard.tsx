@@ -1,7 +1,7 @@
 "use client"
 
 import { Search, X, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react"
-import type { PortalOrg } from "@/app/(portal)/page"
+import type { PortalOrg } from "@/types/portal"
 
 const CATEGORIAS = [
   "Apartamento", "Casa", "Casa em Condomínio", "Cobertura",

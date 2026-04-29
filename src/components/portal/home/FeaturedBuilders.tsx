@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Building2, ChevronRight, ArrowRight } from "lucide-react"
-import type { PortalOrg } from "@/app/(portal)/page"
+import type { PortalOrg } from "@/types/portal"
 
 interface Props {
   construtoras: PortalOrg[]

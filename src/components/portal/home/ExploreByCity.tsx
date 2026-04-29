@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { MapPin } from "lucide-react"
-import type { PortalProperty } from "@/app/(portal)/page"
+import type { PortalProperty } from "@/types/portal"
 
 interface Props {
   properties: PortalProperty[]

@@ -11,7 +11,7 @@ import { PropertiesGrid } from "./PropertiesGrid"
 import { MapSection } from "./MapSection"
 import { SeoContent } from "./SeoContent"
 import { FinalCTA } from "./FinalCTA"
-import type { PortalProperty, PortalOrg } from "@/app/(portal)/page"
+import type { PortalProperty, PortalOrg } from "@/types/portal"
 
 export interface HomeFilters {
   tab: "comprar" | "alugar" | "lancamentos"

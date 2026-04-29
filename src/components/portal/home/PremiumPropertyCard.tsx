@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { MapPin, Maximize2, BedDouble, Car, Sparkles, Star } from "lucide-react"
-import type { PortalProperty } from "@/app/(portal)/page"
+import type { PortalProperty } from "@/types/portal"
 import { CompareToggleButton } from "@/components/property/CompareToggleButton"
 
 function formatPrice(p: number) {

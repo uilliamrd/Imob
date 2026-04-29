@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { Home } from "lucide-react"
 import { PremiumPropertyCard } from "./PremiumPropertyCard"
-import type { PortalProperty } from "@/app/(portal)/page"
+import type { PortalProperty } from "@/types/portal"
 
 interface Props {
   properties: PortalProperty[]

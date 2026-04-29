@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { PropertyCard } from "@/components/ui/premium/PropertyCard"
-import type { PortalProperty } from "@/app/(portal)/page"
+import type { PortalProperty } from "@/types/portal"
 
 interface Props {
   properties: PortalProperty[]

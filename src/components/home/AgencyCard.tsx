@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { BadgeCheck, Building } from "lucide-react"
-import type { PortalOrg } from "@/app/(portal)/page"
+import type { PortalOrg } from "@/types/portal"
 
 interface Props {
   org: PortalOrg

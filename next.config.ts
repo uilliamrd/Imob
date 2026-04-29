@@ -6,10 +6,12 @@ const SUPABASE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 // Content-Security-Policy
 // - script-src 'unsafe-inline' required by Next.js inline scripts
+// - 'unsafe-eval' required by React in development mode only
 // - connect-src includes Supabase REST + realtime (wss)
+const isDev = process.env.NODE_ENV === "development"
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' https: data: blob:`,
   `connect-src 'self' https://${SUPABASE_HOST} wss://${SUPABASE_HOST} https://*.supabase.co wss://*.supabase.co`,
@@ -45,6 +47,11 @@ const nextConfig: NextConfig = {
       // Supabase Storage
       { protocol: "https", hostname: "*.supabase.co" },
       { protocol: "https", hostname: "*.supabase.in" },
+      // Imagens externas usadas em propriedades e perfis
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+      { protocol: "https", hostname: "*.googleapis.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
 };

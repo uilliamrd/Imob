@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { PortalProperty, PortalOrg } from "@/app/(portal)/page"
+import type { PortalProperty, PortalOrg } from "@/types/portal"
 import { HeroSection } from "@/components/portal/home/HeroSection"
 import { SearchFloatingCard } from "@/components/portal/home/SearchFloatingCard"
 import { FeaturedBuilders } from "@/components/portal/home/FeaturedBuilders"

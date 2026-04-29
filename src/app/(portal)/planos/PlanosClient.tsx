@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Check, X, ChevronDown, Sparkles, Building2, Users, User, Zap } from "lucide-react"
+import { Check, X, ChevronDown, Sparkles, Building2, Users, User, Zap, Shield, Send, Globe, BarChart2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PLAN_PRICES, PLAN_FEATURES } from "@/lib/plans"
 import type { PlanEntityType } from "@/lib/plans"
@@ -18,9 +18,18 @@ const ANNUAL_DISCOUNT = 0.20
 // ── Tab / Entity config ───────────────────────────────────────────────────────
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: "construtora", label: "Construtora", icon: Building2 },
   { id: "corretor",    label: "Corretor",    icon: User      },
   { id: "imobiliaria", label: "Imobiliária", icon: Users     },
-  { id: "construtora", label: "Construtora", icon: Building2 },
+]
+
+const CONSTRUTORA_FEATURES: { icon: React.ElementType; title: string }[] = [
+  { icon: Building2,  title: "Controle de estoque em tempo real"       },
+  { icon: Shield,     title: "Anti-pelota: rastreie cada lead"          },
+  { icon: Send,       title: "Anúncios automáticos e profissionais"     },
+  { icon: Globe,      title: "Landing pages e minisites inclusos"       },
+  { icon: Users,      title: "Rede de corretores e imobiliárias"        },
+  { icon: BarChart2,  title: "Analytics e relatórios de vendas"         },
 ]
 
 // ── Plan display config ───────────────────────────────────────────────────────
@@ -87,7 +96,7 @@ function fmtVal(v: boolean | number | null): React.ReactNode {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function PlanosClient() {
-  const [tab, setTab]         = useState<Tab>("corretor")
+  const [tab, setTab]         = useState<Tab>("construtora")
   const [billing, setBilling] = useState<BillingCycle>("mensal")
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
@@ -109,11 +118,10 @@ export function PlanosClient() {
           <span className="text-xs font-sans text-[var(--gold)] uppercase tracking-[0.2em]">Planos e Preços</span>
         </div>
         <h1 className="font-serif text-3xl lg:text-5xl font-bold text-foreground mb-4">
-          Escolha o plano certo
-          <br className="hidden lg:block" /> para o seu negócio
+          Planos para construtoras
         </h1>
         <p className="text-muted-foreground font-sans text-base lg:text-lg max-w-xl mx-auto">
-          Da carteira individual ao portfólio corporativo — temos o plano ideal para cada etapa do seu crescimento.
+          Gerencie empreendimentos, controle estoque e venda mais com inteligência.
         </p>
       </div>
 
@@ -297,6 +305,31 @@ export function PlanosClient() {
           ))}
         </div>
       </div>
+
+      {/* ── Por que construtoras escolhem Base Imob ────────────────────────── */}
+      {tab === "construtora" && (
+        <div className="mb-16">
+          <h2 className="font-serif text-2xl lg:text-3xl font-bold text-foreground mb-2 text-center">
+            Por que construtoras escolhem Base Imob
+          </h2>
+          <p className="text-muted-foreground font-sans text-sm text-center mb-10">
+            Tudo que você precisa para vender mais, em um só lugar.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {CONSTRUTORA_FEATURES.map(({ icon: Icon, title }) => (
+              <div
+                key={title}
+                className="bg-card border border-border rounded-2xl p-5 flex items-start gap-4 shadow-sm hover:border-[var(--gold)]/30 transition-colors"
+              >
+                <div className="p-2 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/15 shrink-0">
+                  <Icon size={16} className="text-[var(--gold)]" />
+                </div>
+                <p className="text-sm font-sans font-medium text-foreground leading-snug">{title}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── FAQ ────────────────────────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto">
