@@ -13,10 +13,10 @@ async function getAuth() {
   const admin = createAdminClient()
   const { data: p, error: pErr } = await admin
     .from("profiles")
-    .select("role, organization_id, organization:organizations(id, type, plan)")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single()
-  console.log("[developments] getAuth role:", p?.role, "err:", pErr?.message)
+  console.log("[developments] getAuth:", { role: p?.role, err: pErr?.message })
   if (!p || !ALLOWED_ROLES.includes(p.role)) return null
   return { admin, userId: user.id, profile: p }
 }
@@ -27,13 +27,21 @@ export async function POST(request: Request) {
 
   // Verificar limite de lançamentos do plano (admins são isentos)
   if (auth.profile.role !== "admin") {
-    const org = auth.profile.organization as unknown as { id: string; type: OrgType; plan: OrgPlan } | null
+    const orgId = auth.profile.organization_id
+    let org: { id: string; type: OrgType; plan: OrgPlan } | null = null
+    if (orgId) {
+      const { data: orgData } = await auth.admin
+        .from("organizations")
+        .select("id, type, plan")
+        .eq("id", orgId)
+        .single()
+      if (orgData) org = orgData as unknown as { id: string; type: OrgType; plan: OrgPlan }
+    }
     const entityType = resolveEntityType(auth.profile.role, org?.type ?? null)
     const plan = (org?.plan ?? "free") as OrgPlan
     const limits = getPlanLimits(entityType, plan)
 
     if (limits.max_developments !== null && limits.max_developments > 0) {
-      const orgId = auth.profile.organization_id
       if (orgId) {
         const { count } = await auth.admin
           .from("developments")
