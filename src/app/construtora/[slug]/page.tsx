@@ -118,7 +118,6 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
         developments={developments}
         refId={ref}
         initialSection={section}
-        whatsapp={whatsapp}
       />
       <Footer orgName={org.name} website={org.website} whatsapp={whatsapp} />
       <CorretorMinisite defaultWhatsapp={whatsapp} defaultName={org.name} defaultPhoto={org.logo ?? undefined} />

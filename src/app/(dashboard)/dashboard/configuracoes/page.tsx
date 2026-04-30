@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { requireAuth } from "@/lib/auth"
 import { ProfileForm } from "@/components/dashboard/ProfileForm"
+import { PasswordChangeForm } from "@/components/dashboard/PasswordChangeForm"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 import { Settings } from "lucide-react"
 
@@ -14,8 +15,11 @@ export default async function ConfiguracoesPage() {
     .eq("id", user.id)
     .single()
 
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const email = authUser?.email ?? ""
+
   return (
-    <div className="px-4 py-6 lg:p-8 max-w-2xl">
+    <div className="px-4 py-6 lg:p-8 max-w-2xl space-y-8">
       <PageHeader icon={Settings} category="Conta" title="Configurações" />
 
       <ProfileForm
@@ -28,6 +32,8 @@ export default async function ConfiguracoesPage() {
           avatar_url: profile?.avatar_url ?? "",
         }}
       />
+
+      <PasswordChangeForm email={email} />
     </div>
   )
 }

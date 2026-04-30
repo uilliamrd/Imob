@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { Save, User, Link as LinkIcon } from "lucide-react"
+import { useToast } from "@/lib/toast-context"
 
 interface ProfileFormProps {
   userId: string
@@ -31,6 +32,7 @@ function toSlug(name: string): string {
 
 export function ProfileForm({ userId, initialData }: ProfileFormProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [fullName, setFullName] = useState(initialData.full_name)
   const [whatsapp, setWhatsapp] = useState(initialData.whatsapp)
   const [creci, setCreci] = useState(initialData.creci)
@@ -72,24 +74,27 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
 
     if (!res.ok) {
       const d = await res.json()
-      setError(d.error ?? "Erro ao salvar")
+      const msg = d.error ?? "Erro ao salvar. Tente novamente."
+      setError(msg)
+      toast(msg, "error")
     } else {
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
+      toast("Alterações salvas!", "success")
       router.refresh()
     }
     setLoading(false)
   }
 
-  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
+  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--gold)]/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans font-medium block mb-2"
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
 
       {/* Avatar */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
-        <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
+        <h2 className="font-serif text-lg font-semibold text-foreground border-b border-border pb-4">
           Foto de Perfil
         </h2>
         <div className="flex items-center gap-6">
@@ -114,7 +119,7 @@ export function ProfileForm({ userId, initialData }: ProfileFormProps) {
 
       {/* Info */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
-        <h2 className="font-serif text-lg font-semibold text-white border-b border-border pb-4">
+        <h2 className="font-serif text-lg font-semibold text-foreground border-b border-border pb-4">
           Informações Pessoais
         </h2>
 

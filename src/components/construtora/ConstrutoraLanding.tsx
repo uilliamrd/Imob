@@ -4,7 +4,7 @@ import { useState, useRef } from "react"
 import Image from "next/image"
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, Building2, Flame, CheckCircle, MapPin } from "lucide-react"
+import { ChevronDown, BedDouble, Car, Maximize2, ArrowRight, Building2, Flame, CheckCircle, MapPin, Users } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
 import type { Organization, Property, Development } from "@/types/database"
@@ -29,10 +29,10 @@ interface Props {
   developments: Development[]
   refId?: string
   initialSection?: string
-  whatsapp: string
+  whatsapp?: string
 }
 
-export function ConstrutoraLanding({ org, properties, developments, refId, whatsapp }: Props) {
+export function ConstrutoraLanding({ org, properties, developments, refId }: Props) {
   const [activeSection, setActiveSection] = useState<Section>("sobre")
   const [unitFilter, setUnitFilter] = useState("todos")
   const heroRef = useRef<HTMLDivElement>(null)
@@ -57,8 +57,6 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
     ] as { id: Section; label: string; show: boolean }[]
   ).filter((n) => n.show)
 
-  const waMsgDefault = encodeURIComponent(`Olá! Tenho interesse nos empreendimentos ${org.name}.`)
-  const waMsgLanc = encodeURIComponent(`Olá! Tenho interesse nos lançamentos da ${org.name}.`)
 
   function scrollToContent() {
     document.getElementById("content")?.scrollIntoView({ behavior: "smooth" })
@@ -149,7 +147,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
       <div id="content">
         <AnimatePresence mode="wait">
           {activeSection === "sobre" && (
-            <SobreSection key="sobre" org={org} whatsapp={whatsapp} waMsgDefault={waMsgDefault} />
+            <SobreSection key="sobre" org={org} />
           )}
           {activeSection === "portfolio" && (
             <PortfolioSection key="portfolio" developments={delivered} />
@@ -160,21 +158,24 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
               developments={developments} />
           )}
           {activeSection === "lancamentos" && org.has_lancamentos && (
-            <LancamentosSection key="lancamentos" developments={lancamentos} whatsapp={whatsapp} waMsgLanc={waMsgLanc} />
+            <LancamentosSection key="lancamentos" developments={lancamentos} />
           )}
         </AnimatePresence>
       </div>
 
       {/* ── CTA ───────────────────────────────────────────────── */}
       <section className="py-16 md:py-28 px-5 bg-foreground text-center border-t border-white/5">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-gold/80 font-sans mb-3">Entre em Contato</p>
+        <p className="text-[10px] uppercase tracking-[0.4em] text-gold/80 font-sans mb-3">Pronto para dar o próximo passo?</p>
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-5">
-          Pronto para <span className="italic" style={{ color: "#C9A96E" }}>dar o próximo passo?</span>
+          Fale com um <span className="italic" style={{ color: "#C9A96E" }}>Corretor Especialista</span>
         </h2>
-        <a href={`https://wa.me/${whatsapp}?text=${waMsgDefault}`} target="_blank" rel="noopener noreferrer"
+        <p className="text-white/50 font-sans text-base mb-8 max-w-md mx-auto">
+          Negócios imobiliários são realizados por nossos corretores parceiros credenciados.
+        </p>
+        <Link href="/corretores"
           className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans mt-2">
-          <MessageCircle size={15} /> Falar com Consultor
-        </a>
+          <Users size={15} /> Ver Corretores Parceiros
+        </Link>
       </section>
     </>
   )
@@ -182,7 +183,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId, whats
 
 // ── Sub-sections ─────────────────────────────────────────────
 
-function SobreSection({ org, whatsapp, waMsgDefault }: { org: Organization; whatsapp: string; waMsgDefault: string }) {
+function SobreSection({ org }: { org: Organization }) {
   const ref = useRef(null)
   useInView(ref, { once: true, margin: "-80px" })
   return (
@@ -212,10 +213,10 @@ function SobreSection({ org, whatsapp, waMsgDefault }: { org: Organization; what
             ? <Image src={org.logo} alt={org.name} width={200} height={80} className="max-h-20 w-auto object-contain opacity-80" />
             : null
           }
-          <a href={`https://wa.me/${whatsapp}?text=${waMsgDefault}`} target="_blank" rel="noopener noreferrer"
+          <Link href="/corretores"
             className="flex items-center gap-2 px-8 py-3.5 bg-gold text-foreground hover:bg-gold-light transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans w-full sm:w-auto justify-center">
-            <MessageCircle size={14} /> Falar Conosco
-          </a>
+            <Users size={14} /> Falar com um Corretor
+          </Link>
         </div>
       </div>
     </motion.section>
@@ -486,8 +487,8 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
   )
 }
 
-function LancamentosSection({ developments, whatsapp, waMsgLanc }:
-  { developments: Development[]; whatsapp: string; waMsgLanc: string }) {
+function LancamentosSection({ developments }:
+  { developments: Development[] }) {
   return (
     <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
       className="py-12 md:py-20 px-4 md:px-6 bg-[#0a0a0a]">
@@ -530,10 +531,10 @@ function LancamentosSection({ developments, whatsapp, waMsgLanc }:
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-gold text-gold hover:bg-gold hover:text-foreground transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans">
                   <ArrowRight size={13} /> Ver Unidades
                 </Link>
-                <a href={`https://wa.me/${whatsapp}?text=${waMsgLanc}`} target="_blank" rel="noopener noreferrer"
+                <Link href="/corretores"
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gold text-foreground hover:bg-gold-light transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans">
-                  <MessageCircle size={13} /> Quero Saber Mais
-                </a>
+                  <Users size={13} /> Falar com Corretor
+                </Link>
               </div>
             </div>
           </div>

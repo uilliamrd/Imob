@@ -6,6 +6,7 @@ import { Plus, X, ChevronDown, ChevronUp, Save, Trash2, Building2, Flame, CheckC
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
 import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/lib/toast-context"
 import type { Development } from "@/types/database"
 
 type DocEntry = { name: string; url: string; type: string }
@@ -26,6 +27,7 @@ const emptyForm = {
 }
 
 export function DevelopmentsManager({ developments: initial, orgId, orgs = [], bairros = [] }: DevelopmentsManagerProps) {
+  const { toast } = useToast()
   const [devs, setDevs] = useState(initial)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [showNew, setShowNew] = useState(false)
@@ -72,68 +74,97 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
     setUploadingDoc(false)
   }
 
-  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5"
+  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--gold)]/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans font-medium block mb-1.5"
 
   async function createDev() {
     if (!newForm.name.trim()) return
     setSaving(true)
-    const res = await fetch("/api/admin/developments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...newForm,
-        org_id: newOrgId || orgId || null,
-        images: newImages,
-        cover_image: newImages[0] ?? null,
-        custom_page_html: newCustomHtml || null,
-        custom_page_type: newCustomType,
-        documents: newDocuments,
-      }),
-    })
-    const data = await res.json()
-    if (res.ok) {
-      setDevs((prev) => [data as Development, ...prev])
-      setNewForm(emptyForm)
-      setNewImages([])
-      setNewCustomHtml("")
-      setNewCustomType(null)
-      setNewDocuments([])
-      setShowNew(false)
+    try {
+      const res = await fetch("/api/admin/developments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newForm,
+          org_id: newOrgId || orgId || null,
+          images: newImages,
+          cover_image: newImages[0] ?? null,
+          custom_page_html: newCustomHtml || null,
+          custom_page_type: newCustomType,
+          documents: newDocuments,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setDevs((prev) => [data as Development, ...prev])
+        setNewForm(emptyForm)
+        setNewImages([])
+        setNewCustomHtml("")
+        setNewCustomType(null)
+        setNewDocuments([])
+        setShowNew(false)
+        toast("Empreendimento criado com sucesso!", "success")
+      } else {
+        toast(data.error ?? "Erro ao criar empreendimento. Tente novamente.", "error")
+      }
+    } catch (err) {
+      console.error("[createDev]", err)
+      toast("Erro de conexão. Tente novamente.", "error")
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   async function updateDev(id: string) {
     setSaving(true)
-    const images = editImages[id] ?? devs.find((d) => d.id === id)?.images ?? []
-    const customHtml = id in editCustomHtml ? editCustomHtml[id] : (devs.find((d) => d.id === id)?.custom_page_html ?? null)
-    const customType = id in editCustomType ? editCustomType[id] : (devs.find((d) => d.id === id)?.custom_page_type ?? null)
-    const documents = editDocuments[id] ?? devs.find((d) => d.id === id)?.documents ?? []
-    const patch = {
-      ...editForms[id],
-      images,
-      cover_image: images[0] ?? null,
-      custom_page_html: customHtml || null,
-      custom_page_type: customType,
-      documents,
+    try {
+      const images = editImages[id] ?? devs.find((d) => d.id === id)?.images ?? []
+      const customHtml = id in editCustomHtml ? editCustomHtml[id] : (devs.find((d) => d.id === id)?.custom_page_html ?? null)
+      const customType = id in editCustomType ? editCustomType[id] : (devs.find((d) => d.id === id)?.custom_page_type ?? null)
+      const documents = editDocuments[id] ?? devs.find((d) => d.id === id)?.documents ?? []
+      const patch = {
+        ...editForms[id],
+        images,
+        cover_image: images[0] ?? null,
+        custom_page_html: customHtml || null,
+        custom_page_type: customType,
+        documents,
+      }
+      const res = await fetch(`/api/admin/developments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      })
+      if (res.ok) {
+        setDevs((prev) => prev.map((d) => d.id === id ? { ...d, ...patch } as Development : d))
+        setExpanded(null)
+        toast("Alterações salvas!", "success")
+      } else {
+        const data = await res.json()
+        toast(data.error ?? "Erro ao salvar. Tente novamente.", "error")
+      }
+    } catch (err) {
+      console.error("[updateDev]", err)
+      toast("Erro de conexão. Tente novamente.", "error")
+    } finally {
+      setSaving(false)
     }
-    const res = await fetch(`/api/admin/developments/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(patch),
-    })
-    if (res.ok) {
-      setDevs((prev) => prev.map((d) => d.id === id ? { ...d, ...patch } as Development : d))
-      setExpanded(null)
-    }
-    setSaving(false)
   }
 
   async function deleteDev(id: string) {
     if (!confirm("Excluir este empreendimento? Os imóveis vinculados serão desvinculados.")) return
-    const res = await fetch(`/api/admin/developments/${id}`, { method: "DELETE" })
-    if (res.ok) setDevs((prev) => prev.filter((d) => d.id !== id))
+    try {
+      const res = await fetch(`/api/admin/developments/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        setDevs((prev) => prev.filter((d) => d.id !== id))
+        toast("Empreendimento excluído.", "info")
+      } else {
+        toast("Erro ao excluir. Tente novamente.", "error")
+      }
+    } catch (err) {
+      console.error("[deleteDev]", err)
+      toast("Erro de conexão. Tente novamente.", "error")
+    }
   }
 
   function startEdit(dev: Development) {
@@ -203,8 +234,9 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
             </div>
             <div className="md:col-span-2">
               <label className={labelClass}>Descrição</label>
-              <textarea value={newForm.description} onChange={(e) => setNewForm({ ...newForm, description: e.target.value })}
-                rows={2} placeholder="Descreva o empreendimento..." className={inputClass + " resize-none"} />
+              <textarea value={newForm.description} onChange={(e) => setNewForm({ ...newForm, description: e.target.value.slice(0, 5000) })}
+                placeholder="Descreva o empreendimento..." className={inputClass + " min-h-[240px] resize-y"} />
+              <p className="text-xs text-muted-foreground/60 font-sans text-right mt-1">{newForm.description.length}/5000</p>
             </div>
             <div className="md:col-span-2">
               <label className={labelClass}>
@@ -390,8 +422,9 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                   <div className="md:col-span-2">
                     <label className={labelClass}>Descrição</label>
                     <textarea value={form.description ?? ""}
-                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], description: e.target.value } }))}
-                      rows={2} className={inputClass + " resize-none"} />
+                      onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], description: e.target.value.slice(0, 5000) } }))}
+                      className={inputClass + " min-h-[240px] resize-y"} />
+                    <p className="text-xs text-muted-foreground/60 font-sans text-right mt-1">{(form.description ?? "").length}/5000</p>
                   </div>
                   <div className="md:col-span-2">
                     <label className={labelClass}>

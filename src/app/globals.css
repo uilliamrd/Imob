@@ -59,23 +59,23 @@
 }
 
 :root {
-  --background: #F5F0E8;
-  --foreground: #1C1C1C;
-  --card: #FDFAF4;
-  --card-foreground: #1C1C1C;
-  --popover: #FDFAF4;
-  --popover-foreground: #1C1C1C;
-  --primary: #1C1C1C;
-  --primary-foreground: #F5F0E8;
-  --secondary: #E8E1D5;
-  --secondary-foreground: #1C1C1C;
+  --background: #F2EDE4;
+  --foreground: #111111;
+  --card: #FFFFFF;
+  --card-foreground: #111111;
+  --popover: #FFFFFF;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #F2EDE4;
+  --secondary: #E5DDD0;
+  --secondary-foreground: #111111;
   --muted: #EDE8DF;
-  --muted-foreground: #6B6460;
+  --muted-foreground: #4A4A47;
   --accent: #C9A96E;
-  --accent-foreground: #1C1C1C;
+  --accent-foreground: #111111;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #DDD5C8;
-  --input: #DDD5C8;
+  --border: #C8C0B4;
+  --input: #C8C0B4;
   --ring: #C9A96E;
   --gold: #C9A96E;
   --gold-light: #E0C896;
@@ -202,18 +202,18 @@
    * so this overrides the .dark root for all descendants.
    */
   .force-light {
-    --background:         #F5F0E8;
-    --foreground:         #1C1C1C;
-    --card:               #FDFAF4;
-    --card-foreground:    #1C1C1C;
-    --popover:            #FDFAF4;
-    --popover-foreground: #1C1C1C;
+    --background:         #F2EDE4;
+    --foreground:         #111111;
+    --card:               #FFFFFF;
+    --card-foreground:    #111111;
+    --popover:            #FFFFFF;
+    --popover-foreground: #111111;
     --muted:              #EDE8DF;
-    --muted-foreground:   #6B6460;
-    --border:             #DDD5C8;
-    --input:              #DDD5C8;
-    --graphite:           #1C1C1C;
-    --offwhite:           #F5F0E8;
+    --muted-foreground:   #4A4A47;
+    --border:             #C8C0B4;
+    --input:              #C8C0B4;
+    --graphite:           #111111;
+    --offwhite:           #F2EDE4;
     color-scheme: light;
   }
 

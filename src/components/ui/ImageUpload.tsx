@@ -48,6 +48,7 @@ export function ImageUpload({
       const { error } = await supabase.storage.from(bucket).upload(path, file, {
         cacheControl: "3600",
         upsert: false,
+        contentType: file.type || "image/png",
       })
 
       if (!error) {

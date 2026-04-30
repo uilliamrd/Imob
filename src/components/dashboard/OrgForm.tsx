@@ -6,6 +6,7 @@ import { UploadZone } from "@/components/ui/UploadZone"
 import { Save, ExternalLink, Globe, FileText, Image, Flame, CreditCard, Star } from "lucide-react"
 import type { OrgPlan, OrgType, SubscriptionStatus } from "@/types/database"
 import { getPlanName } from "@/lib/plans"
+import { useToast } from "@/lib/toast-context"
 
 interface OrgFormProps {
   userId: string
@@ -36,6 +37,7 @@ interface OrgFormProps {
 
 export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }: OrgFormProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [name, setName] = useState(initialData.name)
   const [type, setType] = useState<OrgType>(initialData.type as OrgType || "construtora")
   const [portfolioDesc] = useState(initialData.portfolio_desc)
@@ -95,40 +97,54 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       payload.is_section_highlighted = isSectionHighlighted
     }
 
-    if (orgId) {
-      const res = await fetch(`/api/organizations/${orgId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data.error ?? "Erro ao salvar.")
-        setLoading(false)
-        return
+    try {
+      if (orgId) {
+        const res = await fetch(`/api/organizations/${orgId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) {
+          const data = await res.json()
+          const msg = data.error ?? "Erro ao salvar."
+          setError(msg)
+          toast(msg, "error")
+          setLoading(false)
+          return
+        }
+      } else {
+        const res = await fetch(`/api/organizations/new`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+        if (!res.ok) {
+          const data = await res.json()
+          const msg = data.error ?? "Erro ao criar organização."
+          setError(msg)
+          toast(msg, "error")
+          setLoading(false)
+          return
+        }
       }
-    } else {
-      const res = await fetch(`/api/organizations/new`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        setError(data.error ?? "Erro ao criar organização.")
-        setLoading(false)
-        return
-      }
+    } catch (err) {
+      console.error("[OrgForm submit]", err)
+      const msg = "Erro de conexão. Tente novamente."
+      setError(msg)
+      toast(msg, "error")
+      setLoading(false)
+      return
     }
 
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
+    toast("Alterações salvas!", "success")
     router.refresh()
     setLoading(false)
   }
 
-  const inputClass = "w-full bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
-  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
+  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--gold)]/50 transition-colors"
+  const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans font-medium block mb-2"
   const landingSlug = slugify(name)
   const minisitePath = type === "imobiliaria" ? `/imobiliaria/${landingSlug}` : `/construtora/${landingSlug}`
 
@@ -139,7 +155,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-4">
           <Image size={15} className="text-gold" />
-          <h2 className="font-serif text-lg font-semibold text-white">Logo</h2>
+          <h2 className="font-serif text-lg font-semibold text-foreground">Logo</h2>
         </div>
         <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/logo`}
           ownerType="organization" ownerId={orgId} tenantId={orgId}
@@ -151,7 +167,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-border pb-4">
           <Globe size={15} className="text-gold" />
-          <h2 className="font-serif text-lg font-semibold text-white">Informações Gerais</h2>
+          <h2 className="font-serif text-lg font-semibold text-foreground">Informações Gerais</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -181,7 +197,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
             <div className="flex items-center gap-3">
               <Flame size={16} className={hasLancamentos ? "text-gold" : "text-muted-foreground/50"} />
               <div>
-                <p className="text-foreground/80 text-sm font-sans font-medium">Plano com Lançamentos</p>
+                <p className="text-foreground text-sm font-sans font-medium">Plano com Lançamentos</p>
                 <p className="text-muted-foreground text-xs font-sans">Ativa a seção de Lançamentos no minisite</p>
               </div>
             </div>
@@ -198,7 +214,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
         <section className="bg-card border border-gold/20 rounded-2xl p-6 space-y-5">
           <div className="flex items-center gap-2 border-b border-border pb-4">
             <CreditCard size={15} className="text-gold" />
-            <h2 className="font-serif text-lg font-semibold text-white">Plano & Assinatura</h2>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Plano & Assinatura</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -241,7 +257,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
         <section className="bg-card border border-amber-900/20 rounded-2xl p-6 space-y-5">
           <div className="flex items-center gap-2 border-b border-border pb-4">
             <Star size={15} className="text-amber-400" />
-            <h2 className="font-serif text-lg font-semibold text-white">Destaques</h2>
+            <h2 className="font-serif text-lg font-semibold text-foreground">Destaques</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -266,7 +282,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
             <div className="flex items-center gap-3">
               <Star size={16} className={isSectionHighlighted ? "text-amber-400" : "text-muted-foreground/50"} />
               <div>
-                <p className="text-foreground/80 text-sm font-sans font-medium">Destaque na Seção do Portal</p>
+                <p className="text-foreground text-sm font-sans font-medium">Destaque na Seção do Portal</p>
                 <p className="text-muted-foreground text-xs font-sans">Aparece primeiro na lista de construtoras/imobiliárias</p>
               </div>
             </div>
@@ -282,7 +298,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-border pb-4">
           <FileText size={15} className="text-gold" />
-          <h2 className="font-serif text-lg font-semibold text-white">Seção Hero (Topo do Site)</h2>
+          <h2 className="font-serif text-lg font-semibold text-foreground">Seção Hero (Topo do Site)</h2>
         </div>
         <div>
           <label className={labelClass}>Frase de Impacto (Tagline)</label>
@@ -302,7 +318,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-border pb-4">
           <FileText size={15} className="text-gold" />
-          <h2 className="font-serif text-lg font-semibold text-white">Seção Sobre</h2>
+          <h2 className="font-serif text-lg font-semibold text-foreground">Seção Sobre</h2>
         </div>
         <div>
           <label className={labelClass}>Texto Sobre a Empresa</label>
@@ -323,7 +339,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-4">
           <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: brandColor }} />
-          <h2 className="font-serif text-lg font-semibold text-white">Cor do Minisite</h2>
+          <h2 className="font-serif text-lg font-semibold text-foreground">Cor do Minisite</h2>
         </div>
         <div className="flex items-center gap-4">
           <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)}
