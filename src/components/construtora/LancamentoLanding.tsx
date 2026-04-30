@@ -67,8 +67,8 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
             style={{ backgroundImage: development.cover_image
               ? `url(${development.cover_image})`
               : "linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)" }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/65 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
         </motion.div>
 
         {/* Nav */}
@@ -114,7 +114,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
 
           {development.description && (
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1 }}
-              className="text-white/60 font-sans text-base max-w-xl leading-relaxed mb-7 px-2">
+              className="text-white/90 font-sans text-base max-w-xl leading-relaxed mb-7 px-2 [text-shadow:0_1px_8px_rgba(0,0,0,0.8)]">
               {development.description}
             </motion.p>
           )}
