@@ -376,7 +376,13 @@ export function UploadZone({
               setFiles(prev => prev.map(f => f.id === tempId ? { ...f, progress: pct } : f))
             },
             onSuccess: () => {
-              processUploadedFile(tempId, storageKey, file.name, file.type, file.size, localPreview)
+              // Replace ephemeral blob URL with persistent storage URL immediately,
+              // so the preview survives even if /api/media/process subsequently fails.
+              const supabaseClient = createClient()
+              const { data: publicUrlData } = supabaseClient.storage.from("uploads-temp").getPublicUrl(storageKey)
+              const persistentUrl = publicUrlData?.publicUrl ?? localPreview
+              setFiles(prev => prev.map(f => f.id === tempId ? { ...f, url: persistentUrl, progress: 90 } : f))
+              processUploadedFile(tempId, storageKey, file.name, file.type, file.size, persistentUrl)
               resolve()
             },
           })
