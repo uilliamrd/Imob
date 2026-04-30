@@ -11,11 +11,12 @@ async function getAuth() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
   const admin = createAdminClient()
-  const { data: p } = await admin
+  const { data: p, error: pErr } = await admin
     .from("profiles")
-    .select("role, plan, organization_id, organization:organizations(id, type, plan)")
+    .select("role, organization_id, organization:organizations(id, type, plan)")
     .eq("id", user.id)
     .single()
+  console.log("[developments] getAuth role:", p?.role, "err:", pErr?.message)
   if (!p || !ALLOWED_ROLES.includes(p.role)) return null
   return { admin, userId: user.id, profile: p }
 }

@@ -157,8 +157,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
           <Image size={15} className="text-gold" />
           <h2 className="font-serif text-lg font-semibold text-foreground">Logo</h2>
         </div>
-        <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/logo`}
-          ownerType="organization" ownerId={orgId} tenantId={orgId}
+        <UploadZone bucket="property-images" folder={`orgs/${orgId ?? "temp"}/logo`}
           value={logoUrls} onChange={(urls) => setLogoUrls(urls.slice(-1))}
           maxFiles={1} acceptMime="image/*" variant="card" />
       </section>
@@ -307,8 +306,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
         </div>
         <div>
           <label className={labelClass}>Imagem de Fundo do Hero</label>
-          <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/hero`}
-            ownerType="organization" ownerId={orgId} tenantId={orgId}
+          <UploadZone bucket="property-images" folder={`orgs/${orgId ?? "temp"}/hero`}
             value={heroImageUrls} onChange={(urls) => setHeroImageUrls(urls.slice(-1))}
             maxFiles={1} acceptMime="image/*" variant="detail" />
         </div>
@@ -328,8 +326,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
         </div>
         <div>
           <label className={labelClass}>Imagem da Seção Sobre</label>
-          <UploadZone bucket="uploads-temp" folder={`${orgId ?? "temp"}/about`}
-            ownerType="organization" ownerId={orgId} tenantId={orgId}
+          <UploadZone bucket="property-images" folder={`orgs/${orgId ?? "temp"}/about`}
             value={aboutImageUrls} onChange={(urls) => setAboutImageUrls(urls.slice(-1))}
             maxFiles={1} acceptMime="image/*" variant="detail" />
         </div>
