@@ -893,11 +893,8 @@ export function PropertyWizard({
               )}
 
               <UploadZone
-                bucket="uploads-temp"
+                bucket="property-images"
                 folder={orgId ? `${orgId}/properties` : "temp"}
-                ownerType="property"
-                ownerId={undefined}
-                tenantId={orgId ?? undefined}
                 value={images}
                 onChange={setImages}
                 maxFiles={40}

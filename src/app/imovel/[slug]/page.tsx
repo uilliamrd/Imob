@@ -411,38 +411,6 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
               )}
             </div>
 
-            {/* Empreendimento block — construtora properties */}
-            {isConstrutora && development && (
-              <div className="mb-10 rounded-2xl border overflow-hidden" style={{ borderColor: accentColor + "25" }}>
-                {development.cover_image && (
-                  <div className="h-40 overflow-hidden relative">
-                    <Image src={development.cover_image} alt={development.name} fill className="object-cover" />
-                  </div>
-                )}
-                <div className="p-5" style={{ backgroundColor: accentColor + "06" }}>
-                  <p className="text-xs uppercase tracking-[0.2em] font-sans mb-1" style={{ color: accentColor }}>
-                    Empreendimento
-                  </p>
-                  <h3 className="font-serif text-xl font-bold text-foreground mb-1">{development.name}</h3>
-                  {(development.neighborhood || development.city) && (
-                    <p className="text-muted-foreground text-sm font-sans flex items-center gap-1">
-                      <MapPin size={12} style={{ color: accentColor }} />
-                      {[development.neighborhood, development.city].filter(Boolean).join(", ")}
-                    </p>
-                  )}
-                  {org?.slug && (
-                    <a
-                      href={`/construtora/${org.slug}`}
-                      className="inline-flex items-center gap-1.5 mt-3 text-xs font-sans uppercase tracking-[0.15em] transition-opacity hover:opacity-80"
-                      style={{ color: accentColor }}
-                    >
-                      Ver todos os imóveis do empreendimento <ExternalLink size={10} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Description */}
             {property.description && (
               <div className="bg-card lg:bg-transparent rounded-2xl lg:rounded-none p-5 lg:p-0 mb-3 lg:mb-10 border border-border lg:border-0">
@@ -499,6 +467,38 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                       area_m2={(p.features as PropertyFeatures | undefined)?.area_m2 ?? null}
                     />
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empreendimento block — construtora properties */}
+            {isConstrutora && development && (
+              <div className="mt-10 rounded-2xl border overflow-hidden" style={{ borderColor: accentColor + "25" }}>
+                {development.cover_image && (
+                  <div className="h-40 overflow-hidden relative">
+                    <Image src={development.cover_image} alt={development.name} fill className="object-cover" />
+                  </div>
+                )}
+                <div className="p-5" style={{ backgroundColor: accentColor + "06" }}>
+                  <p className="text-xs uppercase tracking-[0.2em] font-sans mb-1" style={{ color: accentColor }}>
+                    Empreendimento
+                  </p>
+                  <h3 className="font-serif text-xl font-bold text-foreground mb-1">{development.name}</h3>
+                  {(development.neighborhood || development.city) && (
+                    <p className="text-muted-foreground text-sm font-sans flex items-center gap-1">
+                      <MapPin size={12} style={{ color: accentColor }} />
+                      {[development.neighborhood, development.city].filter(Boolean).join(", ")}
+                    </p>
+                  )}
+                  {org?.slug && (
+                    <a
+                      href={`/construtora/${org.slug}`}
+                      className="inline-flex items-center gap-1.5 mt-3 text-xs font-sans uppercase tracking-[0.15em] transition-opacity hover:opacity-80"
+                      style={{ color: accentColor }}
+                    >
+                      Ver todos os imóveis do empreendimento <ExternalLink size={10} />
+                    </a>
+                  )}
                 </div>
               </div>
             )}

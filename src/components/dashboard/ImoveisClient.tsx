@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { PlusCircle, Edit, Maximize2, BedDouble, Car, Hash, Search, ListPlus, Trash2, ExternalLink, Sparkles, MapPin } from "lucide-react"
@@ -33,6 +34,7 @@ interface ImoveisClientProps {
 }
 
 export function ImoveisClient({ properties: initial, role, orgId, userId, listedIds: initialListed, minisiteSlug }: ImoveisClientProps) {
+  const router = useRouter()
   const [properties, setProperties] = useState(initial)
   const [listedIds, setListedIds] = useState(new Set(initialListed))
   const [search, setSearch]             = useState("")
@@ -187,8 +189,7 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           const isOwn = p.created_by === userId
 
           return (
-            <div key={p.id} className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-[color-mix(in_srgb,var(--gold)_30%,transparent)] hover-lift transition-all duration-200 flex flex-col elevation-card">
-              <Link href={`/imovel/${p.slug}`} target="_blank" className="block">
+            <div key={p.id} onClick={() => router.push(`/imovel/${p.slug}`)} className="cursor-pointer bg-card border border-border rounded-2xl overflow-hidden group hover:border-[color-mix(in_srgb,var(--gold)_30%,transparent)] hover-lift transition-all duration-200 flex flex-col elevation-card">
                 {/* Image */}
                 <div className="aspect-video bg-surface relative overflow-hidden">
                   {p.images[0] ? (
@@ -254,10 +255,9 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
                     </div>
                   )}
                 </div>
-              </Link>
 
               {/* Footer */}
-              <div className="px-5 pb-4 pt-3 border-t border-border flex items-center justify-between mt-auto">
+              <div onClick={(e) => e.stopPropagation()} className="px-5 pb-4 pt-3 border-t border-border flex items-center justify-between mt-auto">
                 <p className="font-serif text-xl font-bold text-foreground">{formatPrice(p.price)}</p>
                 <div className="flex gap-1.5">
                   {p.status === "disponivel" && (isAdmin || isOwn || (orgId && p.org_id === orgId)) && (

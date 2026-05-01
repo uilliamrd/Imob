@@ -718,11 +718,8 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
       {activeTab === 2 && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
           <UploadZone
-            bucket="uploads-temp"
+            bucket="property-images"
             folder={orgId ? `${orgId}/properties` : "temp"}
-            ownerType="property"
-            ownerId={propertyId}
-            tenantId={orgId ?? undefined}
             value={images}
             onChange={setImages}
             maxFiles={40}

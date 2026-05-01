@@ -13,16 +13,26 @@ export default async function MercadoPage() {
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("role, plan, organization_id, organization:organizations(type, plan, name)")
+    .select("role, plan, organization_id")
     .eq("id", user.id)
     .single()
 
   const role = profile?.role ?? "corretor"
-  const org = profile?.organization as unknown as { type: OrgType; plan: OrgPlan; name: string } | null
+  const orgId = profile?.organization_id
+
+  let org: { type: OrgType; plan: OrgPlan; name: string } | null = null
+  if (orgId) {
+    const { data: orgData } = await admin
+      .from("organizations")
+      .select("type, plan, name")
+      .eq("id", orgId)
+      .single()
+    if (orgData) org = orgData as unknown as { type: OrgType; plan: OrgPlan; name: string }
+  }
+
   const entityType = resolveEntityType(role, org?.type ?? null)
   const plan = (org?.plan ?? profile?.plan ?? "free") as OrgPlan
   const limits = getPlanLimits(entityType, plan)
-  const orgId = profile?.organization_id
 
   if (!limits.can_view_market_data && role !== "admin") {
     return (

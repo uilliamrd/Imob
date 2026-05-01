@@ -14,12 +14,21 @@ export default async function LancamentosPage() {
 
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("organization_id, organization:organizations(slug, has_lancamentos)")
+    .select("organization_id")
     .eq("id", user.id)
     .single()
 
   const orgId = profile?.organization_id ?? null
-  const org = profile?.organization as { slug?: string; has_lancamentos?: boolean } | null
+
+  let org: { slug?: string; has_lancamentos?: boolean } | null = null
+  if (orgId) {
+    const { data: orgData } = await adminClient
+      .from("organizations")
+      .select("slug, has_lancamentos")
+      .eq("id", orgId)
+      .single()
+    org = orgData
+  }
 
   const { data: developments } = await adminClient
     .from("developments")

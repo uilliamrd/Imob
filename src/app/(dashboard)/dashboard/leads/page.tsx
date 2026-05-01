@@ -15,15 +15,24 @@ export default async function LeadsPage() {
 
   const { data: profile } = await admin
     .from("profiles")
-    .select("role, plan, organization_id, organization:organizations(type, plan)")
+    .select("role, plan, organization_id")
     .eq("id", user.id)
     .single()
 
   const role = profile?.role
   const orgId = profile?.organization_id
 
+  let org: { type: OrgType; plan: OrgPlan } | null = null
+  if (orgId) {
+    const { data: orgData } = await admin
+      .from("organizations")
+      .select("type, plan")
+      .eq("id", orgId)
+      .single()
+    if (orgData) org = orgData as unknown as { type: OrgType; plan: OrgPlan }
+  }
+
   // Gate: corretor free não acessa leads
-  const org = profile?.organization as unknown as { type: OrgType; plan: OrgPlan } | null
   const entityType = resolveEntityType(role ?? "corretor", org?.type ?? null)
   const plan = (org?.plan ?? profile?.plan ?? "free") as OrgPlan
   const limits = getPlanLimits(entityType, plan)
