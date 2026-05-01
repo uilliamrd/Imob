@@ -13,7 +13,7 @@ async function getAuth() {
   const admin = createAdminClient()
   const { data: p } = await admin
     .from("profiles")
-    .select("role, plan, organization_id, organization:organizations(type, plan)")
+    .select("role, organization_id")
     .eq("id", user.id)
     .single()
   if (!p || !ALLOWED_ROLES.includes(p.role)) return null
@@ -26,9 +26,18 @@ export async function POST(request: Request) {
 
   // Verificar limite de imóveis do plano (admins são isentos)
   if (auth.profile.role !== "admin") {
-    const org = auth.profile.organization as unknown as { type: OrgType; plan: OrgPlan } | null
+    const orgId = auth.profile.organization_id
+    let org: { type: OrgType; plan: OrgPlan } | null = null
+    if (orgId) {
+      const { data: orgData } = await auth.admin
+        .from("organizations")
+        .select("type, plan")
+        .eq("id", orgId)
+        .single()
+      if (orgData) org = orgData as unknown as { type: OrgType; plan: OrgPlan }
+    }
     const entityType = resolveEntityType(auth.profile.role, org?.type ?? null)
-    const plan = (org?.plan ?? auth.profile.plan ?? "free") as OrgPlan
+    const plan = (org?.plan ?? "free") as OrgPlan
     const limits = getPlanLimits(entityType, plan)
 
     if (limits.max_properties !== null) {

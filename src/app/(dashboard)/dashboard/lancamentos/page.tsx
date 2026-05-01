@@ -91,11 +91,12 @@ export default async function LancamentosPage() {
       <div className="bg-card border border-border rounded-2xl">
         <div className="px-6 py-5 border-b border-border flex items-center gap-2">
           <Flame size={16} className="text-orange-400" />
-          <h2 className="font-serif text-xl font-semibold text-white">Gerenciar Lançamentos</h2>
+          <h2 className="font-serif text-xl font-semibold text-white">Gerenciar Empreendimentos</h2>
+          <span className="ml-auto text-muted-foreground/50 text-xs font-sans">{allDevelopments.length} cadastrados</span>
         </div>
         <div className="p-6">
           <DevelopmentsManager
-            developments={lancamentos}
+            developments={allDevelopments}
             orgId={orgId}
           />
         </div>
