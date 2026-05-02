@@ -29,7 +29,6 @@ const TAG_MAP: Record<string, { icon: LucideIcon; label: string }> = {
   SM: { icon: Wifi, label: "Smart Home" },
   CB: { icon: Building2, label: "Cobertura" },
   DX: { icon: Star, label: "Duplex" },
-  PT: { icon: Home, label: "Penthouse" },
   PN: { icon: MapPin, label: "Planta Nobre" },
 }
 

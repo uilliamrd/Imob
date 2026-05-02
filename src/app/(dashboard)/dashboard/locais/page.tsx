@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function LocaisPage({ searchParams }: PageProps) {
-  await requireAuth(["admin"])
+  await requireAuth(["admin", "construtora"])
   const { tab: tabParam } = await searchParams
   const activeTab: Tab = tabParam === "logradouros" ? "logradouros" : "bairros"
 

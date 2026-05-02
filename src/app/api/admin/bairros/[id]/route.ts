@@ -8,7 +8,7 @@ async function getAdminClient() {
   if (!user) return null
   const admin = createAdminClient()
   const { data: p } = await admin.from("profiles").select("role").eq("id", user.id).single()
-  return p?.role === "admin" ? admin : null
+  return (p?.role === "admin" || p?.role === "construtora") ? admin : null
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {

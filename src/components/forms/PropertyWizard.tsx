@@ -6,9 +6,9 @@ import { AnimatePresence, motion } from "framer-motion"
 import {
   FileText, MapPin, Sliders, Camera, Rocket,
   Check, ChevronLeft, ChevronRight,
-  Home, Building2, Layers, BedDouble, Briefcase,
+  Home, Building2, Briefcase,
   Minus, Plus, Sparkles, AlertTriangle, CheckCircle2,
-  Globe, EyeOff, Loader2, X,
+  Globe, EyeOff, Loader2, X, Users, Lock,
 } from "lucide-react"
 import { UploadZone } from "@/components/ui/UploadZone"
 import { PremiumButton } from "@/components/ui/premium/PremiumButton"
@@ -22,18 +22,16 @@ import type { PropertyStatus, PropertyVisibility, Development } from "@/types/da
 const ALL_TAGS = Object.keys(getAllTags())
 
 const STEPS = [
-  { label: "Informações básicas", short: "Básico",    icon: FileText  },
-  { label: "Localização",         short: "Local",     icon: MapPin    },
-  { label: "Detalhes",            short: "Detalhes",  icon: Sliders   },
-  { label: "Fotos e mídia",       short: "Fotos",     icon: Camera    },
-  { label: "Revisão",             short: "Revisão",   icon: Rocket    },
+  { label: "Localização",   short: "Local",    icon: MapPin    },
+  { label: "Detalhes",      short: "Detalhes", icon: Sliders   },
+  { label: "Fotos e mídia", short: "Fotos",    icon: Camera    },
+  { label: "Anúncio",       short: "Anúncio",  icon: FileText  },
+  { label: "Revisão",       short: "Revisão",  icon: Rocket    },
 ]
 
 const CATEGORIA_GROUPS = [
   { label: "Apartamento",  icon: Building2,  values: ["Apartamento", "Duplex", "Loft", "Flat / Apart-hotel"] },
-  { label: "Casa",         icon: Home,       values: ["Casa", "Casa em Condomínio"] },
-  { label: "Cobertura",    icon: Layers,     values: ["Cobertura"] },
-  { label: "Studio",       icon: BedDouble,  values: ["Kitnet / Studio"] },
+  { label: "Casa",         icon: Home,       values: ["Casa Bairro", "Casa em Condomínio"] },
   { label: "Terreno",      icon: MapPin,     values: ["Terreno", "Lote em Condomínio Fechado", "Lote em Rua", "Sítio / Fazenda"] },
   { label: "Comercial",    icon: Briefcase,  values: ["Sala Comercial", "Loja", "Galpão / Depósito"] },
   { label: "Outro",        icon: Home,       values: ["Outro"] },
@@ -56,6 +54,7 @@ interface OrgOption  { id: string; name: string; type: string }
 
 interface PropertyWizardProps {
   orgId?: string | null
+  role?: string
   isAdmin?: boolean
   construtoras?: OrgOption[]
   developments?: Development[]
@@ -98,7 +97,7 @@ function FieldError({ msg }: { msg?: string }) {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function PropertyWizard({
-  orgId, isAdmin = false, construtoras = [], developments = [], bairros = [], logradouros = [],
+  orgId, role = "corretor", isAdmin = false, construtoras = [], developments = [], bairros = [], logradouros = [],
 }: PropertyWizardProps) {
   const router = useRouter()
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -321,19 +320,22 @@ export function PropertyWizard({
   // ── Validation ────────────────────────────────────────────────────────────────
   function validateStep(): boolean {
     const errs: Record<string, string> = {}
+    // Step 0: Localização
     if (step === 0) {
+      if (!neighborhood && !bairroId) errs.neighborhood = "Bairro/localização é obrigatório"
+      if (!city) errs.city = "Cidade é obrigatória"
+    }
+    // Step 2: Fotos
+    if (step === 2) {
+      if (images.length === 0) errs.images = "Adicione pelo menos uma foto"
+    }
+    // Step 3: Anúncio
+    if (step === 3) {
       if (!title.trim()) errs.title = "Título é obrigatório"
       if (!categoria)    errs.categoria = "Selecione o tipo de imóvel"
       if (!price || parseFloat(price) <= 0) errs.price = "Informe o preço"
       if (description.length > 0 && description.length < 20)
         errs.description = "Descrição deve ter pelo menos 20 caracteres"
-    }
-    if (step === 1) {
-      if (!neighborhood && !bairroId) errs.neighborhood = "Bairro/localização é obrigatório"
-      if (!city) errs.city = "Cidade é obrigatória"
-    }
-    if (step === 3) {
-      if (images.length === 0) errs.images = "Adicione pelo menos uma foto"
     }
     setErrors(errs)
     return Object.keys(errs).length === 0
@@ -341,7 +343,7 @@ export function PropertyWizard({
 
   function goNext() {
     if (!validateStep()) { triggerShake(); return }
-    setStep((s) => Math.min(4, s + 1))
+    setStep((s) => Math.min(STEPS.length - 1, s + 1))
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
   function goPrev() {
@@ -517,216 +519,9 @@ export function PropertyWizard({
           transition={transitions.smooth}
         >
 
-          {/* ══ STEP 1 — INFORMAÇÕES BÁSICAS ════════════════════════ */}
+          {/* ══ STEP 0 — LOCALIZAÇÃO ════════════════════════════════ */}
           {step === 0 && (
-            <div className="space-y-6">
-
-              {/* Admin org transfer */}
-              {isAdmin && construtoras.length > 0 && (
-                <div className="bg-card border border-border rounded-2xl p-5">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Organização (Admin)</p>
-                  <select
-                    value={selectedOrgId ?? ""}
-                    onChange={(e) => setSelectedOrgId(e.target.value || null)}
-                    className={ic}
-                  >
-                    <option value="">— Sem organização —</option>
-                    {construtoras.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-                  </select>
-                </div>
-              )}
-
-              {/* Tipo de imóvel (visual grid) */}
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">
-                  Tipo de imóvel <span className="text-destructive">*</span>
-                </p>
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-                  {CATEGORIA_GROUPS.map((g) => {
-                    const Icon = g.icon
-                    const active = catGroup === g.label
-                    return (
-                      <button
-                        key={g.label}
-                        type="button"
-                        onClick={() => {
-                          setCatGroup(g.label)
-                          setCategoria(g.values[0])
-                        }}
-                        className={cn(
-                          "flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-sans transition-all",
-                          active
-                            ? "bg-[var(--forest)] border-[var(--forest)] text-white"
-                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
-                        )}
-                      >
-                        <Icon size={18} strokeWidth={1.5} />
-                        <span className="leading-tight text-center">{g.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-                {catGroup && CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.length > 1 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.map((v) => (
-                      <button
-                        key={v}
-                        type="button"
-                        onClick={() => setCategoria(v)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full border text-xs font-sans transition-all",
-                          categoria === v
-                            ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--gold)]"
-                            : "border-border text-muted-foreground hover:border-[var(--gold)]/40"
-                        )}
-                      >
-                        {v}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <FieldError msg={errors.categoria} />
-              </div>
-
-              {/* Operação (tipo_negocio) */}
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Operação</p>
-                <div className="flex gap-2 flex-wrap">
-                  {TIPOS_NEGOCIO.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setTipoNegocio(t.value)}
-                      className={cn(
-                        "px-5 py-2.5 rounded-xl border font-sans text-sm font-medium transition-all",
-                        tipoNegocio === t.value
-                          ? "bg-[var(--forest)] border-[var(--forest)] text-white"
-                          : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
-                      )}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Título */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">
-                    Título do anúncio <span className="text-destructive">*</span>
-                  </label>
-                  <span className={cn("text-[10px] font-sans", title.length > 90 ? "text-amber-500" : "text-muted-foreground/40")}>
-                    {title.length}/100
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  value={title}
-                  maxLength={100}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Apartamento espaçoso com vista para o mar"
-                  className={cn(ic, errors.title && "border-destructive")}
-                />
-                <FieldError msg={errors.title} />
-              </div>
-
-              {/* Empreendimento */}
-              {developments.length > 0 && (
-                <div>
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
-                    Empreendimento (opcional)
-                  </label>
-                  <select value={developmentId} onChange={(e) => handleDevChange(e.target.value)} className={ic}>
-                    <option value="">— Imóvel avulso —</option>
-                    {developments.map((d) => (
-                      <option key={d.id} value={d.id}>{d.name}{d.city ? ` · ${d.city}` : ""}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Preço */}
-              <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
-                  Preço <span className="text-destructive">*</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-sans text-sm pointer-events-none">R$</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="0"
-                    className={cn(ic, "pl-10", errors.price && "border-destructive")}
-                  />
-                </div>
-                <FieldError msg={errors.price} />
-              </div>
-
-              {/* Descrição */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">
-                    Descrição
-                  </label>
-                  <span className={cn("text-[10px] font-sans", description.length > 1800 ? "text-amber-500" : "text-muted-foreground/40")}>
-                    {description.length}/2000
-                  </span>
-                </div>
-                <textarea
-                  value={description}
-                  maxLength={2000}
-                  rows={5}
-                  onChange={(e) => setDesc(e.target.value)}
-                  placeholder="Descreva o imóvel com detalhes que encantem o comprador..."
-                  className={cn(ic, "resize-none", errors.description && "border-destructive")}
-                />
-                <FieldError msg={errors.description} />
-                <button
-                  type="button"
-                  onClick={handleGenerateContent}
-                  disabled={aiLoading || (!categoria && !tipoNegocio)}
-                  className="mt-2 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-sans text-[var(--gold)] border border-[var(--gold)]/30 hover:bg-[var(--gold)]/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                  Sugerir descrição com IA
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ══ STEP 2 — LOCALIZAÇÃO ════════════════════════════════ */}
-          {step === 1 && (
             <div className="space-y-5">
-
-              {/* CEP */}
-              <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">CEP</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={cep}
-                    maxLength={9}
-                    onChange={(e) => {
-                      const v = e.target.value
-                      setCep(v)
-                      const clean = v.replace(/\D/g, "")
-                      if (clean.length === 8) fetchCep(v)
-                    }}
-                    placeholder="00000-000"
-                    className={cn(ic, cepLoading && "pr-10")}
-                  />
-                  {cepLoading && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <Loader2 size={14} className="animate-spin text-muted-foreground" />
-                    </span>
-                  )}
-                </div>
-                <p className="text-[10px] text-muted-foreground/40 font-sans mt-1">Preencha o CEP para autocompletar os campos abaixo</p>
-              </div>
 
               {/* Bairro */}
               <div>
@@ -807,8 +602,8 @@ export function PropertyWizard({
             </div>
           )}
 
-          {/* ══ STEP 3 — DETALHES E DIFERENCIAIS ════════════════════ */}
-          {step === 2 && (
+          {/* ══ STEP 1 — DETALHES E DIFERENCIAIS ════════════════════ */}
+          {step === 1 && (
             <div className="space-y-6">
 
               {/* Steppers */}
@@ -872,8 +667,8 @@ export function PropertyWizard({
             </div>
           )}
 
-          {/* ══ STEP 4 — FOTOS E MÍDIA ══════════════════════════════ */}
-          {step === 3 && (
+          {/* ══ STEP 2 — FOTOS E MÍDIA ══════════════════════════════ */}
+          {step === 2 && (
             <div className="space-y-5">
 
               {/* Alert: few photos */}
@@ -917,7 +712,246 @@ export function PropertyWizard({
             </div>
           )}
 
-          {/* ══ STEP 5 — REVISÃO E PUBLICAÇÃO ═══════════════════════ */}
+          {/* ══ STEP 3 — ANÚNCIO ════════════════════════════════════ */}
+          {step === 3 && (
+            <div className="space-y-6">
+
+              {/* Admin org transfer */}
+              {isAdmin && construtoras.length > 0 && (
+                <div className="bg-card border border-border rounded-2xl p-5">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Organização (Admin)</p>
+                  <select
+                    value={selectedOrgId ?? ""}
+                    onChange={(e) => setSelectedOrgId(e.target.value || null)}
+                    className={ic}
+                  >
+                    <option value="">— Sem organização —</option>
+                    {construtoras.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {/* Tipo de imóvel */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">
+                  Tipo de imóvel <span className="text-destructive">*</span>
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {CATEGORIA_GROUPS.map((g) => {
+                    const Icon = g.icon
+                    const active = catGroup === g.label
+                    return (
+                      <button
+                        key={g.label}
+                        type="button"
+                        onClick={() => {
+                          setCatGroup(g.label)
+                          setCategoria(g.values[0])
+                        }}
+                        className={cn(
+                          "flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-sans transition-all",
+                          active
+                            ? "bg-[var(--forest)] border-[var(--forest)] text-white"
+                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                        )}
+                      >
+                        <Icon size={18} strokeWidth={1.5} />
+                        <span className="leading-tight text-center">{g.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+                {catGroup && CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.length > 1 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setCategoria(v)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-xs font-sans transition-all",
+                          categoria === v
+                            ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--gold)]"
+                            : "border-border text-muted-foreground hover:border-[var(--gold)]/40"
+                        )}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <FieldError msg={errors.categoria} />
+              </div>
+
+              {/* Operação */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Operação</p>
+                <div className="flex gap-2 flex-wrap">
+                  {TIPOS_NEGOCIO.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setTipoNegocio(t.value)}
+                      className={cn(
+                        "px-5 py-2.5 rounded-xl border font-sans text-sm font-medium transition-all",
+                        tipoNegocio === t.value
+                          ? "bg-[var(--forest)] border-[var(--forest)] text-white"
+                          : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Empreendimento */}
+              {developments.length > 0 && (
+                <div>
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
+                    Empreendimento (opcional)
+                  </label>
+                  <select value={developmentId} onChange={(e) => handleDevChange(e.target.value)} className={ic}>
+                    <option value="">— Imóvel avulso —</option>
+                    {developments.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name}{d.city ? ` · ${d.city}` : ""}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Título */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">
+                    Título do anúncio <span className="text-destructive">*</span>
+                  </label>
+                  <span className={cn("text-[10px] font-sans", title.length > 90 ? "text-amber-500" : "text-muted-foreground/40")}>
+                    {title.length}/100
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={title}
+                  maxLength={100}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ex: Apartamento espaçoso com vista para o mar"
+                  className={cn(ic, errors.title && "border-destructive")}
+                />
+                <FieldError msg={errors.title} />
+              </div>
+
+              {/* Preço */}
+              <div>
+                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
+                  Preço <span className="text-destructive">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-sans text-sm pointer-events-none">R$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="0"
+                    className={cn(ic, "pl-10", errors.price && "border-destructive")}
+                  />
+                </div>
+                <FieldError msg={errors.price} />
+              </div>
+
+              {/* Descrição + AI */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">
+                    Descrição
+                  </label>
+                  <span className={cn("text-[10px] font-sans", description.length > 1800 ? "text-amber-500" : "text-muted-foreground/40")}>
+                    {description.length}/2000
+                  </span>
+                </div>
+                <textarea
+                  value={description}
+                  maxLength={2000}
+                  rows={5}
+                  onChange={(e) => setDesc(e.target.value)}
+                  placeholder="Descreva o imóvel com detalhes que encantem o comprador..."
+                  className={cn(ic, "resize-none", errors.description && "border-destructive")}
+                />
+                <FieldError msg={errors.description} />
+                <button
+                  type="button"
+                  onClick={handleGenerateContent}
+                  disabled={aiLoading || (!categoria && !neighborhood)}
+                  className="mt-2 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-sans text-[var(--gold)] border border-[var(--gold)]/30 hover:bg-[var(--gold)]/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                  Sugerir com IA (baseado nas características)
+                </button>
+              </div>
+
+              {/* Visibilidade */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Visibilidade</p>
+                {role === "corretor" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {[
+                      { value: "publico",  icon: Globe,   label: "Público",  desc: "Todos os usuários" },
+                      { value: "equipe",   icon: Users,   label: "Equipe",   desc: "Só da minha imobiliária" },
+                      { value: "privado",  icon: Lock,    label: "Privado",  desc: "Só eu + link direto" },
+                    ].map(({ value, icon: Icon, label, desc }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setVis(value as PropertyVisibility)}
+                        className={cn(
+                          "flex flex-col items-start gap-1 p-4 rounded-xl border text-left transition-all",
+                          visibility === value
+                            ? "bg-[var(--forest)]/10 border-[var(--forest)] text-[var(--forest)]"
+                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40"
+                        )}
+                      >
+                        <Icon size={16} className="mb-0.5" />
+                        <span className="text-sm font-sans font-medium">{label}</span>
+                        <span className="text-[10px] font-sans opacity-70">{desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : orgId ? (
+                  <button
+                    type="button"
+                    onClick={() => setVis(visibility === "publico" ? "privado" : "publico")}
+                    className={cn(
+                      "w-full flex items-center justify-between p-3 rounded-xl border transition-colors",
+                      visibility === "publico" ? "border-emerald-700/40 bg-emerald-900/10" : "border-border"
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {visibility === "publico"
+                        ? <Globe size={14} className="text-emerald-400" />
+                        : <EyeOff size={14} className="text-muted-foreground" />}
+                      <p className={cn("text-sm font-sans", visibility === "publico" ? "text-emerald-300" : "text-muted-foreground")}>
+                        {visibility === "publico" ? "Publicar no catálogo" : "Manter privado"}
+                      </p>
+                    </div>
+                    <div className={cn("w-10 h-5 rounded-full transition-colors relative flex-shrink-0", visibility === "publico" ? "bg-emerald-600" : "bg-muted")}>
+                      <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all", visibility === "publico" ? "left-5" : "left-0.5")} />
+                    </div>
+                  </button>
+                ) : (
+                  <select value={visibility} onChange={(e) => setVis(e.target.value as PropertyVisibility)} className={ic}>
+                    <option value="publico">Público — aparece na busca</option>
+                    <option value="corretores">Corretores — apenas profissionais</option>
+                    <option value="equipe">Minha equipe</option>
+                    <option value="privado">Privado — só eu</option>
+                  </select>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ══ STEP 4 — REVISÃO E PUBLICAÇÃO ═══════════════════════ */}
           {step === 4 && (
             <div className="space-y-6">
               <div className="grid lg:grid-cols-2 gap-6">
@@ -1009,40 +1043,6 @@ export function PropertyWizard({
                       </div>
                     ))}
                   </div>
-
-                  {/* Visibilidade */}
-                  <div className="bg-card border border-border rounded-2xl p-4">
-                    <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Visibilidade</p>
-                    {orgId ? (
-                      <button
-                        type="button"
-                        onClick={() => setVis(visibility === "publico" ? "privado" : "publico")}
-                        className={cn(
-                          "w-full flex items-center justify-between p-3 rounded-xl border transition-colors",
-                          visibility === "publico" ? "border-emerald-700/40 bg-emerald-900/10" : "border-border"
-                        )}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          {visibility === "publico"
-                            ? <Globe size={14} className="text-emerald-400" />
-                            : <EyeOff size={14} className="text-muted-foreground" />}
-                          <p className={cn("text-sm font-sans", visibility === "publico" ? "text-emerald-300" : "text-muted-foreground")}>
-                            {visibility === "publico" ? "Publicar no catálogo" : "Manter privado"}
-                          </p>
-                        </div>
-                        <div className={cn("w-10 h-5 rounded-full transition-colors relative flex-shrink-0", visibility === "publico" ? "bg-emerald-600" : "bg-muted")}>
-                          <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all", visibility === "publico" ? "left-5" : "left-0.5")} />
-                        </div>
-                      </button>
-                    ) : (
-                      <select value={visibility} onChange={(e) => setVis(e.target.value as PropertyVisibility)} className={ic}>
-                        <option value="publico">Público — aparece na busca</option>
-                        <option value="corretores">Corretores — apenas profissionais</option>
-                        <option value="equipe">Minha equipe</option>
-                        <option value="privado">Privado — só eu</option>
-                      </select>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -1072,7 +1072,7 @@ export function PropertyWizard({
         ) : <div />}
 
         {/* Continuar / Publicar */}
-        {step < 4 ? (
+        {step < STEPS.length - 1 ? (
           <motion.button
             type="button"
             onClick={goNext}
