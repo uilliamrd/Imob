@@ -42,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/imobiliarias",     label: "Imobiliárias",     icon: Building2,       roles: ["admin"] },
   { href: "/dashboard/construtoras",     label: "Construtoras",     icon: Building2,       roles: ["admin"] },
   { href: "/dashboard/empreendimentos",  label: "Empreendimentos",  icon: Layers,          roles: ["admin"] },
-  { href: "/dashboard/locais",           label: "Locais",           icon: MapPin,          roles: ["admin"] },
+  { href: "/dashboard/locais",           label: "Locais",           icon: MapPin,          roles: ["admin", "construtora"] },
   { href: "/dashboard/anuncios",         label: "Anúncios",         icon: Megaphone,       roles: ["admin"] },
   { href: "/dashboard/submissoes",       label: "Submissões",       icon: Inbox,           roles: ["admin"] },
   { href: "/dashboard/mercado",          label: "Mercado",          icon: BarChart3,       roles: ["admin"] },

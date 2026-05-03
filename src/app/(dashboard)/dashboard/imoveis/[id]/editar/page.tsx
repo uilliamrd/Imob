@@ -35,6 +35,7 @@ export default async function EditarImovelPage({ params }: PageProps) {
 
   const property = data as Property
   const isAdmin = profile?.role === "admin"
+  const role    = profile?.role ?? "corretor"
 
   // Ownership check: non-admins can only edit their own org's properties
   if (!isAdmin && property.org_id !== profile?.organization_id) {
@@ -48,6 +49,7 @@ export default async function EditarImovelPage({ params }: PageProps) {
       <PropertyForm
         propertyId={id}
         orgId={profile?.organization_id}
+        role={role}
         isAdmin={isAdmin}
         construtoras={isAdmin ? ((allOrgs ?? []) as { id: string; name: string; type: string }[]) : []}
         developments={(developments ?? []) as Development[]}

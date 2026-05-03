@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
 import { UploadZone } from "@/components/ui/UploadZone"
-import { Save, Plus, X, Hash, Globe, EyeOff, Sparkles } from "lucide-react"
+import { Save, Plus, X, Hash, Globe, EyeOff, Sparkles, Users, Lock } from "lucide-react"
 import type { PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
 const ALL_TAGS = Object.keys(getAllTags())
@@ -50,6 +50,7 @@ interface PropertyFormProps {
   initialData?: InitialData
   propertyId?: string
   orgId?: string | null
+  role?: string
   isAdmin?: boolean
   construtoras?: OrgOption[]
   developments?: Development[]
@@ -61,7 +62,7 @@ const TABS = ["Dados Principais", "Identificação", "Fotos", "Diferenciais"]
 
 function numStr(v?: number) { return v != null ? String(v) : "" }
 
-export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, construtoras = [], developments = [], bairros = [], logradouros = [] }: PropertyFormProps) {
+export function PropertyForm({ initialData, propertyId, orgId, role = "corretor", isAdmin = false, construtoras = [], developments = [], bairros = [], logradouros = [] }: PropertyFormProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(0)
   const [loading, setLoading]     = useState(false)
@@ -681,8 +682,37 @@ export function PropertyForm({ initialData, propertyId, orgId, isAdmin = false, 
               )}
             </div>
 
-            {/* When org is set: show explicit minisite toggle */}
-            {orgId && (
+            {/* Corretor com org: 3 opções de visibilidade */}
+            {orgId && role === "corretor" && (
+              <div>
+                <label className={lc}>Visibilidade</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { value: "publico", icon: Globe,  label: "Público",  desc: "Todos os usuários" },
+                    { value: "equipe",  icon: Users,  label: "Equipe",   desc: "Só da minha imobiliária" },
+                    { value: "privado", icon: Lock,   label: "Privado",  desc: "Só eu + link direto" },
+                  ] as const).map(({ value, icon: Icon, label, desc }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setVis(value)}
+                      className={`flex flex-col items-start gap-1 p-3 rounded-xl border text-left transition-all ${
+                        visibility === value
+                          ? "bg-[var(--forest)]/10 border-[var(--forest)] text-[var(--forest)]"
+                          : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40"
+                      }`}
+                    >
+                      <Icon size={14} className="mb-0.5" />
+                      <span className="text-xs font-sans font-medium">{label}</span>
+                      <span className="text-[10px] font-sans opacity-70">{desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Construtora/imobiliária: toggle simples publicado/oculto */}
+            {orgId && role !== "corretor" && (
               <button type="button"
                 onClick={() => setVis(visibility === "publico" ? "privado" : "publico")}
                 className={`w-full flex items-center justify-between p-4 rounded-xl border transition-colors ${
