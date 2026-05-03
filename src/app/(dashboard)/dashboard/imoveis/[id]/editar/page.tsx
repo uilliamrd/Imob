@@ -15,30 +15,39 @@ export default async function EditarImovelPage({ params }: PageProps) {
   const { id } = await params
   const admin = createAdminClient()
 
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("organization_id, role")
+    .eq("id", user.id)
+    .single()
+
+  const isAdmin = profile?.role === "admin"
+  const role    = profile?.role ?? "corretor"
+  const orgId   = profile?.organization_id ?? null
+
   const [
     { data },
-    { data: profile },
     { data: developments },
     { data: bairros },
     { data: logradouros },
     { data: allOrgs },
   ] = await Promise.all([
     admin.from("properties").select("*").eq("id", id).single(),
-    admin.from("profiles").select("organization_id, role").eq("id", user.id).single(),
-    admin.from("developments").select("*").order("name"),
+    isAdmin
+      ? admin.from("developments").select("*").order("name")
+      : admin.from("developments").select("*").eq("org_id", orgId ?? "").order("name"),
     admin.from("bairros").select("*").order("name"),
     admin.from("logradouros").select("*").order("name"),
-    admin.from("organizations").select("id, name, type").order("name"),
+    isAdmin
+      ? admin.from("organizations").select("id, name, type").order("name")
+      : Promise.resolve({ data: [] }),
   ])
 
   if (!data) notFound()
 
   const property = data as Property
-  const isAdmin = profile?.role === "admin"
-  const role    = profile?.role ?? "corretor"
 
-  // Ownership check: non-admins can only edit their own org's properties
-  if (!isAdmin && property.org_id !== profile?.organization_id) {
+  if (!isAdmin && property.org_id !== orgId) {
     redirect("/dashboard/imoveis")
   }
 
@@ -48,7 +57,7 @@ export default async function EditarImovelPage({ params }: PageProps) {
 
       <PropertyForm
         propertyId={id}
-        orgId={profile?.organization_id}
+        orgId={orgId}
         role={role}
         isAdmin={isAdmin}
         construtoras={isAdmin ? ((allOrgs ?? []) as { id: string; name: string; type: string }[]) : []}

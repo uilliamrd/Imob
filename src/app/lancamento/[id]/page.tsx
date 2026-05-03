@@ -65,7 +65,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
 
     const [{ data: dev }, { data: properties }] = await Promise.all([
       supabase.from("developments").select("*, organization:organizations(*)").eq("id", id).single(),
-      supabase.from("properties").select("*").eq("development_id", id).order("status").order("price"),
+      supabase.from("properties").select("*").eq("development_id", id).eq("visibility", "publico").order("status").order("price"),
     ])
 
     if (!dev) notFound()

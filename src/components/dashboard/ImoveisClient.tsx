@@ -186,7 +186,7 @@ export function ImoveisClient({ properties: initial, role, orgId, userId, listed
           const statusStyle = STATUS_STYLE[p.status] ?? STATUS_STYLE.disponivel
           const statusLabel = STATUS_LABEL[p.status] ?? p.status
           const isListed = listedIds.has(p.id)
-          const isOwn = p.created_by === userId
+          const isOwn = p.created_by === userId || (!!orgId && p.org_id === orgId)
 
           return (
             <div key={p.id} onClick={() => router.push(`/imovel/${p.slug}`)} className="cursor-pointer bg-card border border-border rounded-2xl overflow-hidden group hover:border-[color-mix(in_srgb,var(--gold)_30%,transparent)] hover-lift transition-all duration-200 flex flex-col elevation-card">
