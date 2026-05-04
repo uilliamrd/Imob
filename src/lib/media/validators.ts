@@ -1,4 +1,4 @@
-import FileType from "file-type"
+import { fileTypeFromBuffer } from "file-type"
 
 export const ALLOWED_IMAGE_MIMES = [
   "image/jpeg", "image/png", "image/webp", "image/avif", "image/heic", "image/gif",
@@ -32,7 +32,7 @@ export async function validateFile(
   size: number
 ): Promise<{ mime: string; category: MediaCategory }> {
   // Detect real MIME from magic bytes
-  const detected = await FileType.fromBuffer(buffer.slice(0, 4100))
+  const detected = await fileTypeFromBuffer(buffer.slice(0, 4100))
 
   // PDFs start with %PDF — file-type might return application/pdf
   if (!detected) {
