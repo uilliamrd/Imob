@@ -24,13 +24,17 @@ const SUPABASE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
 // Em desenvolvimento: 'unsafe-inline' e 'unsafe-eval' são necessários
 //   para o Hot Module Replacement (HMR) do Next.js funcionar.
 // ──────────────────────────────────────────────────────────────────────────────
-const FOUC_SCRIPT_HASH = "'sha256-2luk6C6MrBkgMUZRQQfFs/GvuPyNPqPmnLH1xLNKce8='"
+// TEMPORÁRIO: unsafe-inline reativado para desbloquear login (Supabase Auth injeta
+// scripts inline não cobertos pelo hash). TODO: mapear os hashes dos scripts do
+// Supabase Auth e substituir por hashes específicos.
+// Hash original do script de tema (FOUC): 'sha256-2luk6C6MrBkgMUZRQQfFs/GvuPyNPqPmnLH1xLNKce8='
 
 const isDev = process.env.NODE_ENV === "development"
 const csp = [
   "default-src 'self'",
-  // Em produção: apenas o hash do script de tema. Em dev: unsafe-inline/eval para HMR.
-  `script-src 'self' ${FOUC_SCRIPT_HASH}${isDev ? " 'unsafe-inline' 'unsafe-eval'" : ""}`,
+  // unsafe-inline necessário temporariamente: Supabase Auth injeta scripts inline
+  // no PKCE flow. Substituir por hashes específicos após identificá-los.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   // unsafe-inline obrigatório: React inline styles (style={{ }}) viram style="" no HTML
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https: data: blob:",
