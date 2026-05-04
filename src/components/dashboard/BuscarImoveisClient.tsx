@@ -11,6 +11,7 @@ import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { PropertyCard, IntentChip, SkeletonGrid } from "@/components/ui/premium"
 import { PageHeader } from "@/components/dashboard/PageHeader"
+import { CATEGORIA_GROUPS } from "@/lib/constants/property-categories"
 import type { PropertyFeatures } from "@/types/database"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -30,6 +31,8 @@ export type BuscarProperty = {
   tipo_negocio?: string | null
   tags?: string[] | null
   categoria?: string | null
+  development_id?: string | null
+  development?: { id: string; name: string } | null
   organization: {
     id: string
     name: string
@@ -56,15 +59,14 @@ interface Props {
 
 // ── Filter config ──────────────────────────────────────────────────────────────
 
+// Grupos derivados de CATEGORIA_GROUPS — cada opção cobre todas as subcategorias do grupo
 const TIPO_OPTIONS = [
-  { value: "", label: "Todos os tipos" },
-  { value: "Apartamento", label: "Apartamento" },
-  { value: "Casa", label: "Casa" },
-  { value: "Cobertura", label: "Cobertura" },
-  { value: "Studio", label: "Studio" },
-  { value: "Terreno", label: "Terreno" },
-  { value: "Comercial", label: "Comercial" },
-  { value: "Na planta", label: "Na planta" },
+  { value: "", label: "Todos os tipos", values: [] as string[] },
+  ...CATEGORIA_GROUPS.map((g) => ({
+    value: g.label.toLowerCase(),
+    label: g.label,
+    values: g.values,
+  })),
 ]
 
 const PRECO_OPTIONS: { value: string; label: string; min: number; max: number }[] = [
@@ -89,10 +91,11 @@ const FINALIDADE_OPTIONS = [
   { value: "venda", label: "Venda" },
   { value: "aluguel", label: "Aluguel" },
   { value: "temporada", label: "Temporada / Lançamento" },
+  { value: "permuta", label: "Permuta" },
 ]
 
 const FINALIDADE_LABELS: Record<string, string> = {
-  venda: "Venda", aluguel: "Aluguel", temporada: "Temporada/Lançamento",
+  venda: "Venda", aluguel: "Aluguel", temporada: "Temporada/Lançamento", permuta: "Permuta",
 }
 
 const SITUACAO_OPTIONS = [
@@ -117,12 +120,12 @@ const QUICK_CHIPS = [
   { value: "piscina", label: "Com piscina" },
 ]
 
+// Abas de navegação rápida — sem "Coberturas" (categoria removida do cadastro)
 const TIPO_TABS = [
-  { value: "", label: "Todos" },
-  { value: "Apartamento", label: "Apartamentos" },
-  { value: "Casa", label: "Casas" },
-  { value: "Cobertura", label: "Coberturas" },
-  { value: "lancamento", label: "Lançamentos" },
+  { value: "",            label: "Todos",         values: [] as string[] },
+  { value: "apartamento", label: "Apartamentos",  values: CATEGORIA_GROUPS.find((g) => g.label === "Apartamento")?.values ?? [] },
+  { value: "casa",        label: "Casas",         values: CATEGORIA_GROUPS.find((g) => g.label === "Casa")?.values ?? [] },
+  { value: "lancamento",  label: "Lançamentos",   values: [] as string[] },
 ]
 
 const PAGE_SIZE = 12
@@ -145,6 +148,8 @@ function initAdv(params: URLSearchParams) {
     precoMax: params.get("pMax") ?? "",
     areaMin: params.get("aMin") ?? "",
     areaMax: params.get("aMax") ?? "",
+    areaTotMin: params.get("atMin") ?? "",
+    areaTotMax: params.get("atMax") ?? "",
     cidade: params.get("cid") ?? "",
     bairro: params.get("bairro") ?? "",
     mobilia: params.get("mob")?.split(",").filter(Boolean) ?? ([] as string[]),
@@ -152,6 +157,7 @@ function initAdv(params: URLSearchParams) {
     permuta: params.get("perm") === "1",
     temFotos: params.get("fotos") ?? "",
     codigo: params.get("cod") ?? "",
+    development: params.get("dev") ?? "",
   }
 }
 
@@ -160,9 +166,10 @@ const ADV_EMPTY: AdvFilters = {
   finalidade: "", situacao: "",
   dormMin: "", dormMax: "", suitesMin: "", suitesMax: "",
   banhMin: "", banhMax: "", vagasMin: "", vagasMax: "",
-  precoMin: "", precoMax: "", areaMin: "", areaMax: "",
+  precoMin: "", precoMax: "", areaMin: "", areaMax: "", areaTotMin: "", areaTotMax: "",
   cidade: "", bairro: "", mobilia: [],
   financiavel: false, permuta: false, temFotos: "", codigo: "",
+  development: "",
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -178,8 +185,8 @@ function hasAdv(adv: AdvFilters): boolean {
   return !!(adv.finalidade || adv.situacao || adv.dormMin || adv.dormMax ||
     adv.suitesMin || adv.suitesMax || adv.banhMin || adv.banhMax ||
     adv.vagasMin || adv.vagasMax || adv.precoMin || adv.precoMax ||
-    adv.areaMin || adv.areaMax || adv.cidade || adv.bairro ||
-    adv.mobilia.length || adv.financiavel || adv.permuta || adv.temFotos || adv.codigo)
+    adv.areaMin || adv.areaMax || adv.areaTotMin || adv.areaTotMax || adv.cidade || adv.bairro ||
+    adv.mobilia.length || adv.financiavel || adv.permuta || adv.temFotos || adv.codigo || adv.development)
 }
 
 // ── Select + input components ──────────────────────────────────────────────────
@@ -302,6 +309,8 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
     if (a.precoMax) p.set("pMax", a.precoMax)
     if (a.areaMin) p.set("aMin", a.areaMin)
     if (a.areaMax) p.set("aMax", a.areaMax)
+    if (a.areaTotMin) p.set("atMin", a.areaTotMin)
+    if (a.areaTotMax) p.set("atMax", a.areaTotMax)
     if (a.cidade) p.set("cid", a.cidade)
     if (a.bairro) p.set("bairro", a.bairro)
     if (a.mobilia.length) p.set("mob", a.mobilia.join(","))
@@ -309,6 +318,7 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
     if (a.permuta) p.set("perm", "1")
     if (a.temFotos) p.set("fotos", a.temFotos)
     if (a.codigo) p.set("cod", a.codigo)
+    if (a.development) p.set("dev", a.development)
     const qs = p.toString()
     router.replace(pathname + (qs ? "?" + qs : ""), { scroll: false })
   }
@@ -448,16 +458,22 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
         || (p.neighborhood ?? "").toLowerCase().includes(q)
         || (p.city ?? "").toLowerCase().includes(q)
 
-      const matchTipo = !filterTipo || (p.categoria ?? "").toLowerCase() === filterTipo.toLowerCase()
+      // Compara contra todas as subcategorias do grupo selecionado
+      const tipoGroup = TIPO_OPTIONS.find((o) => o.value === filterTipo.toLowerCase())
+      const matchTipo = !filterTipo
+        || (tipoGroup?.values ?? []).some((v) => (p.categoria ?? "").toLowerCase() === v.toLowerCase())
       const matchPreco = !filterPreco || (p.price >= precoRange.min && p.price <= precoRange.max)
       const dorms = feat?.suites ?? feat?.dormitorios ?? feat?.quartos ?? 0
       const matchDorms = !minDorms || dorms >= minDorms
       const matchOrg = !filterConstrutora || p.org_id === filterConstrutora
 
-      // Tab
+      // Tab — compara contra todas as subcategorias do grupo da aba
       let matchTab = true
       if (activeTab === "lancamento") matchTab = tags.some((t) => t.includes("lança") || t.includes("lanca"))
-      else if (activeTab) matchTab = (p.categoria ?? "").toLowerCase() === activeTab.toLowerCase()
+      else if (activeTab) {
+        const tab = TIPO_TABS.find((t) => t.value === activeTab)
+        matchTab = (tab?.values ?? []).some((v) => (p.categoria ?? "").toLowerCase() === v.toLowerCase())
+      }
 
       // Quick chips
       const matchChips = activeChips.every((chip) => {
@@ -496,6 +512,9 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
       const area = feat?.area_m2 ?? 0
       const matchAreaMin = !adv.areaMin || area >= parseInt(adv.areaMin)
       const matchAreaMax = !adv.areaMax || area <= parseInt(adv.areaMax)
+      const areaTot = (feat?.area_total ?? feat?.area_terreno ?? 0) as number
+      const matchAreaTotMin = !adv.areaTotMin || areaTot >= parseInt(adv.areaTotMin)
+      const matchAreaTotMax = !adv.areaTotMax || areaTot <= parseInt(adv.areaTotMax)
 
       const matchCidade = !adv.cidade || (p.city ?? "").toLowerCase().includes(adv.cidade.toLowerCase())
       const matchBairro = !adv.bairro || (p.neighborhood ?? "").toLowerCase().includes(adv.bairro.toLowerCase())
@@ -518,14 +537,16 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
         .map((s) => s.trim())
         .some((c) => c && String(p.code ?? "") === c)
 
+      const matchDevelopment = !adv.development || p.development_id === adv.development
+
       return (
         matchSearch && matchTipo && matchPreco && matchDorms && matchOrg && matchTab && matchChips &&
         matchFinalidade && matchSituacao &&
         matchDormMin && matchDormMax && matchSuitesMin && matchSuitesMax &&
         matchBanhMin && matchBanhMax && matchVagasMin && matchVagasMax &&
-        matchPMin && matchPMax && matchAreaMin && matchAreaMax &&
+        matchPMin && matchPMax && matchAreaMin && matchAreaMax && matchAreaTotMin && matchAreaTotMax &&
         matchCidade && matchBairro && matchMobilia &&
-        matchFinanciavel && matchPermuta && matchFotos && matchCodigo
+        matchFinanciavel && matchPermuta && matchFotos && matchCodigo && matchDevelopment
       )
     })
   }, [
@@ -535,6 +556,17 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
 
   const paginated = filtered.slice(0, page * PAGE_SIZE)
   const hasMore = filtered.length > paginated.length
+
+  // ── Developments derived from data ─────────────────────────────────────────
+  const devOptions = useMemo(() =>
+    Array.from(
+      new Map(
+        properties
+          .filter((p) => p.development)
+          .map((p) => [p.development!.id, p.development!])
+      ).values()
+    ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+  , [properties])
 
   // ── Active filter chips ────────────────────────────────────────────────────
 
@@ -551,7 +583,8 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
     if (adv.banhMin || adv.banhMax) chips.push({ key: "banh", label: `Banh: ${adv.banhMin || "0"}–${adv.banhMax || "∞"}`, clear: () => { removeAdvField("banhMin"); removeAdvField("banhMax") } })
     if (adv.vagasMin || adv.vagasMax) chips.push({ key: "vaga", label: `Vagas: ${adv.vagasMin || "0"}–${adv.vagasMax || "∞"}`, clear: () => { removeAdvField("vagasMin"); removeAdvField("vagasMax") } })
     if (adv.precoMin || adv.precoMax) chips.push({ key: "prange", label: `R$ ${adv.precoMin || "0"} – ${adv.precoMax || "∞"}`, clear: () => { removeAdvField("precoMin"); removeAdvField("precoMax") } })
-    if (adv.areaMin || adv.areaMax) chips.push({ key: "area", label: `Área: ${adv.areaMin || "0"}–${adv.areaMax || "∞"} m²`, clear: () => { removeAdvField("areaMin"); removeAdvField("areaMax") } })
+    if (adv.areaMin || adv.areaMax) chips.push({ key: "area", label: `Área priv.: ${adv.areaMin || "0"}–${adv.areaMax || "∞"} m²`, clear: () => { removeAdvField("areaMin"); removeAdvField("areaMax") } })
+    if (adv.areaTotMin || adv.areaTotMax) chips.push({ key: "areatot", label: `Área total: ${adv.areaTotMin || "0"}–${adv.areaTotMax || "∞"} m²`, clear: () => { removeAdvField("areaTotMin"); removeAdvField("areaTotMax") } })
     if (adv.cidade) chips.push({ key: "cid", label: `Cidade: ${adv.cidade}`, clear: () => removeAdvField("cidade") })
     if (adv.bairro) chips.push({ key: "bairro", label: `Bairro: ${adv.bairro}`, clear: () => removeAdvField("bairro") })
     if (adv.mobilia.length) chips.push({ key: "mob", label: adv.mobilia.join(", "), clear: () => removeAdvField("mobilia") })
@@ -560,13 +593,17 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
     if (adv.temFotos === "yes") chips.push({ key: "fotos", label: "Com fotos", clear: () => removeAdvField("temFotos") })
     if (adv.temFotos === "no") chips.push({ key: "fotos", label: "Sem fotos", clear: () => removeAdvField("temFotos") })
     if (adv.codigo) chips.push({ key: "cod", label: `Cód: ${adv.codigo}`, clear: () => removeAdvField("codigo") })
+    if (adv.development) {
+      const dev = devOptions.find((d) => d.id === adv.development)
+      if (dev) chips.push({ key: "dev", label: `Empreend.: ${dev.name}`, clear: () => removeAdvField("development") })
+    }
     if (filterConstrutora) {
       const org = construtoras.find((c) => c.id === filterConstrutora)
       if (org) chips.push({ key: "org", label: org.name, clear: () => { setFilterConstrutora(""); buildURL(search, filterTipo, filterPreco, filterDorms, "", activeTab, activeChips, adv) } })
     }
     return chips
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, filterTipo, filterPreco, filterDorms, filterConstrutora, adv, minDorms, construtoras, activeChips])
+  }, [search, filterTipo, filterPreco, filterDorms, filterConstrutora, adv, minDorms, construtoras, activeChips, devOptions])
 
   const hasAnyFilter = activeFilterChips.length > 0 || activeChips.length > 0
   const activeConst = construtoras.find((c) => c.id === filterConstrutora)
@@ -720,6 +757,19 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
                       options={TIPO_OPTIONS}
                     />
                   </div>
+                  {devOptions.length > 0 && (
+                    <div>
+                      <label className="block text-xs text-muted-foreground font-sans mb-1.5">Empreendimento</label>
+                      <Sel
+                        value={pendAdv.development}
+                        onChange={(v) => pset("development", v)}
+                        options={[
+                          { value: "", label: "Todos os empreendimentos" },
+                          ...devOptions.map((d) => ({ value: d.id, label: d.name })),
+                        ]}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Linha 2 */}
@@ -740,7 +790,8 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
                       <Inp value={pendAdv.precoMax} onChange={(v) => pset("precoMax", v)} placeholder="Até" type="number" />
                     </div>
                   </div>
-                  <RangeRow label="Área (m²)" minVal={pendAdv.areaMin} maxVal={pendAdv.areaMax} onMin={(v) => pset("areaMin", v)} onMax={(v) => pset("areaMax", v)} />
+                  <RangeRow label="Área privativa (m²)" minVal={pendAdv.areaMin} maxVal={pendAdv.areaMax} onMin={(v) => pset("areaMin", v)} onMax={(v) => pset("areaMax", v)} />
+                  <RangeRow label="Área total / terreno (m²)" minVal={pendAdv.areaTotMin} maxVal={pendAdv.areaTotMax} onMin={(v) => pset("areaTotMin", v)} onMax={(v) => pset("areaTotMax", v)} />
                 </div>
 
                 {/* Linha 4 */}
