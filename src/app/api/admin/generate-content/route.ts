@@ -2,6 +2,8 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import OpenAI from "openai"
+import { rateLimit } from "@/lib/rate-limit"
+import * as Sentry from "@sentry/nextjs"
 
 const ALLOWED_ROLES = ["admin", "imobiliaria", "corretor", "construtora"]
 
@@ -17,7 +19,23 @@ async function getAuth() {
 
 export async function POST(request: Request) {
   const user = await getAuth()
-  if (!user) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+  if (!user) {
+    Sentry.captureMessage("Geração de conteúdo: acesso não autorizado", {
+      level: "warning",
+      extra: { path: "/api/admin/generate-content", method: "POST" },
+    })
+    return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+  }
+
+  // Rate limiting por usuário autenticado: 5 requisições por minuto
+  const rl = rateLimit(`generate:${user.id}`, 5, 60)
+  if (!rl.success) {
+    Sentry.captureMessage("Rate limit atingido: /api/admin/generate-content", {
+      level: "info",
+      extra: { identifier: user.id, endpoint: "/api/admin/generate-content" },
+    })
+    return NextResponse.json({ error: "Limite de requisições atingido. Aguarde 1 minuto." }, { status: 429 })
+  }
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) return NextResponse.json({ error: "OPENAI_API_KEY não configurada" }, { status: 500 })

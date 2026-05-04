@@ -1,0 +1,11 @@
+# security.txt — Política de divulgação responsável de vulnerabilidades
+# Padrão: https://securitytxt.org / RFC 9116
+#
+# Se você encontrou uma vulnerabilidade de segurança nesta aplicação,
+# por favor entre em contato pelo canal abaixo antes de divulgar publicamente.
+# Agradecemos a divulgação responsável.
+
+Contact: mailto:uilliam.rd@hotmail.com
+Expires: 2027-05-04T00:00:00.000Z
+Preferred-Languages: pt, en
+Scope: https://realstate-intelligence.vercel.app/

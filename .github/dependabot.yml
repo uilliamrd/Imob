@@ -1,0 +1,62 @@
+# Configuração do Dependabot
+# O Dependabot verifica automaticamente vulnerabilidades nas dependências
+# e abre Pull Requests de correção no GitHub.
+# Documentação: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    # Raiz do projeto onde está o package.json
+    directory: "/"
+
+    schedule:
+      # Verifica toda segunda-feira — reduz notificações sem deixar vulnerabilidades acumularem
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+
+    # Máximo de PRs abertos simultaneamente — evita flood no repositório
+    open-pull-requests-limit: 5
+
+    # Prefixo das branches criadas pelo Dependabot
+    target-branch: "main"
+    labels:
+      - "dependencies"
+      - "security"
+
+    # Agrupa atualizações de pacotes do mesmo ecossistema num único PR
+    # (reduz ruído para atualizações de patch em pacotes relacionados)
+    groups:
+      # Pacotes de UI/componentes — geralmente mudam juntos
+      ui-packages:
+        patterns:
+          - "lucide-react"
+          - "@radix-ui/*"
+          - "tailwindcss"
+          - "shadcn"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Pacotes Supabase — mudam juntos e raramente quebram a API
+      supabase:
+        patterns:
+          - "@supabase/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Ignora atualizações de patch em pacotes de linting/formatação
+    # (reduz ruído para ferramentas que não afetam produção)
+    ignore:
+      - dependency-name: "eslint*"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "@typescript-eslint/*"
+        update-types: ["version-update:semver-patch"]
+      # Major do TypeScript requer testes manuais — ignorar até decisão explícita
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # Major do ESLint requer testes manuais — ignorar até decisão explícita
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]

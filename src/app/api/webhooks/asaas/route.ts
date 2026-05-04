@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import * as Sentry from "@sentry/nextjs"
 
 export const dynamic = "force-dynamic"
 
@@ -32,9 +33,21 @@ function parseExternalRef(ref: string) {
 }
 
 export async function POST(req: NextRequest) {
-  // Validação opcional do token Asaas
-  const token = req.headers.get("asaas-access-token")
-  if (process.env.ASAAS_WEBHOOK_TOKEN && token !== process.env.ASAAS_WEBHOOK_TOKEN) {
+  // Validação obrigatória do token Asaas
+  // Sem a variável configurada, a rota rejeita tudo — evita processar eventos falsos
+  const expectedToken = process.env.ASAAS_WEBHOOK_TOKEN
+  const receivedToken = req.headers.get("asaas-access-token")
+  if (!expectedToken || receivedToken !== expectedToken) {
+    Sentry.captureMessage("Webhook Asaas: token inválido ou ausente", {
+      level: "warning",
+      extra: {
+        path: req.nextUrl.pathname,
+        method: req.method,
+        ip: req.headers.get("x-forwarded-for") ?? "unknown",
+        hasToken: !!receivedToken,
+        envConfigured: !!expectedToken,
+      },
+    })
     return NextResponse.json({ error: "Token inválido" }, { status: 401 })
   }
 
