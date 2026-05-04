@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { timingSafeEqual } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { rateLimit } from '@/lib/rate-limit'
+import * as Sentry from '@sentry/nextjs'
 import type { IngestPropertyPayload } from '@/types/database'
 
 function isValidToken(provided: string): boolean {
@@ -15,10 +17,29 @@ function isValidToken(provided: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting por IP: 10 requisições por minuto
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const rl = rateLimit(`ingest:${ip}`, 10, 60)
+  if (!rl.success) {
+    Sentry.captureMessage("Rate limit atingido: /api/properties/ingest", {
+      level: "info",
+      extra: { identifier: ip, endpoint: "/api/properties/ingest" },
+    })
+    return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 })
+  }
+
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.replace('Bearer ', '') ?? ""
 
   if (!isValidToken(token)) {
+    Sentry.captureMessage("Ingestão: token inválido ou ausente", {
+      level: "warning",
+      extra: {
+        path: "/api/properties/ingest",
+        method: "POST",
+        ip,
+      },
+    })
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
