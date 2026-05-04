@@ -369,7 +369,7 @@ export default async function DashboardPage() {
       .eq("type", "construtora").not("slug", "is", null),
     // Todos os imóveis públicos com join de organização (reutiliza padrão da vitrine)
     adminClient.from("properties")
-      .select("id, code, title, slug, price, neighborhood, city, images, status, org_id, features, tipo_negocio, tags, categoria, organization:organizations(id, name, slug, logo, brand_colors)")
+      .select("id, code, title, slug, price, neighborhood, city, images, status, org_id, features, tipo_negocio, tags, categoria, development_id, development:developments(id, name), organization:organizations(id, name, slug, logo, brand_colors)")
       .eq("visibility", "publico")
       .order("created_at", { ascending: false }),
     adminClient

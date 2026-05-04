@@ -5,16 +5,12 @@ import { useRouter } from "next/navigation"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
 import { UploadZone } from "@/components/ui/UploadZone"
 import { Save, Plus, X, Hash, Globe, EyeOff, Sparkles, Users, Lock } from "lucide-react"
+import { PROPERTY_CATEGORIES } from "@/lib/constants/property-categories"
 import type { PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
 const ALL_TAGS = Object.keys(getAllTags())
 
-const CATEGORIAS = [
-  "Apartamento", "Casa", "Casa em Condomínio", "Cobertura", "Duplex",
-  "Flat / Apart-hotel", "Kitnet / Studio", "Loft", "Terreno",
-  "Lote em Condomínio Fechado", "Lote em Rua",
-  "Sala Comercial", "Loja", "Galpão / Depósito", "Sítio / Fazenda", "Outro",
-]
+const CATEGORIAS = [...PROPERTY_CATEGORIES]
 
 const TIPOS_VAGA = ["Coberta", "Descoberta", "Box Fechado", "Garagem", "Pilotis", "Não informado"]
 const SITUACOES_VAGA = ["Individual", "Do Condomínio", "Locada", "Não informado"]

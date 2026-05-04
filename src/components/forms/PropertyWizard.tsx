@@ -15,6 +15,7 @@ import { PremiumButton } from "@/components/ui/premium/PremiumButton"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
 import { cn } from "@/lib/utils"
 import { transitions } from "@/lib/design-system/motion"
+import { CATEGORIA_GROUPS, TIPOS_NEGOCIO, MOBILIA_OPTIONS } from "@/lib/constants/property-categories"
 import type { PropertyStatus, PropertyVisibility, Development } from "@/types/database"
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -27,21 +28,6 @@ const STEPS = [
   { label: "Fotos e mídia", short: "Fotos",    icon: Camera    },
   { label: "Anúncio",       short: "Anúncio",  icon: FileText  },
   { label: "Revisão",       short: "Revisão",  icon: Rocket    },
-]
-
-const CATEGORIA_GROUPS = [
-  { label: "Apartamento",  icon: Building2,  values: ["Apartamento", "Duplex", "Loft", "Flat / Apart-hotel"] },
-  { label: "Casa",         icon: Home,       values: ["Casa Bairro", "Casa em Condomínio"] },
-  { label: "Terreno",      icon: MapPin,     values: ["Terreno", "Lote em Condomínio Fechado", "Lote em Rua", "Sítio / Fazenda"] },
-  { label: "Comercial",    icon: Briefcase,  values: ["Sala Comercial", "Loja", "Galpão / Depósito"] },
-  { label: "Outro",        icon: Home,       values: ["Outro"] },
-]
-
-const TIPOS_NEGOCIO = [
-  { value: "venda",     label: "Venda" },
-  { value: "aluguel",   label: "Aluguel" },
-  { value: "temporada", label: "Temporada" },
-  { value: "permuta",   label: "Permuta" },
 ]
 
 const DRAFT_KEY = "pw-draft"
@@ -187,6 +173,8 @@ export function PropertyWizard({
       if (d.areaM2)      setAreaM2(d.areaM2)
       if (d.images)      setImages(d.images)
       if (d.selectedTags) setTags(d.selectedTags)
+      if (d.mobiliado)   setMob(d.mobiliado)
+      if (d.status)      setStatus(d.status)
     } catch { /* ignore */ }
   }, [])
 
@@ -199,7 +187,7 @@ export function PropertyWizard({
         title, description, price, categoria, catGroup,
         tipoNegocio, neighborhood, city, address, cep,
         dormitorios, suites, banheiros, vagas, areaM2,
-        images, selectedTags,
+        images, selectedTags, mobiliado, status,
       }))
       setAutoSt("saved")
     }, 1500)
@@ -636,6 +624,28 @@ export function PropertyWizard({
                 </div>
               </div>
 
+              {/* Mobiliado */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Mobília</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {MOBILIA_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setMob(mobiliado === opt.value ? "" : opt.value)}
+                      className={cn(
+                        "px-3 py-2.5 rounded-xl border text-xs font-sans transition-all",
+                        mobiliado === opt.value
+                          ? "bg-[var(--forest)]/10 border-[var(--forest)] text-[var(--forest)]"
+                          : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                      )}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Diferenciais */}
               <div>
                 <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Diferenciais</p>
@@ -889,6 +899,31 @@ export function PropertyWizard({
                   {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                   Sugerir com IA (baseado nas características)
                 </button>
+              </div>
+
+              {/* Status */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Status</p>
+                <div className="flex gap-2">
+                  {([
+                    { value: "disponivel", label: "Disponível" },
+                    { value: "reserva",    label: "Reservado" },
+                  ] as { value: PropertyStatus; label: string }[]).map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setStatus(s.value)}
+                      className={cn(
+                        "px-5 py-2.5 rounded-xl border font-sans text-sm font-medium transition-all",
+                        status === s.value
+                          ? "bg-[var(--forest)] border-[var(--forest)] text-white"
+                          : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                      )}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Visibilidade */}

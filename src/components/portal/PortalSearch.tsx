@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { PropertyCard, EmptyState } from "@/components/ui/premium"
 import type { PortalProperty, PortalOrg } from "@/types/portal"
+import { TIPOS_NEGOCIO, CATEGORIA_GROUPS } from "@/lib/constants/property-categories"
 
 interface Props {
   properties: PortalProperty[]
@@ -15,12 +16,6 @@ interface Props {
   superDestaques?: PortalProperty[]
   destaqueIds?: Set<string>
 }
-
-const CATEGORIAS = [
-  "Apartamento", "Casa", "Casa em Condomínio", "Cobertura",
-  "Kitnet / Studio", "Terreno", "Lote em Condomínio Fechado", "Lote em Rua",
-  "Sala Comercial", "Loja", "Galpão / Depósito", "Sítio / Fazenda",
-]
 
 function parseBRNumber(val: string): number {
   return parseInt(val.replace(/\./g, "").replace(",", ".")) || 0
@@ -77,7 +72,9 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
       (p.neighborhood ?? "").toLowerCase().includes(q) ||
       (p.city ?? "").toLowerCase().includes(q)
     const matchNegocio = !filterNegocio || p.tipo_negocio === filterNegocio
-    const matchCategoria = !filterCategoria || p.categoria === filterCategoria
+    const catGroup = CATEGORIA_GROUPS.find((g) => g.label === filterCategoria)
+    const matchCategoria = !filterCategoria
+      || (catGroup?.values ?? []).some((v) => p.categoria === v)
     const matchCity = !filterCity || p.city === filterCity
     const matchBairro = !filterBairro || p.neighborhood === filterBairro
     const minBeds = filterBeds ? parseInt(filterBeds) : 0
@@ -196,13 +193,12 @@ export function PortalSearch({ properties, construtoras, superDestaques = [], de
         <div className="bg-card border border-border rounded-xl p-4 mb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           <select value={filterNegocio} onChange={(e) => setNegocio(e.target.value)} className={SELECT_CLASS}>
             <option value="">Tipo de negócio</option>
-            <option value="Venda">Venda</option>
-            <option value="Locação">Locação</option>
+            {TIPOS_NEGOCIO.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
 
           <select value={filterCategoria} onChange={(e) => setCategoria(e.target.value)} className={SELECT_CLASS}>
             <option value="">Tipo</option>
-            {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
+            {CATEGORIA_GROUPS.map((g) => <option key={g.label} value={g.label}>{g.label}</option>)}
           </select>
 
           <select value={filterCity} onChange={(e) => { setCity(e.target.value); setBairro("") }} className={SELECT_CLASS}>
