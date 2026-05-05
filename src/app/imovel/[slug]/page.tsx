@@ -150,7 +150,7 @@ const STATUS_COLOR_LIGHT: Record<string, string> = {
 type SimilarProperty = {
   id: string; title: string; slug: string; price: number
   neighborhood: string | null; city: string | null; images: string[] | null
-  features: PropertyFeatures | null
+  features: PropertyFeatures | null; categoria: string | null
 }
 
 export default async function ImovelPage({ params, searchParams }: PageProps) {
@@ -169,7 +169,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
   if (property.city) {
     const { data } = await supabase
       .from("properties")
-      .select("id, title, slug, price, neighborhood, city, images, features")
+      .select("id, title, slug, price, neighborhood, city, images, features, categoria")
       .eq("visibility", "publico")
       .neq("slug", slug)
       .eq("city", property.city)
@@ -466,6 +466,7 @@ export default async function ImovelPage({ params, searchParams }: PageProps) {
                       quartos={(p.features as PropertyFeatures | undefined)?.suites ?? (p.features as PropertyFeatures | undefined)?.dormitorios ?? null}
                       vagas={(p.features as PropertyFeatures | undefined)?.vagas ?? null}
                       area_m2={(p.features as PropertyFeatures | undefined)?.area_m2 ?? null}
+                      categoria={p.categoria}
                     />
                   ))}
                 </div>

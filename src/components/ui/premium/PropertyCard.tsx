@@ -20,6 +20,7 @@ interface PropertyCardProps {
   quartos?: number | null
   vagas?: number | null
   area_m2?: number | null
+  categoria?: string | null
   tipo_negocio?: string
   /** Custom status badge (overrides tipo_negocio badge) */
   statusBadge?: { label: string; className: string }
@@ -52,6 +53,7 @@ export function PropertyCard({
   quartos,
   vagas,
   area_m2,
+  categoria,
   tipo_negocio,
   statusBadge,
   badge,
@@ -137,6 +139,12 @@ export function PropertyCard({
 
       {/* Body */}
       <div className="flex flex-col gap-2 p-4">
+        {categoria && (
+          <span className="text-[10px] font-sans uppercase tracking-[0.15em] text-muted-foreground/60">
+            {categoria}
+          </span>
+        )}
+
         <p className="font-serif text-base font-semibold text-foreground line-clamp-2 leading-snug">
           {title}
         </p>

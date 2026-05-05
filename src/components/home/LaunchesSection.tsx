@@ -48,6 +48,7 @@ export function LaunchesSection({ properties }: Props) {
             quartos={(hero.features as Record<string, unknown> | null)?.quartos as number | undefined}
             vagas={(hero.features as Record<string, unknown> | null)?.vagas as number | undefined}
             area_m2={(hero.features as Record<string, unknown> | null)?.area_m2 as number | undefined}
+            categoria={hero.categoria}
             badge={{ label: "Lançamento", variant: "gold" }}
           />
         </div>
@@ -64,6 +65,7 @@ export function LaunchesSection({ properties }: Props) {
             quartos={(p.features as Record<string, unknown> | null)?.quartos as number | undefined}
             vagas={(p.features as Record<string, unknown> | null)?.vagas as number | undefined}
             area_m2={(p.features as Record<string, unknown> | null)?.area_m2 as number | undefined}
+            categoria={p.categoria}
             badge={{ label: "Lançamento", variant: "gold" }}
           />
         ))}
@@ -82,6 +84,7 @@ export function LaunchesSection({ properties }: Props) {
               city={p.city}
               images={p.images ?? []}
               quartos={(p.features as Record<string, unknown> | null)?.quartos as number | undefined}
+              categoria={p.categoria}
               badge={{ label: "Lançamento", variant: "gold" }}
             />
           </div>

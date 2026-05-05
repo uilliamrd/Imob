@@ -93,6 +93,7 @@ export function PropertiesGrid({ properties, superDestaques, destaqueIds }: Prop
                 quartos={getFeature(p, "quartos")}
                 vagas={getFeature(p, "vagas")}
                 area_m2={getFeature(p, "area_m2")}
+                categoria={p.categoria}
                 tipo_negocio={p.tipo_negocio ?? undefined}
                 badge={
                   superDestaques.some((s) => s.id === p.id)

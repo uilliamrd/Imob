@@ -1041,6 +1041,7 @@ function BuscarImoveisInner({ properties, construtoras, role, userName }: Props)
                     }
                     vagas={(p.features as PropertyFeatures | null)?.vagas ?? null}
                     area_m2={(p.features as PropertyFeatures | null)?.area_m2 ?? null}
+                    categoria={p.categoria}
                     tipo_negocio={p.tipo_negocio ?? undefined}
                     statusBadge={statusBadgeFor(p.status)}
                     href={`/dashboard/imoveis/${p.id}`}
