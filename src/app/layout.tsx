@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
+import { headers } from "next/headers"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import "./globals.css"
 
@@ -36,16 +37,20 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? ""
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        {/* Prevent FOUC: apply saved theme class before first paint */}
+        {/* Prevent FOUC: apply saved theme class before first paint.
+            nonce é gerado pelo proxy.ts por request — necessário com CSP nonce-based. */}
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){var t=localStorage.getItem('theme');if(t!=='light')document.documentElement.classList.add('dark');})()`
           }}
