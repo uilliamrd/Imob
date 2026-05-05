@@ -27,7 +27,7 @@ export function PremiumButton({
   disabled,
   ...props
 }: PremiumButtonProps) {
-  const iconSize = size === "xs" || size === "sm" ? 14 : size === "lg" || size === "xl" ? 18 : 16
+  const iconSize = size === "xs" || size === "sm" ? 14 : size === "lg" ? 18 : 16
 
   return (
     <motion.button

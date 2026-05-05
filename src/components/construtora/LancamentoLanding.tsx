@@ -16,11 +16,11 @@ function formatPrice(price: number) {
   return "R$ " + price.toLocaleString("pt-BR")
 }
 
-// Status badges always on dark background (bg-graphite section) — use dark-safe colors only
+// Status badges on dark background — fixed dark-safe values, no opacity dependency
 const STATUS_MAP = {
-  disponivel: { label: "Disponível", cls: "bg-emerald-900/30 text-emerald-300 border-emerald-700/50" },
-  reserva:    { label: "Reservado",  cls: "bg-amber-900/30 text-amber-300 border-amber-700/50" },
-  vendido:    { label: "Vendido",    cls: "bg-zinc-800 text-zinc-400 border-zinc-700/50" },
+  disponivel: { label: "Disponível", cls: "bg-emerald-900/50 text-emerald-200 border-emerald-700/50" },
+  reserva:    { label: "Reservado",  cls: "bg-amber-900/50 text-amber-200 border-amber-700/50" },
+  vendido:    { label: "Vendido",    cls: "bg-zinc-800/80 text-zinc-300 border-zinc-600/50" },
 } as const
 
 interface Props {
@@ -122,11 +122,11 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.2 }}
             className="flex flex-col sm:flex-row gap-3 w-full max-w-sm sm:max-w-none sm:w-auto">
             <button onClick={() => document.getElementById("unidades")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-8 py-4 border border-gold text-gold hover:bg-gold hover:text-foreground transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
+              className="px-8 py-4 border border-white/40 text-white hover:border-white hover:bg-white/10 transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
               Ver Unidades {disponiveisCount > 0 && `(${disponiveisCount})`}
             </button>
             <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-              className="px-8 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
+              className="px-8 py-4 bg-[var(--action-default)] text-white hover:bg-[var(--action-hover)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
               <MessageCircle size={15} /> Quero Saber Mais
             </a>
           </motion.div>
@@ -149,7 +149,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           ].map((s) => (
             <div key={s.label}>
               <p className="font-serif text-xl sm:text-2xl font-bold text-white mb-0.5">{s.value}</p>
-              <p className="text-white/30 text-[10px] uppercase tracking-wider font-sans">{s.label}</p>
+              <p className="text-white/60 text-xs uppercase tracking-wider font-sans">{s.label}</p>
             </div>
           ))}
         </div>
@@ -172,10 +172,10 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
             <div className="flex gap-2 flex-wrap">
               {filters.map((f) => (
                 <button key={f.id} onClick={() => setActiveFilter(f.id)}
-                  className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-full ${
+                  className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-md ${
                     activeFilter === f.id
-                      ? "bg-gold text-foreground font-semibold"
-                      : "border border-white/30 text-white/70 hover:border-gold/50 hover:text-gold"
+                      ? "bg-[var(--action-default)] text-white font-medium"
+                      : "border border-white/30 text-white/70 hover:border-white/60 hover:text-white"
                   }`}>
                   {f.label}
                 </button>
@@ -186,7 +186,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <div className="divider-gold opacity-30 mb-1" />
 
           {/* Desktop table header — hidden on mobile */}
-          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-white/30 font-sans">
+          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-xs uppercase tracking-[0.15em] text-white/60 font-sans">
             <span className="col-span-4">Unidade</span>
             <span className="col-span-2 text-center">Área</span>
             <span className="col-span-2 text-center">Dormitórios</span>
@@ -212,7 +212,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                       <div className="flex-1 min-w-0">
                         <p className="font-serif text-white font-semibold text-base leading-tight">{p.title}</p>
                         {p.code && (
-                          <p className="text-white/60 text-[11px] font-sans mt-0.5 flex items-center gap-1">
+                          <p className="text-white/60 text-xs font-sans mt-0.5 flex items-center gap-1">
                             <Hash size={9} /> Cód. {p.code}
                           </p>
                         )}
@@ -253,11 +253,11 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                     <div className="col-span-4 flex flex-col gap-1">
                       <span className="font-serif text-white font-semibold text-base leading-tight">{p.title}</span>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`inline-flex items-center text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
+                        <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
                           {status.label}
                         </span>
                         {p.code && (
-                          <span className="text-white/60 text-[10px] font-sans flex items-center gap-0.5">
+                          <span className="text-white/60 text-xs font-sans flex items-center gap-0.5">
                             <Hash size={8} />{p.code}
                           </span>
                         )}
@@ -341,7 +341,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                     <FileDown size={16} className="text-gold/80 group-hover:text-gold transition-colors flex-shrink-0" />
                     <div>
                       <p className="text-white/80 font-sans text-sm font-medium">{doc.name}</p>
-                      <p className="text-white/60 font-sans text-[10px] uppercase tracking-wider mt-0.5">{doc.type}</p>
+                      <p className="text-white/60 font-sans text-xs uppercase tracking-wider mt-0.5">{doc.type}</p>
                     </div>
                     <ArrowRight size={12} className="text-white/20 group-hover:text-gold/80 ml-1 transition-colors" />
                   </a>
@@ -371,7 +371,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           As melhores unidades são reservadas nos primeiros dias. Fale com um consultor agora.
         </p>
         <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans">
+          className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--action-default)] text-white hover:bg-[var(--action-hover)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans">
           <MessageCircle size={15} /> Falar com Consultor
         </a>
       </section>

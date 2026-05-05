@@ -53,13 +53,13 @@ interface PropertyWizardProps {
 
 function Stepper({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
-    <div className="flex flex-col items-center gap-2 p-4 bg-card rounded-2xl border border-border">
-      <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">{label}</p>
+    <div className="flex flex-col items-center gap-2 p-4 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border-default)]">
+      <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans">{label}</p>
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => onChange(Math.max(0, value - 1))}
-          className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-[var(--forest)] hover:text-white hover:border-[var(--forest)] transition-all"
+          className="w-9 h-9 rounded-md bg-[var(--surface-base)] border border-[var(--border-default)] flex items-center justify-center text-txt-tertiary hover:bg-[var(--primary-default)] hover:text-white hover:border-[var(--primary-default)] transition-all"
         >
           <Minus size={13} />
         </button>
@@ -67,7 +67,7 @@ function Stepper({ label, value, onChange }: { label: string; value: number; onC
         <button
           type="button"
           onClick={() => onChange(Math.min(20, value + 1))}
-          className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-[var(--forest)] hover:text-white hover:border-[var(--forest)] transition-all"
+          className="w-9 h-9 rounded-md bg-[var(--surface-base)] border border-[var(--border-default)] flex items-center justify-center text-txt-tertiary hover:bg-[var(--primary-default)] hover:text-white hover:border-[var(--primary-default)] transition-all"
         >
           <Plus size={13} />
         </button>
@@ -433,19 +433,18 @@ export function PropertyWizard({
   const score = getScore()
   const scoreColor = score >= 80 ? "bg-emerald-500" : score >= 50 ? "bg-amber-500" : "bg-red-500"
 
-  const ic = "w-full bg-muted/50 border border-border text-foreground placeholder-muted-foreground/40 px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--gold)]/50 transition-colors"
+  const ic = "w-full bg-[var(--surface-sunken)] border border-[var(--border-default)] text-foreground placeholder:text-txt-tertiary px-3 py-2.5 rounded-md font-sans text-sm focus:outline-none focus:border-[var(--primary-default)] focus:ring-2 focus:ring-[var(--primary-default)]/15 transition-colors"
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="max-w-3xl">
 
       {/* ── Progress bar ───────────────────────────────────────────────── */}
-      <div className="bg-card border border-border rounded-2xl p-4 mb-6">
+      <div className="bg-[var(--surface-base)] border border-[var(--border-subtle)] rounded-lg p-4 mb-6">
         <div className="flex items-center justify-between relative">
-          {/* Connector line */}
-          <div className="absolute left-0 right-0 top-5 h-0.5 bg-border mx-8 hidden sm:block" />
+          <div className="absolute left-0 right-0 top-5 h-0.5 bg-[var(--border-default)] mx-8 hidden sm:block" />
           <div
-            className="absolute left-0 top-5 h-0.5 bg-[var(--gold)] mx-8 hidden sm:block transition-all duration-500"
+            className="absolute left-0 top-5 h-0.5 bg-[var(--primary-default)] mx-8 hidden sm:block transition-all duration-500"
             style={{ right: `${(1 - step / (STEPS.length - 1)) * 100}%` }}
           />
           {STEPS.map((s, i) => {
@@ -461,15 +460,15 @@ export function PropertyWizard({
               >
                 <div className={cn(
                   "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-                  done   && "bg-[var(--gold)] border-[var(--gold)] text-[#1C1C1C]",
-                  active && "bg-[var(--forest)] border-[var(--forest)] text-white",
-                  !done && !active && "bg-muted border-border text-muted-foreground"
+                  done   && "bg-[var(--primary-default)] border-[var(--primary-default)] text-white",
+                  active && "bg-[var(--primary-default)] border-[var(--primary-default)] text-white",
+                  !done && !active && "bg-[var(--surface-sunken)] border-[var(--border-default)] text-txt-tertiary"
                 )}>
                   {done ? <Check size={15} /> : <Icon size={15} />}
                 </div>
                 <span className={cn(
-                  "text-[10px] font-sans transition-colors hidden sm:block",
-                  active ? "text-foreground font-semibold" : done ? "text-[var(--gold)]" : "text-muted-foreground"
+                  "text-xs font-sans transition-colors hidden sm:block",
+                  active ? "text-foreground font-semibold" : done ? "text-[var(--primary-default)]" : "text-txt-tertiary"
                 )}>
                   {s.short}
                 </span>
@@ -478,15 +477,14 @@ export function PropertyWizard({
           })}
         </div>
 
-        {/* Autosave indicator */}
         <div className="flex items-center justify-end mt-3">
           {autosaveSt === "saving" && (
-            <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-sans">
+            <span className="flex items-center gap-1.5 text-xs text-txt-tertiary font-sans">
               <Loader2 size={10} className="animate-spin" /> Salvando...
             </span>
           )}
           {autosaveSt === "saved" && (
-            <span className="flex items-center gap-1.5 text-[10px] text-emerald-500/70 font-sans">
+            <span className="flex items-center gap-1.5 text-xs text-[var(--action-default)] font-sans">
               <Check size={10} /> Salvo automaticamente
             </span>
           )}
@@ -495,7 +493,7 @@ export function PropertyWizard({
 
       {/* ── Step title ─────────────────────────────────────────────────── */}
       <div className="mb-6">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--gold)]/60 font-sans">Passo {step + 1} de {STEPS.length}</p>
+        <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans">Passo {step + 1} de {STEPS.length}</p>
         <h2 className="font-serif text-2xl font-bold text-foreground mt-0.5">{STEPS[step].label}</h2>
       </div>
 
@@ -515,7 +513,7 @@ export function PropertyWizard({
 
               {/* Tipo de imóvel */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">
                   Tipo de imóvel <span className="text-destructive">*</span>
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -531,10 +529,10 @@ export function PropertyWizard({
                           setCategoria(g.values[0])
                         }}
                         className={cn(
-                          "flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-sans transition-all",
+                          "flex flex-col items-center gap-2 p-3 rounded-md border text-xs font-sans transition-all",
                           active
-                            ? "bg-[var(--forest)] border-[var(--forest)] text-white"
-                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                            ? "bg-[var(--primary-subtle)] border-[var(--primary-default)] text-[var(--primary-default)]"
+                            : "bg-[var(--surface-base)] border-[var(--border-default)] text-txt-tertiary hover:border-[var(--primary-default)]/40 hover:text-foreground"
                         )}
                       >
                         <Icon size={18} strokeWidth={1.5} />
@@ -551,10 +549,10 @@ export function PropertyWizard({
                         type="button"
                         onClick={() => setCategoria(v)}
                         className={cn(
-                          "px-3 py-1.5 rounded-full border text-xs font-sans transition-all",
+                          "px-3 py-1.5 rounded-md border text-xs font-sans transition-all",
                           categoria === v
-                            ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--gold)]"
-                            : "border-border text-muted-foreground hover:border-[var(--gold)]/40"
+                            ? "bg-[var(--primary-subtle)] border-[var(--primary-default)] text-[var(--primary-default)]"
+                            : "border-[var(--border-default)] text-txt-tertiary hover:border-[var(--primary-default)]/40"
                         )}
                       >
                         {v}
@@ -568,19 +566,19 @@ export function PropertyWizard({
               {/* Empreendimento */}
               {developments.length > 0 && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-2">
-                    Empreendimento <span className="text-muted-foreground/40 normal-case tracking-normal">(opcional)</span>
+                  <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-2">
+                    Empreendimento <span className="text-txt-disabled normal-case tracking-normal">(opcional)</span>
                   </p>
                   {developmentId ? (
                     (() => {
                       const dev = developments.find((d) => d.id === developmentId)
                       return (
-                        <div className="flex items-center gap-3 p-3 rounded-xl border border-[var(--forest)]/40 bg-[var(--forest)]/5">
-                          <Building2 size={15} className="text-[var(--forest)] shrink-0" />
+                        <div className="flex items-center gap-3 p-3 rounded-md border border-[var(--primary-default)]/30 bg-[var(--primary-subtle)]">
+                          <Building2 size={15} className="text-[var(--primary-default)] shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-sans font-medium text-foreground leading-tight">{dev?.name}</p>
                             {(dev?.neighborhood || dev?.city) && (
-                              <p className="text-xs font-sans text-muted-foreground mt-0.5">
+                              <p className="text-xs font-sans text-txt-secondary mt-0.5">
                                 {[dev?.neighborhood, dev?.city].filter(Boolean).join(" · ")}
                               </p>
                             )}
@@ -588,7 +586,7 @@ export function PropertyWizard({
                           <button
                             type="button"
                             onClick={() => handleDevChange("")}
-                            className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                            className="text-txt-tertiary hover:text-foreground transition-colors shrink-0"
                           >
                             <X size={15} />
                           </button>
@@ -599,10 +597,10 @@ export function PropertyWizard({
                     <button
                       type="button"
                       onClick={() => setDevModalOpen(true)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-border hover:border-[var(--gold)]/40 hover:bg-card transition-colors text-left"
+                      className="w-full flex items-center gap-3 p-3 rounded-md border border-dashed border-[var(--border-default)] hover:border-[var(--primary-default)]/40 hover:bg-[var(--surface-sunken)] transition-colors text-left"
                     >
-                      <Building2 size={15} className="text-muted-foreground shrink-0" />
-                      <span className="text-sm font-sans text-muted-foreground">Vincular a um empreendimento...</span>
+                      <Building2 size={15} className="text-txt-tertiary shrink-0" />
+                      <span className="text-sm font-sans text-txt-tertiary">Vincular a um empreendimento...</span>
                     </button>
                   )}
                   {devModalOpen && (
@@ -618,7 +616,7 @@ export function PropertyWizard({
 
               {/* Bairro */}
               <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
+                <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">
                   Bairro <span className="text-destructive">*</span>
                 </label>
                 {bairros.length > 0 ? (
@@ -634,7 +632,7 @@ export function PropertyWizard({
 
               {/* Logradouro */}
               <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">Logradouro / Rua</label>
+                <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">Logradouro / Rua</label>
                 {logradouros.length > 0 ? (
                   <select value={logradouroId} onChange={(e) => handleLogradouroChange(e.target.value)} className={ic}>
                     <option value="">— Selecione —</option>
@@ -648,18 +646,18 @@ export function PropertyWizard({
               {/* Número + Complemento */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">Número</label>
+                  <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">Número</label>
                   <input type="text" value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="1200" className={ic} />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">Apto / Comp.</label>
+                  <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">Apto / Comp.</label>
                   <input type="text" value={numeroApto} onChange={(e) => setApto(e.target.value)} placeholder="1201" className={ic} />
                 </div>
               </div>
 
               {/* Cidade */}
               <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
+                <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">
                   Cidade <span className="text-destructive">*</span>
                 </label>
                 <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Rio de Janeiro" className={cn(ic, errors.city && "border-destructive")} />
@@ -671,24 +669,24 @@ export function PropertyWizard({
                 type="button"
                 onClick={() => setShowAddr((v) => !v)}
                 className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-xl border transition-colors",
-                  showAddr ? "border-emerald-700/40 bg-emerald-900/10" : "border-border bg-card"
+                  "w-full flex items-center justify-between p-4 rounded-md border transition-colors",
+                  showAddr ? "border-[var(--action-default)]/40 bg-[var(--action-subtle)]" : "border-[var(--border-default)] bg-[var(--surface-base)]"
                 )}
               >
                 <div className="flex items-center gap-3">
                   {showAddr
-                    ? <Globe size={15} className="text-emerald-400" />
-                    : <EyeOff size={15} className="text-muted-foreground" />}
+                    ? <Globe size={15} className="text-[var(--action-default)]" />
+                    : <EyeOff size={15} className="text-txt-tertiary" />}
                   <div className="text-left">
-                    <p className={cn("text-sm font-sans font-medium", showAddr ? "text-emerald-300" : "text-muted-foreground")}>
+                    <p className={cn("text-sm font-sans font-medium", showAddr ? "text-[var(--action-default)]" : "text-txt-secondary")}>
                       {showAddr ? "Endereço completo visível no anúncio" : "Mostrar apenas bairro e cidade"}
                     </p>
-                    <p className="text-xs font-sans text-muted-foreground/50 mt-0.5">
+                    <p className="text-xs font-sans text-txt-tertiary mt-0.5">
                       {showAddr ? "Comprador verá o endereço exato" : "Endereço completo ficará oculto"}
                     </p>
                   </div>
                 </div>
-                <div className={cn("w-11 h-6 rounded-full transition-colors relative flex-shrink-0", showAddr ? "bg-emerald-600" : "bg-muted")}>
+                <div className={cn("w-11 h-6 rounded-full transition-colors relative flex-shrink-0", showAddr ? "bg-[var(--action-default)]" : "bg-[var(--surface-sunken)]")}>
                   <span className={cn("absolute top-1 w-4 h-4 rounded-full bg-white transition-all", showAddr ? "left-6" : "left-1")} />
                 </div>
               </button>
@@ -701,7 +699,7 @@ export function PropertyWizard({
 
               {/* Steppers */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Cômodos</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Cômodos</p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <Stepper label="Quartos"  value={dormitorios} onChange={setDorms} />
                   <Stepper label="Suítes"   value={suites}      onChange={setSuites} />
@@ -712,18 +710,18 @@ export function PropertyWizard({
 
               {/* Áreas */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Áreas</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Áreas</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5">Área privativa (m²)</label>
+                    <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">Área privativa (m²)</label>
                     <input type="number" min="0" step="0.1" value={areaM2} onChange={(e) => setAreaM2(e.target.value)} placeholder="128" className={ic} />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5">Área total (m²)</label>
+                    <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">Área total (m²)</label>
                     <input type="number" min="0" step="0.1" value={areaTotal} onChange={(e) => setAreaTot(e.target.value)} placeholder="160" className={ic} />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-sans block mb-1.5">Andar</label>
+                    <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">Andar</label>
                     <input type="number" min="0" value={andar} onChange={(e) => setAndar(e.target.value)} placeholder="12" className={ic} />
                   </div>
                 </div>
@@ -731,7 +729,7 @@ export function PropertyWizard({
 
               {/* Mobiliado */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Mobília</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Mobília</p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {MOBILIA_OPTIONS.map((opt) => (
                     <button
@@ -741,8 +739,8 @@ export function PropertyWizard({
                       className={cn(
                         "px-3 py-2.5 rounded-xl border text-xs font-sans transition-all",
                         mobiliado === opt.value
-                          ? "bg-[var(--forest)]/10 border-[var(--forest)] text-[var(--forest)]"
-                          : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                          ? "bg-[var(--primary-subtle)] border-[var(--primary-default)] text-[var(--primary-default)]"
+                          : "bg-[var(--surface-base)] border-[var(--border-default)] text-txt-tertiary hover:border-[var(--primary-default)]/40 hover:text-foreground"
                       )}
                     >
                       {opt.label}
@@ -753,7 +751,7 @@ export function PropertyWizard({
 
               {/* Diferenciais */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Diferenciais</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Diferenciais</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {ALL_TAGS.map((tag) => {
                     const info = getTagInfo(tag)
@@ -767,8 +765,8 @@ export function PropertyWizard({
                         className={cn(
                           "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-xs font-sans transition-all text-left",
                           active
-                            ? "bg-[var(--forest)]/10 border-[var(--forest)] text-[var(--forest)]"
-                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                            ? "bg-[var(--primary-subtle)] border-[var(--primary-default)] text-[var(--primary-default)]"
+                            : "bg-[var(--surface-base)] border-[var(--border-default)] text-txt-tertiary hover:border-[var(--primary-default)]/40 hover:text-foreground"
                         )}
                       >
                         <Icon size={13} className="flex-shrink-0" />
@@ -814,7 +812,7 @@ export function PropertyWizard({
 
               {/* Video */}
               <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">URL do tour virtual / vídeo (opcional)</label>
+                <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">URL do tour virtual / vídeo (opcional)</label>
                 <input
                   type="url"
                   value={videoUrl}
@@ -833,8 +831,8 @@ export function PropertyWizard({
 
               {/* Admin org transfer */}
               {isAdmin && construtoras.length > 0 && (
-                <div className="bg-card border border-border rounded-2xl p-5">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Organização (Admin)</p>
+                <div className="bg-card border border-border rounded-lg p-5">
+                  <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Organização (Admin)</p>
                   <select
                     value={selectedOrgId ?? ""}
                     onChange={(e) => setSelectedOrgId(e.target.value || null)}
@@ -848,7 +846,7 @@ export function PropertyWizard({
 
               {/* Operação */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Operação</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Operação</p>
                 <div className="flex gap-2 flex-wrap">
                   {TIPOS_NEGOCIO.map((t) => (
                     <button
@@ -858,8 +856,8 @@ export function PropertyWizard({
                       className={cn(
                         "px-5 py-2.5 rounded-xl border font-sans text-sm font-medium transition-all",
                         tipoNegocio === t.value
-                          ? "bg-[var(--forest)] border-[var(--forest)] text-white"
-                          : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                          ? "bg-[var(--primary-default)] border-[var(--primary-default)] text-white"
+                          : "border-[var(--border-default)] text-txt-tertiary hover:border-[var(--primary-default)]/40 hover:text-foreground"
                       )}
                     >
                       {t.label}
@@ -871,7 +869,7 @@ export function PropertyWizard({
               {/* Título */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">
+                  <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans">
                     Título do anúncio <span className="text-destructive">*</span>
                   </label>
                   <span className={cn("text-[10px] font-sans", title.length > 90 ? "text-amber-500" : "text-muted-foreground/40")}>
@@ -891,7 +889,7 @@ export function PropertyWizard({
 
               {/* Preço */}
               <div>
-                <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
+                <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans block mb-1.5">
                   Preço <span className="text-destructive">*</span>
                 </label>
                 <div className="relative">
@@ -912,7 +910,7 @@ export function PropertyWizard({
               {/* Descrição + AI */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans">
+                  <label className="text-xs uppercase tracking-widest text-txt-tertiary font-sans">
                     Descrição
                   </label>
                   <span className={cn("text-[10px] font-sans", description.length > 1800 ? "text-amber-500" : "text-muted-foreground/40")}>
@@ -932,7 +930,7 @@ export function PropertyWizard({
                   type="button"
                   onClick={handleGenerateContent}
                   disabled={aiLoading || (!categoria && !neighborhood)}
-                  className="mt-2 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-sans text-[var(--gold)] border border-[var(--gold)]/30 hover:bg-[var(--gold)]/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="mt-2 flex items-center gap-2 px-4 py-2 rounded-md text-xs font-sans text-txt-tertiary border border-[var(--border-default)] hover:bg-[var(--surface-sunken)] hover:text-[var(--primary-default)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                   Sugerir com IA (baseado nas características)
@@ -941,7 +939,7 @@ export function PropertyWizard({
 
               {/* Status */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Status</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Status</p>
                 <div className="flex gap-2">
                   {([
                     { value: "disponivel", label: "Disponível" },
@@ -954,8 +952,8 @@ export function PropertyWizard({
                       className={cn(
                         "px-5 py-2.5 rounded-xl border font-sans text-sm font-medium transition-all",
                         status === s.value
-                          ? "bg-[var(--forest)] border-[var(--forest)] text-white"
-                          : "border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                          ? "bg-[var(--primary-default)] border-[var(--primary-default)] text-white"
+                          : "border-[var(--border-default)] text-txt-tertiary hover:border-[var(--primary-default)]/40 hover:text-foreground"
                       )}
                     >
                       {s.label}
@@ -966,7 +964,7 @@ export function PropertyWizard({
 
               {/* Visibilidade */}
               <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Visibilidade</p>
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Visibilidade</p>
                 {role === "corretor" ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
@@ -981,7 +979,7 @@ export function PropertyWizard({
                         className={cn(
                           "flex flex-col items-start gap-1 p-4 rounded-xl border text-left transition-all",
                           visibility === value
-                            ? "bg-[var(--forest)]/10 border-[var(--forest)] text-[var(--forest)]"
+                            ? "bg-[var(--primary-subtle)] border-[var(--primary-default)] text-[var(--primary-default)]"
                             : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40"
                         )}
                       >
@@ -996,19 +994,19 @@ export function PropertyWizard({
                     type="button"
                     onClick={() => setVis(visibility === "publico" ? "privado" : "publico")}
                     className={cn(
-                      "w-full flex items-center justify-between p-3 rounded-xl border transition-colors",
-                      visibility === "publico" ? "border-emerald-700/40 bg-emerald-900/10" : "border-border"
+                      "w-full flex items-center justify-between p-3 rounded-md border transition-colors",
+                      visibility === "publico" ? "border-[var(--action-default)]/40 bg-[var(--action-subtle)]" : "border-[var(--border-default)]"
                     )}
                   >
                     <div className="flex items-center gap-2.5">
                       {visibility === "publico"
-                        ? <Globe size={14} className="text-emerald-400" />
-                        : <EyeOff size={14} className="text-muted-foreground" />}
-                      <p className={cn("text-sm font-sans", visibility === "publico" ? "text-emerald-300" : "text-muted-foreground")}>
+                        ? <Globe size={14} className="text-[var(--action-default)]" />
+                        : <EyeOff size={14} className="text-txt-tertiary" />}
+                      <p className={cn("text-sm font-sans", visibility === "publico" ? "text-[var(--action-default)]" : "text-txt-secondary")}>
                         {visibility === "publico" ? "Publicar no catálogo" : "Manter privado"}
                       </p>
                     </div>
-                    <div className={cn("w-10 h-5 rounded-full transition-colors relative flex-shrink-0", visibility === "publico" ? "bg-emerald-600" : "bg-muted")}>
+                    <div className={cn("w-10 h-5 rounded-full transition-colors relative flex-shrink-0", visibility === "publico" ? "bg-[var(--action-default)]" : "bg-[var(--surface-sunken)]")}>
                       <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all", visibility === "publico" ? "left-5" : "left-0.5")} />
                     </div>
                   </button>
@@ -1032,10 +1030,10 @@ export function PropertyWizard({
                 {/* Preview */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/20 text-[var(--gold)] font-sans">Preview</span>
-                    <p className="text-xs text-muted-foreground font-sans">Como vai aparecer</p>
+                    <span className="text-xs uppercase tracking-wide px-2 py-0.5 rounded bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-txt-tertiary font-sans">Preview</span>
+                    <p className="text-xs text-txt-tertiary font-sans">Como vai aparecer</p>
                   </div>
-                  <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="bg-card border border-border rounded-lg overflow-hidden">
                     <div className="aspect-video bg-muted relative">
                       {images[0]
                         ? <img src={images[0]} alt={title} className="w-full h-full object-cover" />
@@ -1044,7 +1042,7 @@ export function PropertyWizard({
                           </div>
                       }
                       <div className="absolute top-2 left-2">
-                        <span className="text-[9px] px-2 py-0.5 rounded-full bg-[var(--forest)] text-white font-sans uppercase tracking-wider">
+                        <span className="text-xs px-2 py-0.5 rounded bg-[var(--action-default)] text-white font-sans uppercase tracking-wide">
                           {tipoNegocio}
                         </span>
                       </div>
@@ -1069,7 +1067,7 @@ export function PropertyWizard({
                 <div className="space-y-4">
 
                   {/* Quality score */}
-                  <div className="bg-card border border-border rounded-2xl p-4">
+                  <div className="bg-card border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-xs font-sans font-medium text-foreground">Qualidade do anúncio</p>
                       <span className={cn("text-sm font-serif font-bold", score >= 80 ? "text-emerald-500" : score >= 50 ? "text-amber-500" : "text-red-400")}>
@@ -1082,7 +1080,7 @@ export function PropertyWizard({
                         style={{ width: `${score}%` }}
                       />
                     </div>
-                    <p className="text-[10px] text-muted-foreground/60 font-sans mt-2">
+                    <p className="text-xs text-txt-tertiary font-sans mt-2">
                       {score < 50 ? "Adicione mais detalhes para atrair mais contatos" :
                        score < 80 ? "Bom! Adicione fotos e descrição para melhorar" :
                        "Excelente! Seu anúncio está bem otimizado"}
@@ -1090,8 +1088,8 @@ export function PropertyWizard({
                   </div>
 
                   {/* Checklist */}
-                  <div className="bg-card border border-border rounded-2xl p-4 space-y-2.5">
-                    <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">Checklist</p>
+                  <div className="bg-card border border-border rounded-lg p-4 space-y-2.5">
+                    <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans mb-3">Checklist</p>
                     {[
                       { ok: title.length > 0,             label: "Título preenchido" },
                       { ok: parseFloat(price) > 0,        label: "Preço informado" },
@@ -1138,7 +1136,7 @@ export function PropertyWizard({
           <button
             type="button"
             onClick={goPrev}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/30 transition-all font-sans text-sm"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-md border border-[var(--border-default)] text-txt-secondary hover:text-foreground hover:border-[var(--primary-default)]/40 transition-all font-sans text-sm"
           >
             <ChevronLeft size={15} /> Voltar
           </button>
@@ -1151,13 +1149,13 @@ export function PropertyWizard({
             onClick={goNext}
             animate={shaking ? { x: [-6, 6, -4, 4, -2, 2, 0] } : {}}
             transition={{ duration: 0.4 }}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--forest)] text-white hover:opacity-90 transition-all font-sans text-sm font-medium"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-md bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] transition-all font-sans text-sm font-medium"
           >
             Continuar <ChevronRight size={15} />
           </motion.button>
         ) : (
           <PremiumButton
-            variant="gold"
+            variant="action"
             size="lg"
             loading={loading}
             onClick={handleSubmit}

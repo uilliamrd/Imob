@@ -18,7 +18,7 @@ export function PremiumBadge({
   className,
   ...props
 }: PremiumBadgeProps) {
-  const iconSize = size === "xs" ? 10 : size === "md" ? 12 : 11
+  const iconSize = size === "md" ? 14 : 12
 
   return (
     <span className={cn(badgeVariants({ variant, size }), className)} {...props}>
