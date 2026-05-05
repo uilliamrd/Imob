@@ -45,8 +45,8 @@ export function DevelopmentPickerModal({ developments, selectedId, onSelect, onC
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
           <div className="flex items-center gap-2">
-            <Building2 size={16} className="text-[var(--gold)]" />
-            <p className="font-sans font-medium text-sm text-foreground">Vincular a empreendimento</p>
+            <Building2 size={16} className="text-[var(--primary-default)]" />
+            <p className="font-sans font-semibold text-sm text-foreground">Vincular a empreendimento</p>
           </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X size={18} />
@@ -63,7 +63,7 @@ export function DevelopmentPickerModal({ developments, selectedId, onSelect, onC
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar por nome, bairro ou cidade..."
-              className="w-full bg-card border border-border text-foreground placeholder-muted-foreground/40 pl-9 pr-4 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--gold)]/40 transition-colors"
+              className="w-full bg-background border border-border text-foreground placeholder-muted-foreground pl-9 pr-4 py-2.5 rounded-md font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/30 transition-colors"
             />
             {query && (
               <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -128,9 +128,9 @@ export function DevelopmentPickerModal({ developments, selectedId, onSelect, onC
 
         {/* Footer */}
         <div className="p-3 border-t border-border shrink-0">
-          <p className="text-[10px] font-sans text-muted-foreground text-center">
+          <p className="text-xs font-sans text-muted-foreground text-center">
             Para cadastrar novos empreendimentos, acesse{" "}
-            <a href="/dashboard/empreendimentos" target="_blank" className="text-[var(--gold)] hover:underline">
+            <a href="/dashboard/empreendimentos" target="_blank" className="text-[var(--primary-default)] hover:underline">
               Empreendimentos
             </a>
           </p>

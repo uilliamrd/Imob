@@ -18,7 +18,7 @@ interface Props {
 const STATUS_CONFIG: Record<ProjectStatus, { label: string; className: string }> = {
   em_obras:   { label: "Em obras",   className: "bg-amber-500/10 text-amber-600 border-amber-500/30" },
   pronto:     { label: "Pronto",     className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
-  lancamento: { label: "Lançamento", className: "bg-[var(--gold)]/10 text-[var(--gold)] border-[var(--gold)]/30" },
+  lancamento: { label: "Lançamento", className: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" },
 }
 
 export function BuilderProjectCard({ name, image, location, percentSold, availableUnits, status, href }: Props) {
@@ -48,7 +48,7 @@ export function BuilderProjectCard({ name, image, location, percentSold, availab
 
         {/* Status badge */}
         <span className={cn(
-          "absolute top-3 left-3 text-[10px] px-2 py-0.5 rounded-full border font-sans uppercase tracking-wider",
+          "absolute top-3 left-3 text-xs px-2 py-0.5 rounded-full border font-sans uppercase tracking-wider",
           statusCfg.className
         )}>
           {statusCfg.label}
@@ -68,7 +68,7 @@ export function BuilderProjectCard({ name, image, location, percentSold, availab
 
         {/* Progress bar */}
         <div className="mt-3">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground font-sans mb-1.5">
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-sans mb-1.5">
             <span>{percentSold}% vendido</span>
             <span>{availableUnits} disponíveis</span>
           </div>
