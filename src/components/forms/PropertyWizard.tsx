@@ -10,6 +10,7 @@ import {
   Minus, Plus, Sparkles, AlertTriangle, CheckCircle2,
   Globe, EyeOff, Loader2, X, Users, Lock,
 } from "lucide-react"
+import { DevelopmentPickerModal } from "@/components/forms/DevelopmentPickerModal"
 import { UploadZone } from "@/components/ui/UploadZone"
 import { PremiumButton } from "@/components/ui/premium/PremiumButton"
 import { getTagInfo, getAllTags } from "@/lib/tag-icons"
@@ -150,6 +151,7 @@ export function PropertyWizard({
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState<string | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
+  const [devModalOpen, setDevModalOpen] = useState(false)
 
   // ── Restore draft ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -563,6 +565,57 @@ export function PropertyWizard({
                 <FieldError msg={errors.categoria} />
               </div>
 
+              {/* Empreendimento */}
+              {developments.length > 0 && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-2">
+                    Empreendimento <span className="text-muted-foreground/40 normal-case tracking-normal">(opcional)</span>
+                  </p>
+                  {developmentId ? (
+                    (() => {
+                      const dev = developments.find((d) => d.id === developmentId)
+                      return (
+                        <div className="flex items-center gap-3 p-3 rounded-xl border border-[var(--forest)]/40 bg-[var(--forest)]/5">
+                          <Building2 size={15} className="text-[var(--forest)] shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-sans font-medium text-foreground leading-tight">{dev?.name}</p>
+                            {(dev?.neighborhood || dev?.city) && (
+                              <p className="text-xs font-sans text-muted-foreground mt-0.5">
+                                {[dev?.neighborhood, dev?.city].filter(Boolean).join(" · ")}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDevChange("")}
+                            className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      )
+                    })()
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setDevModalOpen(true)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-border hover:border-[var(--gold)]/40 hover:bg-card transition-colors text-left"
+                    >
+                      <Building2 size={15} className="text-muted-foreground shrink-0" />
+                      <span className="text-sm font-sans text-muted-foreground">Vincular a um empreendimento...</span>
+                    </button>
+                  )}
+                  {devModalOpen && (
+                    <DevelopmentPickerModal
+                      developments={developments}
+                      selectedId={developmentId}
+                      onSelect={handleDevChange}
+                      onClose={() => setDevModalOpen(false)}
+                    />
+                  )}
+                </div>
+              )}
+
               {/* Bairro */}
               <div>
                 <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
@@ -814,21 +867,6 @@ export function PropertyWizard({
                   ))}
                 </div>
               </div>
-
-              {/* Empreendimento */}
-              {developments.length > 0 && (
-                <div>
-                  <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-1.5">
-                    Empreendimento (opcional)
-                  </label>
-                  <select value={developmentId} onChange={(e) => handleDevChange(e.target.value)} className={ic}>
-                    <option value="">— Imóvel avulso —</option>
-                    {developments.map((d) => (
-                      <option key={d.id} value={d.id}>{d.name}{d.city ? ` · ${d.city}` : ""}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
 
               {/* Título */}
               <div>
