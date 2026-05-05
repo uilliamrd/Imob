@@ -167,7 +167,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--gold)] to-[var(--gold-dark)] flex items-center justify-center mx-auto"
+              className="w-8 h-8 rounded-xl bg-[var(--primary-default)] flex items-center justify-center mx-auto"
             >
               <span className="text-[#0F0F0F] font-serif font-bold text-sm">BI</span>
             </motion.div>
@@ -188,7 +188,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
 
         <button
           onClick={() => setCollapsed((v) => !v)}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card border border-border shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/40 transition-colors z-10"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-card border border-border shadow-sm flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[var(--primary-default)]/40 transition-colors z-10"
           aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
         >
           {collapsed
@@ -213,15 +213,15 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
                   {userAvatar ? (
                     <Image src={userAvatar} alt={userName} width={36} height={36} className="w-9 h-9 rounded-xl object-cover" />
                   ) : (
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--gold)]/30 to-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center">
-                      <span className="text-[var(--gold)] font-serif font-bold text-sm">{userName[0]?.toUpperCase()}</span>
+                    <div className="w-9 h-9 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-default)]/20 flex items-center justify-center">
+                      <span className="text-[var(--primary-default)] font-serif font-bold text-sm">{userName[0]?.toUpperCase()}</span>
                     </div>
                   )}
                   <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-sidebar" />
                 </div>
                 <div className="overflow-hidden flex-1 min-w-0">
                   <p className="text-sidebar-foreground/90 text-[13px] font-sans font-medium truncate">{userName}</p>
-                  <p className="text-[var(--gold)]/50 text-[9px] uppercase tracking-[0.15em] font-sans">{roleLabels[role]}</p>
+                  <p className="text-txt-tertiary text-xs uppercase tracking-widest font-sans">{roleLabels[role]}</p>
                 </div>
               </div>
               <div className="mt-2.5">
@@ -238,8 +238,8 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
           {userAvatar ? (
             <Image src={userAvatar} alt={userName} width={32} height={32} className="w-8 h-8 rounded-xl object-cover" />
           ) : (
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--gold)]/30 to-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center">
-              <span className="text-[var(--gold)] font-serif font-bold text-xs">{userName[0]?.toUpperCase()}</span>
+            <div className="w-8 h-8 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-default)]/20 flex items-center justify-center">
+              <span className="text-[var(--primary-default)] font-serif font-bold text-xs">{userName[0]?.toUpperCase()}</span>
             </div>
           )}
         </div>
@@ -261,14 +261,14 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
                 transition={{ duration: 0.12 }}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 relative group ${
                   isActive
-                    ? "bg-gradient-to-r from-[var(--gold)]/20 to-[var(--gold)]/5 text-[var(--gold)]"
+                    ? "bg-[var(--primary-subtle)] text-[var(--primary-default)]"
                     : "text-sidebar-foreground/40 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent/60"
                 } ${collapsed ? "justify-center" : ""}`}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[var(--gold)] rounded-r-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[var(--primary-default)] rounded-r-full" />
                 )}
-                <Icon size={15} className={`shrink-0 ${isActive ? "text-[var(--gold)]" : ""}`} />
+                <Icon size={15} className={`shrink-0 ${isActive ? "text-[var(--primary-default)]" : ""}`} />
                 {!collapsed && (
                   <span className={`text-[13px] font-sans truncate ${isActive ? "font-medium" : ""}`}>
                     {item.label}
@@ -294,7 +294,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
                   <span className="text-[13px] font-sans truncate flex-1">{item.label}</span>
                   <div className="flex items-center gap-1">
                     <Lock size={10} className="text-sidebar-foreground/20" />
-                    <span className="text-[9px] uppercase tracking-wider font-sans text-[var(--gold)]/50 bg-[var(--gold)]/8 px-1.5 py-0.5 rounded-full border border-[var(--gold)]/15">
+                    <span className="text-xs uppercase tracking-wider font-sans text-txt-tertiary bg-[var(--surface-sunken)] px-1.5 py-0.5 rounded border border-[var(--border-subtle)]">
                       Em breve
                     </span>
                   </div>
@@ -316,7 +316,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
                   className="flex items-center justify-center px-3 py-2.5 rounded-xl text-sidebar-foreground/20 cursor-not-allowed relative"
                 >
                   <Icon size={15} />
-                  <Lock size={8} className="absolute bottom-1.5 right-1.5 text-[var(--gold)]/40" />
+                  <Lock size={8} className="absolute bottom-1.5 right-1.5 text-txt-disabled" />
                 </div>
               )
             })}
@@ -331,7 +331,7 @@ export function Sidebar({ role, userName, userAvatar, orgSlug, userId, plan = "f
             href={minisiteHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-[var(--gold)]/20 text-[var(--gold)]/60 hover:text-[var(--gold)] hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/5 transition-all duration-200 w-full text-[13px] font-sans"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md border border-[var(--border-default)] text-txt-tertiary hover:text-[var(--primary-default)] hover:border-[var(--primary-default)]/40 hover:bg-[var(--primary-subtle)] transition-all duration-200 w-full text-[13px] font-sans"
           >
             <ExternalLink size={15} />
             Ver Meu Site

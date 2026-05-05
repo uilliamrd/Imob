@@ -49,8 +49,8 @@ export function DashboardShell({ children, role, user, orgSlug, userId, orgType 
                 className="w-8 h-8 rounded-xl object-cover"
               />
             ) : (
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--gold)]/30 to-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center">
-                <span className="text-[var(--gold)] font-serif font-bold text-xs">
+              <div className="w-8 h-8 rounded-xl bg-[var(--primary-subtle)] border border-[var(--primary-default)]/20 flex items-center justify-center">
+                <span className="text-[var(--primary-default)] font-serif font-bold text-xs">
                   {user.name[0]?.toUpperCase()}
                 </span>
               </div>

@@ -132,12 +132,12 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
                 className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors relative"
                 onClick={() => setOpen(false)}
               >
-                <Icon size={20} className={active ? "text-gold" : "text-sidebar-foreground/35"} />
-                <span className={`text-[10px] font-sans leading-none ${active ? "text-gold" : "text-sidebar-foreground/35"}`}>
+                <Icon size={20} className={active ? "text-[var(--primary-default)]" : "text-sidebar-foreground/35"} />
+                <span className={`text-xs font-sans leading-none ${active ? "text-[var(--primary-default)]" : "text-sidebar-foreground/35"}`}>
                   {item.label}
                 </span>
                 {active && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gold rounded-b-full" />
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[var(--primary-default)] rounded-b-full" />
                 )}
               </Link>
             )
@@ -149,11 +149,11 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
             className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors relative"
           >
             {open ? (
-              <X size={20} className="text-gold" />
+              <X size={20} className="text-[var(--primary-default)]" />
             ) : (
               <MoreHorizontal size={20} className="text-sidebar-foreground/35" />
             )}
-            <span className={`text-[10px] font-sans leading-none ${open ? "text-gold" : "text-sidebar-foreground/35"}`}>
+            <span className={`text-xs font-sans leading-none ${open ? "text-[var(--primary-default)]" : "text-sidebar-foreground/35"}`}>
               Mais
             </span>
           </button>
@@ -193,15 +193,15 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
               <div className="px-5 pb-4 flex items-center justify-between border-b border-sidebar-border mb-2">
                 <div className="flex items-center gap-3">
                   {userAvatar ? (
-                    <Image src={userAvatar} alt={userName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gold/20" />
+                    <Image src={userAvatar} alt={userName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-[var(--primary-default)]/20" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center border border-gold/30">
-                      <span className="text-gold font-serif font-bold">{userName[0]?.toUpperCase()}</span>
+                    <div className="w-10 h-10 rounded-full bg-[var(--primary-subtle)] flex items-center justify-center border border-[var(--primary-default)]/20">
+                      <span className="text-[var(--primary-default)] font-serif font-bold">{userName[0]?.toUpperCase()}</span>
                     </div>
                   )}
                   <div>
                     <p className="text-sidebar-foreground/90 text-sm font-sans font-medium">{userName}</p>
-                    <p className="text-gold/50 text-[10px] uppercase tracking-wider font-sans">{role}</p>
+                    <p className="text-txt-tertiary text-xs uppercase tracking-widest font-sans">{role}</p>
                   </div>
                 </div>
                 <ThemeSwitch />
@@ -219,7 +219,7 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                         active
-                          ? "bg-gold/15 text-gold"
+                          ? "bg-[var(--primary-subtle)] text-[var(--primary-default)]"
                           : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground/90"
                       }`}
                     >
@@ -236,7 +236,7 @@ export function BottomNav({ role, userName, userAvatar, orgSlug, userId }: Props
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gold/20 text-gold/70 hover:text-gold transition-colors mt-2"
+                    className="flex items-center gap-3 px-4 py-3 rounded-md border border-[var(--border-default)] text-txt-tertiary hover:text-[var(--primary-default)] hover:border-[var(--primary-default)]/40 transition-colors mt-2"
                   >
                     <ExternalLink size={16} />
                     <span className="text-sm font-sans">Ver Meu Site</span>

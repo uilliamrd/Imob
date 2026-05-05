@@ -42,7 +42,7 @@ function StatusBadge({ status }: { status: string }) {
   } as Record<string, string>
   const label = { disponivel: "Disponível", reserva: "Reserva", vendido: "Vendido" } as Record<string, string>
   return (
-    <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-sans uppercase tracking-wider ${map[status] ?? map.vendido}`}>
+    <span className={`text-xs px-1.5 py-0.5 rounded border font-sans uppercase tracking-wider ${map[status] ?? map.vendido}`}>
       {label[status] ?? status}
     </span>
   )
@@ -53,19 +53,19 @@ function FeatureChips({ features }: { features: PropertyFeatures }) {
     <div className="flex items-center gap-2 mt-1">
       {(features.suites || features.dormitorios) && (
         <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground font-sans">
-          <BedDouble size={9} className="text-gold/60" />
+          <BedDouble size={9} className="text-txt-tertiary" />
           {features.suites ?? features.dormitorios}
         </span>
       )}
       {features.vagas && (
         <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground font-sans">
-          <Car size={9} className="text-gold/60" />
+          <Car size={9} className="text-txt-tertiary" />
           {features.vagas}v
         </span>
       )}
       {features.area_m2 && (
         <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground font-sans">
-          <Maximize2 size={9} className="text-gold/60" />
+          <Maximize2 size={9} className="text-txt-tertiary" />
           {features.area_m2}m²
         </span>
       )}
@@ -76,12 +76,12 @@ function FeatureChips({ features }: { features: PropertyFeatures }) {
 // ── Command Center ────────────────────────────────────────────────
 function CommandCenter({ items }: { items: { done?: boolean; label: string; href: string }[] }) {
   return (
-    <div className="bg-card border border-border rounded-2xl p-5 h-full">
+    <div className="bg-card border border-border rounded-lg p-5 h-full">
       <div className="flex items-center gap-2 mb-4">
-        <div className="p-1.5 rounded-lg bg-gold/10 border border-gold/15">
-          <Zap size={13} className="text-gold" />
+        <div className="p-1.5 rounded-md bg-[var(--primary-subtle)] border border-[var(--primary-default)]/15">
+          <Zap size={13} className="text-[var(--primary-default)]" />
         </div>
-        <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground font-sans">Hoje você precisa</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground font-sans">Hoje você precisa</p>
       </div>
       <div className="space-y-1.5">
         {items.map((item, i) => (
@@ -90,12 +90,12 @@ function CommandCenter({ items }: { items: { done?: boolean; label: string; href
           >
             {item.done
               ? <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
-              : <Circle size={14} className="text-muted-foreground/30 flex-shrink-0 group-hover:text-gold/50 transition-colors" />
+              : <Circle size={14} className="text-muted-foreground/30 flex-shrink-0 group-hover:text-[var(--primary-default)]/50 transition-colors" />
             }
-            <span className={`text-[12px] font-sans flex-1 leading-tight ${item.done ? "line-through text-muted-foreground/40" : "text-foreground/80 group-hover:text-foreground"} transition-colors`}>
+            <span className={`text-xs font-sans flex-1 leading-tight ${item.done ? "line-through text-muted-foreground/40" : "text-foreground/80 group-hover:text-foreground"} transition-colors`}>
               {item.label}
             </span>
-            <ArrowRight size={11} className="text-muted-foreground/20 group-hover:text-gold/50 transition-colors flex-shrink-0" />
+            <ArrowRight size={11} className="text-muted-foreground/20 group-hover:text-[var(--primary-default)]/50 transition-colors flex-shrink-0" />
           </Link>
         ))}
       </div>
@@ -107,14 +107,14 @@ function CommandCenter({ items }: { items: { done?: boolean; label: string; href
 function QuickLink({ href, title, desc, icon: Icon }: { href: string; title: string; desc: string; icon: React.ElementType }) {
   return (
     <Link href={href}
-      className="group bg-card border border-border rounded-2xl p-4 hover:border-gold/30 hover:shadow-md dark:hover:shadow-none transition-all duration-300 flex flex-col gap-3"
+      className="group bg-card border border-border rounded-lg p-4 hover:border-[var(--primary-default)]/30 hover:shadow-md dark:hover:shadow-none transition-all duration-300 flex flex-col gap-3"
     >
-      <div className="p-2 bg-gold/10 rounded-xl w-fit border border-gold/10">
-        <Icon size={15} className="text-gold" />
+      <div className="p-2 bg-[var(--primary-subtle)] rounded-md w-fit border border-[var(--border-subtle)]">
+        <Icon size={15} className="text-[var(--primary-default)]" />
       </div>
       <div>
-        <p className="font-sans font-semibold text-foreground text-[13px] group-hover:text-gold transition-colors leading-tight">{title}</p>
-        <p className="text-muted-foreground text-[11px] mt-0.5 leading-snug font-sans">{desc}</p>
+        <p className="font-sans font-semibold text-foreground text-[13px] group-hover:text-[var(--primary-default)] transition-colors leading-tight">{title}</p>
+        <p className="text-muted-foreground text-xs mt-0.5 leading-snug font-sans">{desc}</p>
       </div>
     </Link>
   )
@@ -125,7 +125,7 @@ type RecentProp = { id: string; title: string; slug: string; price: number; neig
 function PropertyCard({ p }: { p: RecentProp & { features?: PropertyFeatures } }) {
   return (
     <a href={`/imovel/${p.slug}`} target="_blank" rel="noopener noreferrer"
-      className="group bg-card border border-border rounded-xl overflow-hidden hover:border-gold/20 hover:shadow-md dark:hover:shadow-none transition-all"
+      className="group bg-card border border-border rounded-lg overflow-hidden hover:border-[var(--border-default)] hover:shadow-md dark:hover:shadow-none transition-all"
     >
       <div className="aspect-video bg-muted relative overflow-hidden">
         {p.images?.[0]
@@ -142,7 +142,7 @@ function PropertyCard({ p }: { p: RecentProp & { features?: PropertyFeatures } }
           </p>
         )}
         {p.features && <FeatureChips features={p.features} />}
-        <p className="font-serif text-gold text-[13px] font-semibold mt-2">{formatPrice(p.price)}</p>
+        <p className="font-serif text-[var(--primary-default)] text-[13px] font-semibold mt-2">{formatPrice(p.price)}</p>
       </div>
     </a>
   )
@@ -275,7 +275,7 @@ export default async function DashboardPage() {
           category={isAdmin ? "Admin" : "Construtora"}
           actions={
             <Link href={isAdmin ? "/dashboard/imoveis/novo" : "/dashboard/lancamentos"}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--gold)] text-[#0F0F0F] hover:bg-[var(--gold-light)] text-[11px] uppercase tracking-[0.15em] font-sans rounded-xl transition-all duration-200 shadow-md shadow-[var(--gold)]/20 font-medium"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] text-xs font-sans rounded-md transition-all duration-200 shadow-md shadow-[var(--primary-default)]/20 font-medium"
             >
               <Zap size={12} />
               {isAdmin ? "Novo imóvel" : "Ver lançamentos"}
@@ -306,10 +306,10 @@ export default async function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Flame size={13} className="text-gold/60" />
-                <p className="text-[10px] uppercase tracking-[0.25em] text-gold/60 font-sans">Meus Empreendimentos</p>
+                <Flame size={13} className="text-txt-tertiary" />
+                <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans">Meus Empreendimentos</p>
               </div>
-              <Link href="/dashboard/lancamentos" className="text-muted-foreground hover:text-gold text-[11px] font-sans transition-colors">
+              <Link href="/dashboard/lancamentos" className="text-muted-foreground hover:text-[var(--primary-default)] text-xs font-sans transition-colors">
                 Ver todos →
               </Link>
             </div>
@@ -402,26 +402,26 @@ export default async function DashboardPage() {
       />
 
       {/* ── Minisite CTA ──────────────────────────────── */}
-      <div className="bg-gradient-to-r from-card to-muted/30 border border-border/60 rounded-2xl p-5 flex items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-card to-muted/30 border border-border/60 rounded-lg p-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gold/10 border border-gold/15">
-            <Globe size={15} className="text-gold" />
+          <div className="p-2 rounded-md bg-[var(--primary-subtle)] border border-[var(--primary-default)]/15">
+            <Globe size={15} className="text-[var(--primary-default)]" />
           </div>
           <div>
             <p className="text-foreground/80 text-[13px] font-sans font-semibold">Seu minisite está publicado</p>
-            <p className="text-muted-foreground text-[11px] font-sans mt-0.5">
+            <p className="text-muted-foreground text-xs font-sans mt-0.5">
               {role === "corretor" ? `/corretor/${user.id}` : "Acesse via Meu Minisite"}
             </p>
           </div>
         </div>
         <div className="flex gap-2">
           <Link href="/dashboard/minisite"
-            className="flex items-center gap-1.5 px-3 py-2 border border-border text-muted-foreground hover:text-gold hover:border-gold/30 text-[11px] uppercase tracking-wider font-sans transition-colors rounded-xl">
+            className="flex items-center gap-1.5 px-3 py-2 border border-border text-muted-foreground hover:text-[var(--primary-default)] hover:border-[var(--primary-default)]/30 text-xs font-sans transition-colors rounded-md">
             <BookOpen size={11} /> Editar
           </Link>
           {role === "corretor" && (
             <a href={`/corretor/${user.id}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 bg-gold text-[#0F0F0F] hover:bg-gold-light text-[11px] uppercase tracking-wider font-sans transition-colors rounded-xl">
+              className="flex items-center gap-1.5 px-3 py-2 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] text-xs font-sans transition-colors rounded-md">
               <ExternalLink size={11} /> Ver Site
             </a>
           )}
@@ -433,19 +433,19 @@ export default async function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <MessageSquare size={13} className="text-gold/60" />
-              <p className="text-[10px] uppercase tracking-[0.25em] text-gold/60 font-sans">Atividade Recente</p>
+              <MessageSquare size={13} className="text-txt-tertiary" />
+              <p className="text-xs uppercase tracking-widest text-txt-tertiary font-sans">Atividade Recente</p>
             </div>
-            <Link href="/dashboard/leads" className="text-muted-foreground hover:text-gold text-[11px] font-sans transition-colors">
+            <Link href="/dashboard/leads" className="text-muted-foreground hover:text-[var(--primary-default)] text-xs font-sans transition-colors">
               Ver todos →
             </Link>
           </div>
-          <div className="bg-card border border-border rounded-2xl px-4 py-3">
+          <div className="bg-card border border-border rounded-lg px-4 py-3">
             <ActivityFeed
               items={recentLeads.map((lead) => ({
                 id:          lead.id,
                 icon:        MessageSquare,
-                iconColor:   "var(--gold)",
+                iconColor:   "var(--primary-default)",
                 title:       lead.name ? `Lead de ${lead.name}` : "Novo lead",
                 description: lead.property?.title ?? undefined,
                 time:        new Date(lead.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }),

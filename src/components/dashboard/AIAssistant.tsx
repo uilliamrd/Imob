@@ -38,10 +38,10 @@ export function AIAssistant() {
             className="absolute bottom-14 right-0 w-80 bg-card border border-border/70 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/50 bg-gradient-to-r from-gold/8 to-transparent">
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/50 bg-gradient-to-r from-[var(--primary-subtle)] to-transparent">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-gold/20 border border-gold/30 flex items-center justify-center">
-                  <Sparkles size={12} className="text-gold" />
+                <div className="w-6 h-6 rounded-md bg-[var(--primary-subtle)] border border-[var(--primary-default)]/30 flex items-center justify-center">
+                  <Sparkles size={12} className="text-[var(--primary-default)]" />
                 </div>
                 <div>
                   <p className="text-[11px] font-sans font-semibold text-foreground">Intelligence</p>
@@ -61,9 +61,9 @@ export function AIAssistant() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ex: crie um anúncio para meu imóvel…"
-                  className="flex-1 text-[11px] font-sans bg-muted/50 border border-border/60 rounded-xl px-3 py-2.5 text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-gold/40 transition-colors"
+                  className="flex-1 text-xs font-sans bg-muted/50 border border-border/60 rounded-md px-3 py-2.5 text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[var(--primary-default)]/40 transition-colors"
                 />
-                <button className="px-3 py-2.5 bg-gold text-[#0F0F0F] rounded-xl hover:bg-gold-light transition-colors flex-shrink-0">
+                <button className="px-3 py-2.5 bg-[var(--primary-default)] text-white rounded-md hover:bg-[var(--primary-hover)] transition-colors flex-shrink-0">
                   <ArrowRight size={13} />
                 </button>
               </div>
@@ -78,9 +78,9 @@ export function AIAssistant() {
                   <Link key={s.href} href={s.href} onClick={() => setOpen(false)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-muted/60 transition-colors group"
                   >
-                    <Icon size={13} className="text-muted-foreground/50 group-hover:text-gold transition-colors flex-shrink-0" />
-                    <span className="text-[11px] font-sans text-foreground/70 group-hover:text-foreground transition-colors">{s.label}</span>
-                    <ArrowRight size={10} className="ml-auto text-muted-foreground/20 group-hover:text-gold/50 transition-colors" />
+                    <Icon size={13} className="text-muted-foreground/50 group-hover:text-[var(--primary-default)] transition-colors flex-shrink-0" />
+                    <span className="text-xs font-sans text-foreground/70 group-hover:text-foreground transition-colors">{s.label}</span>
+                    <ArrowRight size={10} className="ml-auto text-muted-foreground/20 group-hover:text-[var(--primary-default)]/50 transition-colors" />
                   </Link>
                 )
               })}
@@ -97,7 +97,7 @@ export function AIAssistant() {
         className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
           open
             ? "bg-foreground text-background shadow-black/20"
-            : "bg-gradient-to-br from-gold to-gold-dark text-[#0F0F0F] shadow-gold/30 hover:shadow-gold/50"
+            : "bg-[var(--primary-default)] text-white shadow-[var(--primary-default)]/30 hover:shadow-[var(--primary-default)]/50 hover:bg-[var(--primary-hover)]"
         }`}
       >
         {open ? <X size={18} /> : <Sparkles size={18} />}

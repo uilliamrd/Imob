@@ -59,7 +59,7 @@ export function ActivityFeed({ items, loading = false, maxItems }: Props) {
       className="relative pl-5"
     >
       {/* Connector line */}
-      <div className="absolute left-[13px] top-4 bottom-4 w-px bg-[var(--gold)]/20 pointer-events-none" />
+      <div className="absolute left-[13px] top-4 bottom-4 w-px bg-[var(--border-subtle)] pointer-events-none" />
 
       {displayed.map((item) => {
         const Icon = item.icon
