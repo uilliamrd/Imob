@@ -310,6 +310,7 @@ export function PropertyWizard({
     const errs: Record<string, string> = {}
     // Step 0: Localização
     if (step === 0) {
+      if (!categoria)                        errs.categoria   = "Selecione o tipo de imóvel"
       if (!neighborhood && !bairroId) errs.neighborhood = "Bairro/localização é obrigatório"
       if (!city) errs.city = "Cidade é obrigatória"
     }
@@ -320,7 +321,6 @@ export function PropertyWizard({
     // Step 3: Anúncio
     if (step === 3) {
       if (!title.trim()) errs.title = "Título é obrigatório"
-      if (!categoria)    errs.categoria = "Selecione o tipo de imóvel"
       if (!price || parseFloat(price) <= 0) errs.price = "Informe o preço"
       if (description.length > 0 && description.length < 20)
         errs.description = "Descrição deve ter pelo menos 20 caracteres"
@@ -510,6 +510,58 @@ export function PropertyWizard({
           {/* ══ STEP 0 — LOCALIZAÇÃO ════════════════════════════════ */}
           {step === 0 && (
             <div className="space-y-5">
+
+              {/* Tipo de imóvel */}
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">
+                  Tipo de imóvel <span className="text-destructive">*</span>
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {CATEGORIA_GROUPS.map((g) => {
+                    const Icon = g.icon
+                    const active = catGroup === g.label
+                    return (
+                      <button
+                        key={g.label}
+                        type="button"
+                        onClick={() => {
+                          setCatGroup(g.label)
+                          setCategoria(g.values[0])
+                        }}
+                        className={cn(
+                          "flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-sans transition-all",
+                          active
+                            ? "bg-[var(--forest)] border-[var(--forest)] text-white"
+                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
+                        )}
+                      >
+                        <Icon size={18} strokeWidth={1.5} />
+                        <span className="leading-tight text-center">{g.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+                {catGroup && CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.length > 1 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setCategoria(v)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-xs font-sans transition-all",
+                          categoria === v
+                            ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--gold)]"
+                            : "border-border text-muted-foreground hover:border-[var(--gold)]/40"
+                        )}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <FieldError msg={errors.categoria} />
+              </div>
 
               {/* Bairro */}
               <div>
@@ -740,58 +792,6 @@ export function PropertyWizard({
                   </select>
                 </div>
               )}
-
-              {/* Tipo de imóvel */}
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-sans mb-3">
-                  Tipo de imóvel <span className="text-destructive">*</span>
-                </p>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                  {CATEGORIA_GROUPS.map((g) => {
-                    const Icon = g.icon
-                    const active = catGroup === g.label
-                    return (
-                      <button
-                        key={g.label}
-                        type="button"
-                        onClick={() => {
-                          setCatGroup(g.label)
-                          setCategoria(g.values[0])
-                        }}
-                        className={cn(
-                          "flex flex-col items-center gap-2 p-3 rounded-xl border text-xs font-sans transition-all",
-                          active
-                            ? "bg-[var(--forest)] border-[var(--forest)] text-white"
-                            : "bg-card border-border text-muted-foreground hover:border-[var(--gold)]/40 hover:text-foreground"
-                        )}
-                      >
-                        <Icon size={18} strokeWidth={1.5} />
-                        <span className="leading-tight text-center">{g.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-                {catGroup && CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.length > 1 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {CATEGORIA_GROUPS.find((g) => g.label === catGroup)!.values.map((v) => (
-                      <button
-                        key={v}
-                        type="button"
-                        onClick={() => setCategoria(v)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full border text-xs font-sans transition-all",
-                          categoria === v
-                            ? "bg-[var(--gold)]/20 border-[var(--gold)] text-[var(--gold)]"
-                            : "border-border text-muted-foreground hover:border-[var(--gold)]/40"
-                        )}
-                      >
-                        {v}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <FieldError msg={errors.categoria} />
-              </div>
 
               {/* Operação */}
               <div>
