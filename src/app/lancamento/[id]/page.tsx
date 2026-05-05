@@ -7,7 +7,6 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { LancamentoLanding } from "@/components/construtora/LancamentoLanding"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
-import { PrintButton } from "@/components/property/PrintButton"
 import type { Development, Organization, Property } from "@/types/database"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://baseimob.com.br"
@@ -92,7 +91,6 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
 
     return (
       <main>
-        {canDownload && <PrintButton />}
         <LancamentoLanding
           development={development}
           org={org}
