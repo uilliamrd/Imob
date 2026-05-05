@@ -18,9 +18,9 @@ function formatPrice(price: number) {
 
 // Status badges on dark background — fixed dark-safe values, no opacity dependency
 const STATUS_MAP = {
-  disponivel: { label: "Disponível", cls: "bg-emerald-900/50 text-emerald-200 border-emerald-700/50" },
-  reserva:    { label: "Reservado",  cls: "bg-amber-900/50 text-amber-200 border-amber-700/50" },
-  vendido:    { label: "Vendido",    cls: "bg-zinc-800/80 text-zinc-300 border-zinc-600/50" },
+  disponivel: { label: "Disponível", cls: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30" },
+  reserva:    { label: "Reservado",  cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30" },
+  vendido:    { label: "Vendido",    cls: "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/30" },
 } as const
 
 interface Props {
@@ -157,7 +157,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
 
       {/* ── TABELA DE UNIDADES ────────────────────────────────── */}
       {/* Fundo sempre escuro (bg-graphite) — todas as cores de texto são fixas, sem variáveis de tema */}
-      <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-foreground">
+      <section id="unidades" className="py-12 md:py-20 px-4 md:px-6 bg-background">
         <div className="max-w-6xl mx-auto">
 
           {/* Section header */}
@@ -174,8 +174,8 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                 <button key={f.id} onClick={() => setActiveFilter(f.id)}
                   className={`px-4 py-2 text-xs uppercase tracking-[0.15em] font-sans transition-all duration-300 rounded-md ${
                     activeFilter === f.id
-                      ? "bg-[var(--action-default)] text-white font-medium"
-                      : "border border-white/30 text-white/70 hover:border-white/60 hover:text-white"
+                      ? "bg-[var(--action-default)] text-foreground font-semibold"
+                      : "border border-border text-foreground/60 hover:border-[var(--border-default)] hover:text-foreground"
                   }`}>
                   {f.label}
                 </button>
@@ -186,7 +186,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           <div className="divider-gold opacity-30 mb-1" />
 
           {/* Desktop table header — hidden on mobile */}
-          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-xs uppercase tracking-[0.15em] text-white/60 font-sans">
+          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-xs uppercase tracking-[0.15em] text-foreground/60 font-sans">
             <span className="col-span-4">Unidade</span>
             <span className="col-span-2 text-center">Área</span>
             <span className="col-span-2 text-center">Dormitórios</span>
@@ -204,45 +204,45 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                 <motion.div key={p.id} layout
                   initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.3, delay: i * 0.03 }}
-                  className={`border-b border-white/10 ${!isAvailable ? "opacity-50" : ""}`}>
+                  className={`border-b border-border ${!isAvailable ? "opacity-50" : ""}`}>
 
                   {/* ── Mobile card ── */}
                   <div className="md:hidden px-1 py-4 hover:bg-card/5 transition-colors">
                     <div className="flex items-start justify-between gap-3 mb-2.5">
                       <div className="flex-1 min-w-0">
-                        <p className="font-serif text-white font-semibold text-base leading-tight">{p.title}</p>
+                        <p className="font-serif text-foreground font-medium text-sm leading-tight">{p.title}</p>
                         {p.code && (
-                          <p className="text-white/60 text-xs font-sans mt-0.5 flex items-center gap-1">
+                          <p className="text-foreground/70 text-xs font-sans mt-0.5 flex items-center gap-1">
                             <Hash size={9} /> Cód. {p.code}
                           </p>
                         )}
                       </div>
-                      <p className="font-serif text-gold font-bold text-lg flex-shrink-0">{formatPrice(p.price)}</p>
+                      <p className="font-serif text-foreground font-semibold text-sm flex-shrink-0">{formatPrice(p.price)}</p>
                     </div>
                     <div className="flex items-center gap-2.5 flex-wrap mb-3">
                       <span className={`inline-flex items-center text-xs px-2.5 py-0.5 rounded-full border font-sans ${status.cls}`}>
                         {status.label}
                       </span>
                       {p.features.area_m2 && (
-                        <span className="flex items-center gap-1 text-white/80 text-xs font-sans">
+                        <span className="flex items-center gap-1 text-foreground/70 text-xs font-sans">
                           <Maximize2 size={11} className="text-gold/80" />{p.features.area_m2} m²
                         </span>
                       )}
                       {(p.features.suites || p.features.dormitorios) && (
-                        <span className="flex items-center gap-1 text-white/80 text-xs font-sans">
+                        <span className="flex items-center gap-1 text-foreground/70 text-xs font-sans">
                           <BedDouble size={11} className="text-gold/80" />
                           {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
                         </span>
                       )}
                       {p.features.vagas && (
-                        <span className="flex items-center gap-1 text-white/80 text-xs font-sans">
+                        <span className="flex items-center gap-1 text-foreground/70 text-xs font-sans">
                           <Car size={11} className="text-gold/80" />{p.features.vagas} vg
                         </span>
                       )}
                     </div>
                     {isAvailable && (
                       <Link href={`/imovel/${p.slug}${refParam}`}
-                        className="inline-flex items-center gap-1.5 text-gold text-xs font-sans uppercase tracking-wider hover:opacity-75 transition-opacity">
+                        className="inline-flex items-center gap-1.5 text-[var(--primary-default)] text-xs font-sans uppercase tracking-wider hover:opacity-75 transition-opacity">
                         Ver imóvel <ArrowRight size={12} />
                       </Link>
                     )}
@@ -251,43 +251,43 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
                   {/* ── Desktop table row ── */}
                   <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-4 hover:bg-card/5 transition-colors">
                     <div className="col-span-4 flex flex-col gap-1">
-                      <span className="font-serif text-white font-semibold text-base leading-tight">{p.title}</span>
+                      <span className="font-serif text-foreground font-medium text-sm leading-tight">{p.title}</span>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full border uppercase tracking-wider ${status.cls}`}>
                           {status.label}
                         </span>
                         {p.code && (
-                          <span className="text-white/60 text-xs font-sans flex items-center gap-0.5">
+                          <span className="text-foreground/70 text-xs font-sans flex items-center gap-0.5">
                             <Hash size={8} />{p.code}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/80">
-                      <Maximize2 size={12} className="text-gold/80" />
-                      <span className="font-sans text-sm">{p.features.area_m2 ? `${p.features.area_m2} m²` : "—"}</span>
+                    <div className="col-span-2 flex items-center justify-center gap-1 text-foreground/70">
+                      <Maximize2 size={12} className="text-foreground/50" />
+                      <span className="font-sans text-xs">{p.features.area_m2 ? `${p.features.area_m2} m²` : "—"}</span>
                     </div>
 
-                    <div className="col-span-2 flex items-center justify-center gap-1 text-white/80">
+                    <div className="col-span-2 flex items-center justify-center gap-1 text-foreground/70">
                       {(p.features.suites || p.features.dormitorios) && (
-                        <span className="flex items-center gap-1 font-sans text-sm">
-                          <BedDouble size={12} className="text-gold/80" />
+                        <span className="flex items-center gap-1 font-sans text-xs">
+                          <BedDouble size={12} className="text-foreground/50" />
                           {p.features.suites ? `${p.features.suites} suítes` : `${p.features.dormitorios} dorms`}
                         </span>
                       )}
                     </div>
 
-                    <div className="col-span-1 flex items-center justify-center text-white/80">
+                    <div className="col-span-1 flex items-center justify-center text-foreground/70">
                       {p.features.vagas && (
-                        <span className="flex items-center gap-1 font-sans text-sm">
-                          <Car size={12} className="text-gold/80" />{p.features.vagas}
+                        <span className="flex items-center gap-1 font-sans text-xs">
+                          <Car size={12} className="text-foreground/50" />{p.features.vagas}
                         </span>
                       )}
                     </div>
 
                     <div className="col-span-2 flex items-center justify-end">
-                      <span className="font-serif text-lg font-semibold text-white">{formatPrice(p.price)}</span>
+                      <span className="font-serif text-sm font-semibold text-foreground">{formatPrice(p.price)}</span>
                     </div>
 
                     <div className="col-span-1 flex items-center justify-end gap-1.5">
@@ -314,7 +314,7 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           </AnimatePresence>
 
           {filtered.length === 0 && (
-            <div className="py-12 text-center text-white/30 font-sans">Nenhuma unidade encontrada.</div>
+            <div className="py-12 text-center text-muted-foreground font-sans text-sm">Nenhuma unidade encontrada.</div>
           )}
           <div className="divider-gold opacity-20 mt-1" />
         </div>
