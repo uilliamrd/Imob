@@ -39,13 +39,14 @@ interface FormState {
   quartos: string
   vagas: string
   description: string
+  website: string // honeypot — deve permanecer vazio
 }
 
 const EMPTY_FORM: FormState = {
   owner_name: "", owner_phone: "", owner_email: "",
   address: "", neighborhood: "", city: "", cep: "",
   tipo: "", tipo_negocio: "venda",
-  price: "", area_m2: "", quartos: "", vagas: "", description: "",
+  price: "", area_m2: "", quartos: "", vagas: "", description: "", website: "",
 }
 
 // ── Plans config ──────────────────────────────────────────────
@@ -342,6 +343,17 @@ export function VendaWizard({ corretores }: Props) {
                     </div>
                   </div>
                 </div>
+                {/* Honeypot — invisível para humanos, detecta bots */}
+                <input
+                  type="text"
+                  name="website"
+                  value={form.website}
+                  onChange={(e) => update("website", e.target.value)}
+                  style={{ display: "none" }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  autoComplete="off"
+                />
               </div>
 
               {/* Property */}
