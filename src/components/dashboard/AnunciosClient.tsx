@@ -251,10 +251,10 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
     <div>
       {/* ── Solicitações Pendentes ─────────────────────────────── */}
       {(pendingHL.length > 0 || pendingBT.length > 0) && (
-        <div className="mb-8 bg-card border border-gold/20 rounded-xl overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-border bg-gold/5">
-            <Clock size={13} className="text-gold" />
-            <p className="text-xs uppercase tracking-[0.2em] text-gold font-sans font-semibold">
+        <div className="mb-8 bg-card border border-border rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-border bg-muted/30">
+            <Clock size={13} className="text-muted-foreground" />
+            <p className="text-xs uppercase tracking-[0.2em] text-foreground/70 font-sans font-semibold">
               Solicitações Pendentes ({pendingHL.length + pendingBT.length})
             </p>
           </div>
@@ -351,7 +351,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
       {stats.active > 0 && (
         <div className="mb-6 bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart2 size={13} className="text-gold" />
+            <BarChart2 size={13} className="text-muted-foreground" />
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans">Visão Geral dos Anúncios Ativos</p>
           </div>
 
@@ -414,7 +414,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                     return (
                       <div key={ad.id} className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <TierIcon size={9} className="text-gold flex-shrink-0" />
+                          <TierIcon size={9} className="text-muted-foreground flex-shrink-0" />
                           <span className="text-[10px] font-sans text-foreground/70 truncate">{prop?.title ?? "—"}</span>
                         </div>
                         <span className={`text-[10px] font-sans flex-shrink-0 ${daysLeft <= 7 ? "text-amber-400" : "text-muted-foreground/50"}`}>
@@ -439,7 +439,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
             <button key={t.id} onClick={() => setStatusFilter(t.id)}
               className={`px-4 py-2 rounded-lg text-xs uppercase tracking-[0.15em] font-sans transition-colors whitespace-nowrap ${
                 statusFilter === t.id
-                  ? "bg-gold/15 text-gold"
+                  ? "bg-[var(--primary-default)]/15 text-[var(--primary-default)]"
                   : "text-muted-foreground hover:text-foreground hover:bg-card"
               }`}>
               {t.label}
@@ -447,7 +447,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
           ))}
         </div>
         <button onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-gold text-graphite rounded-xl text-xs uppercase tracking-[0.15em] font-sans hover:bg-gold-light transition-colors flex-shrink-0 ml-2">
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--primary-default)] text-white rounded-xl text-xs uppercase tracking-[0.15em] font-sans hover:bg-[var(--primary-hover)] transition-colors flex-shrink-0 ml-2">
           <Plus size={13} /> Novo Anúncio
         </button>
       </div>
@@ -464,7 +464,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
             const TierIcon = TIER_CONFIG[ad.tier].icon
             const StatusIcon = STATUS_CONFIG[ad.status].icon
             return (
-              <div key={ad.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-gold/20 transition-colors">
+              <div key={ad.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-[var(--primary-default)]/20 transition-colors">
                 <div className="flex items-start gap-4 p-4">
                   {/* Thumbnail */}
                   <div className="w-20 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-muted relative">
@@ -537,7 +537,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                           </button>
                         )}
                         <button onClick={() => openEdit(ad)}
-                          className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-gold hover:bg-gold/5 transition-colors">
+                          className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-[var(--primary-default)] hover:bg-[var(--primary-default)]/5 transition-colors">
                           <Edit3 size={13} />
                         </button>
                         <button onClick={() => deleteAd(ad.id)}
@@ -564,7 +564,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
               <X size={18} />
             </button>
 
-            <p className="text-xs uppercase tracking-[0.2em] text-gold font-sans mb-1">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-sans mb-1">
               {editingId ? "Editar anúncio" : "Novo anúncio"}
             </p>
             <h2 className="font-serif text-xl font-bold text-foreground mb-5">
@@ -577,7 +577,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                 Imóvel *
               </label>
               {selectedProp ? (
-                <div className="flex items-center gap-3 p-3 bg-background border border-gold/30 rounded-xl">
+                <div className="flex items-center gap-3 p-3 bg-background border border-[var(--primary-default)]/30 rounded-xl">
                   <div className="w-12 h-9 flex-shrink-0 rounded-lg overflow-hidden bg-muted relative">
                     {selectedProp.images[0]
                       ? <Image src={selectedProp.images[0]} alt="" fill className="object-cover" />
@@ -600,7 +600,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                     <input
                       type="text" placeholder="Buscar imóvel..." value={propSearch}
                       onChange={(e) => setPropSearch(e.target.value)}
-                      className="w-full bg-background border border-border text-foreground placeholder-muted-foreground/40 pl-9 pr-4 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+                      className="w-full bg-background border border-border text-foreground placeholder-muted-foreground/40 pl-9 pr-4 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/40 transition-colors"
                     />
                   </div>
                   <div className="max-h-48 overflow-y-auto space-y-1 border border-border rounded-xl p-1 bg-background">
@@ -641,11 +641,11 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
               return (
                 <div className="mb-4 text-xs font-sans text-muted-foreground/60 bg-muted/20 rounded-lg px-3 py-2 flex items-center gap-3 flex-wrap">
                   <span>Quota da org:</span>
-                  <span className={destAtLimit ? "text-red-400" : "text-gold"}>
+                  <span className={destAtLimit ? "text-red-400" : "text-[var(--primary-default)]"}>
                     {destUsed}/{quota.highlight_limit} dest.
                   </span>
                   <span>·</span>
-                  <span className={superAtLimit ? "text-red-400" : "text-gold"}>
+                  <span className={superAtLimit ? "text-red-400" : "text-[var(--primary-default)]"}>
                     {superUsed}/{quota.super_limit} super
                   </span>
                   {(destAtLimit || superAtLimit) && (
@@ -668,10 +668,10 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                     <button key={tier} onClick={() => setForm((f) => ({ ...f, tier }))}
                       className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-sans transition-colors ${
                         form.tier === tier
-                          ? "border-gold/60 bg-gold/10 text-foreground"
-                          : "border-border text-muted-foreground hover:border-gold/30"
+                          ? "border-[var(--primary-default)]/60 bg-[var(--primary-default)]/10 text-foreground"
+                          : "border-border text-muted-foreground hover:border-[var(--primary-default)]/30"
                       }`}>
-                      <Icon size={14} className={form.tier === tier ? "text-gold" : ""} />
+                      <Icon size={14} className={form.tier === tier ? "text-[var(--primary-default)]" : ""} />
                       <div className="text-left">
                         <p className="font-semibold">{cfg.label}</p>
                         <p className="text-[10px] text-muted-foreground/60">
@@ -690,7 +690,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                 Status inicial
               </label>
               <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as AdStatus }))}
-                className="w-full bg-background border border-border text-foreground px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors">
+                className="w-full bg-background border border-border text-foreground px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/40 transition-colors">
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => (
                   <option key={k} value={k}>{v.label}</option>
                 ))}
@@ -705,7 +705,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                 </label>
                 <input type="date" value={form.starts_at}
                   onChange={(e) => setForm((f) => ({ ...f, starts_at: e.target.value }))}
-                  className="w-full bg-background border border-border text-foreground px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+                  className="w-full bg-background border border-border text-foreground px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/40 transition-colors"
                 />
               </div>
               <div>
@@ -714,7 +714,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
                 </label>
                 <input type="date" value={form.expires_at}
                   onChange={(e) => setForm((f) => ({ ...f, expires_at: e.target.value }))}
-                  className="w-full bg-background border border-border text-foreground px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+                  className="w-full bg-background border border-border text-foreground px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/40 transition-colors"
                 />
               </div>
             </div>
@@ -727,7 +727,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
               <input type="text" value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 placeholder="Ex: Pacote mensal — Construtora Horizonte"
-                className="w-full bg-background border border-border text-foreground placeholder-muted-foreground/40 px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-gold/40 transition-colors"
+                className="w-full bg-background border border-border text-foreground placeholder-muted-foreground/40 px-3 py-2.5 rounded-xl font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/40 transition-colors"
               />
             </div>
 
@@ -736,7 +736,7 @@ export function AnunciosClient({ initialAds, allProperties, orgQuotas, pendingHi
             )}
 
             <button onClick={handleSave} disabled={isPending}
-              className="w-full py-3 bg-[#1C1C1C] text-[#F5F0E8] hover:bg-[#C9A96E] hover:text-[#1C1C1C] disabled:opacity-40 transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-xl">
+              className="w-full py-3 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-40 transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-xl">
               {isPending ? "Salvando..." : editingId ? "Atualizar Anúncio" : "Criar Anúncio"}
             </button>
           </div>

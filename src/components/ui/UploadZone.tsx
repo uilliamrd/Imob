@@ -76,8 +76,8 @@ function FileItem({
       className={cn(
         "relative aspect-square rounded-lg overflow-hidden group border transition-all duration-150",
         file.status === "ready" ? "cursor-grab active:cursor-grabbing" : "cursor-default",
-        isDragging   ? "opacity-40 border-gold/40 scale-95"            : "",
-        isOver       ? "border-gold ring-1 ring-gold/40 scale-105"     : "",
+        isDragging   ? "opacity-40 border-[var(--primary-default)]/40 scale-95"            : "",
+        isOver       ? "border-[var(--primary-default)] ring-1 ring-[var(--primary-default)]/40 scale-105"     : "",
         !isDragging && !isOver && file.status === "ready"  ? "border-white/10" : "",
         file.status === "error"  ? "border-red-500/40"                  : "",
         file.status === "uploading" || file.status === "processing" ? "border-white/10" : ""
@@ -103,7 +103,7 @@ function FileItem({
       {/* Progress overlay */}
       {(file.status === "uploading" || file.status === "processing") && (
         <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1">
-          <Loader2 size={16} className="text-gold animate-spin" />
+          <Loader2 size={16} className="text-[var(--primary-default)] animate-spin" />
           <p className="text-[9px] text-white/70 font-sans">
             {file.status === "uploading"
               ? `${file.progress}%`
@@ -122,7 +122,7 @@ function FileItem({
           <button
             type="button"
             onClick={onRetry}
-            className="flex items-center gap-0.5 text-[8px] text-gold hover:underline font-sans"
+            className="flex items-center gap-0.5 text-[8px] text-[var(--primary-default)] hover:underline font-sans"
           >
             <RefreshCw size={8} /> Tentar
           </button>
@@ -131,7 +131,7 @@ function FileItem({
 
       {/* Cover badge */}
       {isFirst && file.status === "ready" && (
-        <span className="absolute bottom-1 left-1 text-[9px] bg-gold text-[#1C1C1C] px-1.5 py-0.5 rounded font-sans uppercase tracking-wider pointer-events-none">
+        <span className="absolute bottom-1 left-1 text-[9px] bg-[var(--primary-default)] text-white px-1.5 py-0.5 rounded font-sans uppercase tracking-wider pointer-events-none">
           Capa
         </span>
       )}
@@ -470,11 +470,11 @@ export function UploadZone({
           className={cn(
             "w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 transition-all duration-300",
             dragOver
-              ? "border-gold bg-gold/5 scale-[1.01]"
+              ? "border-[var(--primary-default)] bg-[var(--primary-default)]/5 scale-[1.01]"
               : "border-white/10 hover:border-white/25"
           )}
         >
-          <Upload size={22} className={dragOver ? "text-gold" : "text-white/30"} />
+          <Upload size={22} className={dragOver ? "text-[var(--primary-default)]" : "text-white/30"} />
           <div className="text-center">
             <p className="text-white/60 text-sm font-sans">
               Clique ou arraste os arquivos aqui

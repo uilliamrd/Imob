@@ -69,12 +69,12 @@ export function AdminOrgsClient({ orgs: initial }: AdminOrgsClientProps) {
             <div className="flex items-center gap-2">
               {org.slug && (
                 <a href={`/${org.type === "imobiliaria" ? "imobiliaria" : "construtora"}/${org.slug}`} target="_blank" rel="noopener noreferrer"
-                  className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
+                  className="p-2 rounded-lg border border-border text-muted-foreground hover:text-[var(--primary-default)] hover:border-[var(--primary-default)]/30 transition-colors">
                   <ExternalLink size={14} />
                 </a>
               )}
               <button onClick={() => setEditing(org)}
-                className="p-2 rounded-lg border border-border text-muted-foreground hover:text-gold hover:border-gold/30 transition-colors">
+                className="p-2 rounded-lg border border-border text-muted-foreground hover:text-[var(--primary-default)] hover:border-[var(--primary-default)]/30 transition-colors">
                 <Edit size={14} />
               </button>
               <button

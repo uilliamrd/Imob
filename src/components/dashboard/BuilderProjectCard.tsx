@@ -27,7 +27,7 @@ export function BuilderProjectCard({ name, image, location, percentSold, availab
   return (
     <Link
       href={href}
-      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:border-[var(--gold)]/30 hover:shadow-lg transition-all duration-300"
+      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:border-[var(--primary-default)]/30 hover:shadow-lg transition-all duration-300"
     >
       {/* Image */}
       <div className="relative aspect-[3/2] w-full overflow-hidden bg-muted">
@@ -74,7 +74,7 @@ export function BuilderProjectCard({ name, image, location, percentSold, availab
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <div
-              className="h-full rounded-full bg-[var(--gold)] transition-all duration-500"
+              className="h-full rounded-full bg-[var(--primary-default)] transition-all duration-500"
               style={{ width: `${Math.min(100, Math.max(0, percentSold))}%` }}
             />
           </div>

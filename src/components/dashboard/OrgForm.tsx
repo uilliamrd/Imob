@@ -143,7 +143,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
     setLoading(false)
   }
 
-  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--gold)]/50 transition-colors"
+  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans font-medium block mb-2"
   const landingSlug = slugify(name)
   const minisitePath = type === "imobiliaria" ? `/imobiliaria/${landingSlug}` : `/construtora/${landingSlug}`
@@ -154,7 +154,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       {/* Logo */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-4">
         <div className="flex items-center gap-2 border-b border-border pb-4">
-          <Image size={15} className="text-gold" />
+          <Image size={15} className="text-muted-foreground" />
           <h2 className="font-serif text-lg font-semibold text-foreground">Logo</h2>
         </div>
         <UploadZone bucket="property-images" folder={`orgs/${orgId ?? "temp"}/logo`}
@@ -165,7 +165,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       {/* Basic info */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-border pb-4">
-          <Globe size={15} className="text-gold" />
+          <Globe size={15} className="text-muted-foreground" />
           <h2 className="font-serif text-lg font-semibold text-foreground">Informações Gerais</h2>
         </div>
 
@@ -201,7 +201,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
               </div>
             </div>
             <button type="button" onClick={() => setHasLancamentos(!hasLancamentos)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${hasLancamentos ? "bg-gold" : "bg-muted"}`}>
+              className={`w-12 h-6 rounded-full transition-colors relative ${hasLancamentos ? "bg-[var(--primary-default)]" : "bg-muted"}`}>
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${hasLancamentos ? "left-7" : "left-1"}`} />
             </button>
           </div>
@@ -296,7 +296,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       {/* Hero section */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-border pb-4">
-          <FileText size={15} className="text-gold" />
+          <FileText size={15} className="text-muted-foreground" />
           <h2 className="font-serif text-lg font-semibold text-foreground">Seção Hero (Topo do Site)</h2>
         </div>
         <div>
@@ -315,7 +315,7 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       {/* About section */}
       <section className="bg-card border border-border rounded-2xl p-6 space-y-5">
         <div className="flex items-center gap-2 border-b border-border pb-4">
-          <FileText size={15} className="text-gold" />
+          <FileText size={15} className="text-muted-foreground" />
           <h2 className="font-serif text-lg font-semibold text-foreground">Seção Sobre</h2>
         </div>
         <div>
@@ -357,17 +357,17 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
 
       {/* Landing page link */}
       {name && (
-        <section className="bg-card border border-gold/10 rounded-2xl p-6">
+        <section className="bg-card border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-gold/60 font-sans mb-1">Minisite Publicado</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground/70 font-sans mb-1">Minisite Publicado</p>
               <p className="text-foreground/60 font-mono text-sm">
                 <span className="text-muted-foreground">{minisitePath.replace(landingSlug, "")}</span>
-                <span className="text-gold">{landingSlug}</span>
+                <span className="text-foreground">{landingSlug}</span>
               </p>
             </div>
             <a href={minisitePath} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 border border-gold/30 text-gold text-xs font-sans uppercase tracking-wider hover:bg-gold/10 transition-colors rounded-lg">
+              className="flex items-center gap-2 px-4 py-2 border border-[var(--primary-default)]/30 text-[var(--primary-default)] text-xs font-sans uppercase tracking-wider hover:bg-[var(--primary-default)]/10 transition-colors rounded-lg">
               <ExternalLink size={12} /> Abrir Site
             </a>
           </div>
@@ -379,9 +379,9 @@ export function OrgForm({ userId: _userId, orgId, initialData, isAdmin = false }
       )}
 
       <button type="submit" disabled={loading}
-        className="w-full py-3 bg-gold text-graphite hover:bg-gold-light disabled:opacity-50 transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-lg flex items-center justify-center gap-2 font-medium">
+        className="w-full py-3 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-50 transition-all duration-300 text-xs uppercase tracking-[0.2em] font-sans rounded-lg flex items-center justify-center gap-2 font-medium">
         {loading
-          ? <span className="w-4 h-4 border-2 border-graphite/30 border-t-graphite rounded-full animate-spin" />
+          ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           : saved ? "✓ Salvo com sucesso"
           : <><Save size={14} /> {orgId ? "Salvar Alterações" : "Criar Organização"}</>}
       </button>

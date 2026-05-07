@@ -44,7 +44,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   secretaria: "text-purple-400 bg-purple-900/20 border-purple-800/40",
 }
 
-const inputClass = "w-full bg-[#0a0a0a] border border-border text-white placeholder-muted-foreground/40 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors"
+const inputClass = "w-full bg-[#0a0a0a] border border-border text-white placeholder-muted-foreground/40 px-3 py-2 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/50 transition-colors"
 const labelClass = "text-xs uppercase tracking-[0.15em] text-muted-foreground font-sans block mb-2"
 
 export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgOption[] }) {
@@ -142,9 +142,9 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
       <div className="flex gap-3 mb-4">
         <input type="text" placeholder="Buscar por nome, email ou CRECI..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors" />
+          className="flex-1 bg-muted/50 border border-border text-white placeholder-muted-foreground/40 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/50 transition-colors" />
         <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}
-          className="bg-muted/50 border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/50 transition-colors">
+          className="bg-muted/50 border border-border text-foreground/60 px-4 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/50 transition-colors">
           <option value="all">Todos os papéis</option>
           {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
             <option key={r} value={r}>{ROLE_LABELS[r]}</option>
@@ -342,9 +342,9 @@ export function AdminUsersClient({ users, orgs }: { users: UserRow[]; orgs: OrgO
                       <button type="button"
                         onClick={() => saveUser(u)}
                         disabled={isSaving || !isDirty}
-                        className="flex items-center gap-2 px-5 py-2 bg-gold text-graphite hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg font-medium">
+                        className="flex items-center gap-2 px-5 py-2 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs uppercase tracking-[0.15em] font-sans rounded-lg font-medium">
                         {isSaving
-                          ? <span className="w-3.5 h-3.5 border-2 border-graphite/30 border-t-graphite rounded-full animate-spin" />
+                          ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           : <Save size={12} />}
                         Salvar
                       </button>
