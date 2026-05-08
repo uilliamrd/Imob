@@ -65,7 +65,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/imoveis",          label: "Imóveis",          icon: Home,            roles: ["construtora"] },
   { href: "/dashboard/lancamentos",      label: "Lançamentos",      icon: Flame,           roles: ["construtora"] },
   { href: "/dashboard/disponibilidade",  label: "Disponibilidade",  icon: ClipboardList,   roles: ["construtora"] },
-  { href: "/dashboard/analytics",        label: "Analytics",        icon: BarChart3,       roles: ["construtora"] },
+
   { href: "/dashboard/mercado",          label: "Mercado",          icon: BarChart3,       roles: ["construtora"] },
   { href: "/dashboard/minisite",         label: "Meu Site",         icon: ExternalLink,    roles: ["construtora"] },
   { href: "/dashboard/configuracoes",    label: "Configurações",    icon: Settings,        roles: ["construtora"] },

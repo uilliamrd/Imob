@@ -38,7 +38,7 @@ const PRIMARY: Record<UserRole, NavItemDef[]> = {
     { href: "/dashboard",                label: "Início",    icon: LayoutDashboard },
     { href: "/dashboard/imoveis",        label: "Imóveis",   icon: Home },
     { href: "/dashboard/lancamentos",    label: "Lançam.",   icon: Flame },
-    { href: "/dashboard/analytics",      label: "Analytics", icon: BarChart3 },
+
   ],
   admin: [
     { href: "/dashboard",           label: "Início",   icon: LayoutDashboard },
