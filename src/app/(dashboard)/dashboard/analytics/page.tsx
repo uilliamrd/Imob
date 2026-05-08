@@ -50,8 +50,8 @@ export default async function AnalyticsPage() {
     )
   }
 
-  // Build property IDs for view counting
-  let propertyIdsQuery = adminClient.from("properties").select("id")
+  // Build property IDs for view counting (also fetch title+status to populate table without leads/views)
+  let propertyIdsQuery = adminClient.from("properties").select("id, title, status")
   if (role === "corretor") {
     propertyIdsQuery = propertyIdsQuery.eq("created_by", user.id)
   } else if (orgId && role !== "admin") {
@@ -61,7 +61,7 @@ export default async function AnalyticsPage() {
   const [{ data: rawLeads }, { data: allProfiles }, { data: ownPropertyIds }] = await Promise.all([
     leadsQuery,
     adminClient.from("profiles").select("id, full_name"),
-    role !== "admin" ? propertyIdsQuery : Promise.resolve({ data: null, error: null }),
+    role !== "admin" ? propertyIdsQuery : Promise.resolve({ data: null as { id: string; title: string; status: string }[] | null, error: null }),
   ])
 
   const profileNameMap = Object.fromEntries(
@@ -142,6 +142,13 @@ export default async function AnalyticsPage() {
       propertyMap.set(propId, { title: propId, status: "disponivel", leads: 0, views: viewCount })
     }
   }
+  // Add properties with no leads/views so the table never shows empty when properties exist
+  for (const prop of (ownPropertyIds ?? [])) {
+    if (!propertyMap.has(prop.id)) {
+      propertyMap.set(prop.id, { title: prop.title, status: prop.status, leads: 0, views: 0 })
+    }
+  }
+
   const topProperties = [...propertyMap.values()]
     .sort((a, b) => (b.leads + b.views) - (a.leads + a.views))
     .slice(0, 8)
@@ -278,7 +285,7 @@ export default async function AnalyticsPage() {
         </div>
       )}
 
-      {totalLeads === 0 && totalViews === 0 && (
+      {totalLeads === 0 && totalViews === 0 && topProperties.length === 0 && (
         <div className="mt-6 text-center py-16 text-muted-foreground/50 font-sans text-sm">
           Nenhum dado ainda. Os dados aparecerão aqui conforme os imóveis forem visitados e leads capturados.
         </div>

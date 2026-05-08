@@ -62,10 +62,12 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
       canDownload = ["admin", "corretor", "construtora"].includes(prof?.role ?? "")
     }
 
-    const [{ data: dev }, { data: properties }, { data: rawUpdates }] = await Promise.all([
+    const adminForRef = createAdminClient()
+    const [{ data: dev }, { data: properties }, { data: rawUpdates }, { data: corretorProfile }] = await Promise.all([
       supabase.from("developments").select("*, organization:organizations(*)").eq("id", id).single(),
       supabase.from("properties").select("*").eq("development_id", id).eq("visibility", "publico").order("status").order("price"),
       supabase.from("development_updates").select("*").eq("development_id", id).order("created_at", { ascending: false }).limit(10),
+      ref ? adminForRef.from("profiles").select("whatsapp").eq("id", ref).single() : Promise.resolve({ data: null, error: null }),
     ])
 
     if (!dev) notFound()
@@ -73,7 +75,11 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
     const development = dev as Development & { organization: Organization | null }
     const org = development.organization
 
-    const whatsapp = org?.whatsapp ?? "5521999999999"
+    const rawCorrWa = corretorProfile?.whatsapp ?? null
+    const rawOrgWa = org?.whatsapp ?? null
+    const whatsapp = (rawCorrWa || rawOrgWa) ?? null
+
+    const orgWhatsapp = rawOrgWa ?? ""
 
     // Custom page takes over the landing — units still use the standard system pages
     if (development.custom_page_html) {
@@ -85,7 +91,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
             style={{ width: "100%", border: "none", minHeight: "100vh" }}
             title={development.name}
           />
-          <CorretorMinisite defaultWhatsapp={whatsapp} defaultName={org?.name ?? development.name} defaultPhoto={org?.logo ?? undefined} />
+          <CorretorMinisite defaultWhatsapp={orgWhatsapp} defaultName={org?.name ?? development.name} defaultPhoto={org?.logo ?? undefined} />
         </>
       )
     }
@@ -101,8 +107,8 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
           whatsapp={whatsapp}
           canDownload={canDownload}
         />
-        <Footer orgName={org?.name ?? development.name} whatsapp={whatsapp} website={org?.website} />
-        <CorretorMinisite defaultWhatsapp={whatsapp} defaultName={org?.name ?? development.name} defaultPhoto={org?.logo ?? undefined} />
+        <Footer orgName={org?.name ?? development.name} whatsapp={orgWhatsapp} website={org?.website} />
+        <CorretorMinisite defaultWhatsapp={orgWhatsapp} defaultName={org?.name ?? development.name} defaultPhoto={org?.logo ?? undefined} />
       </main>
     )
   } catch {

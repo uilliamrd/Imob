@@ -71,7 +71,7 @@ interface Props {
   properties: Property[]
   updates?: DevelopmentUpdate[]
   refId?: string
-  whatsapp: string
+  whatsapp: string | null
   canDownload?: boolean
 }
 
@@ -86,6 +86,8 @@ export function LancamentoLanding({ development, org, properties, updates = [], 
   const refParam = refId ? `?ref=${refId}` : ""
   const waMsg = encodeURIComponent(`Olá! Tenho interesse no lançamento ${development.name}.`)
   const orgSlug = org?.slug
+  const waNumber = whatsapp ? whatsapp.replace(/\D/g, "") : ""
+  const waUrl = waNumber ? `https://wa.me/${waNumber}?text=${waMsg}` : null
 
   const filters = [
     { id: "todos", label: "Todas" },
@@ -168,10 +170,12 @@ export function LancamentoLanding({ development, org, properties, updates = [], 
               className="px-8 py-4 border border-white/40 text-white hover:border-white hover:bg-white/10 transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans w-full sm:w-auto">
               Ver Unidades {disponiveisCount > 0 && `(${disponiveisCount})`}
             </button>
-            <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-              className="px-8 py-4 bg-[var(--action-default)] text-white hover:bg-[var(--action-hover)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
-              <MessageCircle size={15} /> Quero Saber Mais
-            </a>
+            {waUrl && (
+              <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                className="px-8 py-4 bg-[var(--action-default)] text-white hover:bg-[var(--action-hover)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans flex items-center justify-center gap-2 w-full sm:w-auto">
+                <MessageCircle size={15} /> Quero Saber Mais
+              </a>
+            )}
           </motion.div>
         </motion.div>
 
@@ -461,10 +465,12 @@ export function LancamentoLanding({ development, org, properties, updates = [], 
         <p className="text-white/60 font-sans text-base max-w-md mx-auto mb-8 px-2">
           As melhores unidades são reservadas nos primeiros dias. Fale com um consultor agora.
         </p>
-        <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--action-default)] text-white hover:bg-[var(--action-hover)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans">
-          <MessageCircle size={15} /> Falar com Consultor
-        </a>
+        {waUrl && (
+          <a href={waUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-[var(--action-default)] text-white hover:bg-[var(--action-hover)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-sans">
+            <MessageCircle size={15} /> Falar com Consultor
+          </a>
+        )}
       </section>
     </>
   )
