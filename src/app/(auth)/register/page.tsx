@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { UserPlus, Building2, Users, User, ChevronLeft } from "lucide-react"
+import { UserPlus, Building2, User, ChevronLeft, AlertTriangle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { BorderBeam } from "@/components/magicui/border-beam"
 import type { UserRole } from "@/types/database"
@@ -31,16 +31,6 @@ const ROLE_OPTIONS: RoleOption[] = [
     badge: "Planos pagos",
     badgeVariant: "gold",
     icon: Building2,
-    showCnpj: true,
-  },
-  {
-    value: "imobiliaria",
-    emoji: "🏢",
-    label: "Imobiliária",
-    desc: "Acesse imóveis de construtoras parceiras",
-    badge: "Acesso gratuito",
-    badgeVariant: "muted",
-    icon: Users,
     showCnpj: true,
   },
   {
@@ -224,8 +214,27 @@ export default function RegisterPage() {
                 </div>
                 {role === "corretor" && (
                   <div>
-                    <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">CRECI</label>
-                    <input type="text" value={creci} onChange={(e) => setCreci(e.target.value)} placeholder="Ex: 123456-F" className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors" />
+                    <label className="text-xs uppercase tracking-[0.15em] text-white/40 font-sans block mb-2">
+                      Número do CRECI <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      minLength={5}
+                      value={creci}
+                      onChange={(e) => setCreci(e.target.value)}
+                      placeholder="Ex: 123456-F"
+                      className="w-full bg-card/5 border border-white/10 text-white placeholder-white/20 px-4 py-3 rounded-lg font-sans text-sm focus:outline-none focus:border-gold/60 transition-colors"
+                    />
+                  </div>
+                )}
+
+                {role === "corretor" && (
+                  <div className="flex gap-3 p-4 rounded-xl border border-yellow-700/30 bg-yellow-950/30">
+                    <AlertTriangle size={15} className="text-yellow-500/70 flex-shrink-0 mt-0.5" />
+                    <p className="text-yellow-300/60 text-xs font-sans leading-relaxed">
+                      Ao se cadastrar, você declara que as informações fornecidas são verdadeiras. O número de CRECI será verificado. Informações falsas podem resultar em banimento permanente da plataforma. Falsidade ideológica é crime previsto no Art. 299 do Código Penal Brasileiro.
+                    </p>
                   </div>
                 )}
 
