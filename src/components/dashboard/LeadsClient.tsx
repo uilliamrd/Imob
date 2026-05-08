@@ -5,6 +5,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Phone, Home, Clock, ChevronDown, ChevronUp, MessageSquare, AlertTriangle, X, ExternalLink } from "lucide-react"
 import { StatsBar } from "@/components/ui/premium"
+import { MetricTooltip } from "@/components/ui/MetricTooltip"
 import type { Lead, LeadStatus, LeadConflict } from "@/types/database"
 
 const STATUS_OPTIONS: { value: LeadStatus; label: string; cls: string }[] = [
@@ -115,7 +116,7 @@ export function LeadsClient({ initialLeads, initialConflicts = [] }: Props) {
       <StatsBar layout="grid" cols={3} className="mb-8" stats={[
         { label: "Novos",       value: counts.novo,       icon: MessageSquare, accent: "default" },
         { label: "Em Contato",  value: counts.em_contato, icon: Phone,         accent: "gold"    },
-        { label: "Convertidos", value: counts.convertido, icon: Home,          accent: "forest"  },
+        { label: <MetricTooltip label="Leads Convertidos" tooltip="Leads que chegaram a uma proposta aceita ou contrato assinado." />, value: counts.convertido, icon: Home, accent: "forest" },
       ]} />
 
       {/* Search */}

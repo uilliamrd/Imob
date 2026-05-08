@@ -8,6 +8,7 @@ import {
   BookOpen, Plus, Link2, ExternalLink, X, Check, ChevronDown, ChevronUp,
   Trash2, Eye, Building2, Search,
 } from "lucide-react"
+import { MetricTooltip } from "@/components/ui/MetricTooltip"
 import type { Selection, SelectionItem, Property } from "@/types/database"
 
 interface DevOption { id: string; name: string }
@@ -259,18 +260,22 @@ export function SelecoesClient({ userId, initialSelections, orgId, allProperties
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
-          { label: "Seleções ativas",    value: selections.length, icon: BookOpen, color: "text-gold" },
-          { label: "Imóveis selecionados", value: selections.reduce((a, s) => a + s.items.length, 0), icon: Building2, color: "text-blue-400" },
-          { label: "Visualizações",      value: totalViews,         icon: Eye,      color: "text-emerald-400" },
+          { id: "selecoes",  label: "Seleções ativas",     value: selections.length, icon: BookOpen, color: "text-gold" },
+          { id: "imoveis",   label: "Imóveis selecionados", value: selections.reduce((a, s) => a + s.items.length, 0), icon: Building2, color: "text-blue-400" },
+          { id: "views",     label: "Visualizações",        value: totalViews,         icon: Eye,      color: "text-emerald-400" },
         ].map((s) => {
           const Icon = s.icon
           return (
-            <div key={s.label} className="bg-card border border-border rounded-2xl p-5">
+            <div key={s.id} className="bg-card border border-border rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={14} className={s.color} />
-                <p className="text-muted-foreground text-xs uppercase tracking-wider font-sans">{s.label}</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wider font-sans">
+                  {s.id === "views"
+                    ? <MetricTooltip label={s.label} tooltip="Número de acessos à página do imóvel no período." />
+                    : s.label}
+                </p>
               </div>
-              <p className="font-serif text-3xl font-bold text-white">{s.value}</p>
+              <p className="font-serif text-3xl font-bold text-foreground">{s.value}</p>
             </div>
           )
         })}

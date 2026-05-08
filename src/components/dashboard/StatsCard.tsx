@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, Minus, Lock, type LucideIcon } from "lucide-r
 import { cn } from "@/lib/utils"
 
 interface Props {
-  title: string
+  title: React.ReactNode
   value: string | number
   delta?: { value: number; label: string }
   icon: LucideIcon

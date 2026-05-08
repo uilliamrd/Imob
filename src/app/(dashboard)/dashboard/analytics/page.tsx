@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { requireAuth } from "@/lib/auth"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 import { StatsBar } from "@/components/ui/premium"
+import { MetricTooltip } from "@/components/ui/MetricTooltip"
 import { BarChart3, TrendingUp, Eye, Users, Building2, ArrowUpRight, MessageSquare } from "lucide-react"
 import type { Lead, UserRole } from "@/types/database"
 
@@ -179,9 +180,9 @@ export default async function AnalyticsPage() {
         className="mb-8"
         stats={[
           { label: "Leads totais",   value: totalLeads,      icon: MessageSquare, accent: "gold"    },
-          { label: "Convertidos",    value: converted,       icon: TrendingUp,    accent: "forest"  },
+          { label: <MetricTooltip label="Leads Convertidos" tooltip="Leads que chegaram a uma proposta aceita ou contrato assinado." />, value: converted, icon: TrendingUp, accent: "forest" },
           { label: "Leads este mês", value: leadsThisMonth,  icon: Eye,           accent: "default" },
-          { label: "Visualizações",  value: totalViews,      icon: ArrowUpRight,  accent: "default" },
+          { label: <MetricTooltip label="Visualizações" tooltip="Número de acessos à página do imóvel no período." />, value: totalViews, icon: ArrowUpRight, accent: "default" },
         ]}
       />
 
@@ -190,8 +191,8 @@ export default async function AnalyticsPage() {
         {role !== "corretor" && (
           <div className="bg-card border border-border rounded-2xl">
             <div className="px-6 py-5 border-b border-border flex items-center gap-2">
-              <Users size={16} className="text-gold" />
-              <h2 className="font-serif text-xl font-semibold text-white">Top Corretores</h2>
+              <Users size={16} className="text-[var(--primary-default)]" />
+              <h2 className="font-serif text-xl font-semibold text-foreground">Top Corretores</h2>
             </div>
             {topPartners.length === 0 ? (
               <div className="px-6 py-10 text-center text-muted-foreground/50 font-sans text-sm">
@@ -208,7 +209,7 @@ export default async function AnalyticsPage() {
                     </div>
                     <p className="text-muted-foreground text-sm font-sans flex-shrink-0">{p.leads} leads</p>
                     <div className="w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden flex-shrink-0">
-                      <div className="h-full bg-gold/50 rounded-full transition-all" style={{ width: `${(p.leads / maxPartnerLeads) * 100}%` }} />
+                      <div className="h-full bg-[var(--primary-default)]/50 rounded-full transition-all" style={{ width: `${(p.leads / maxPartnerLeads) * 100}%` }} />
                     </div>
                   </div>
                 ))}
@@ -220,8 +221,8 @@ export default async function AnalyticsPage() {
         {/* Top imóveis */}
         <div className={`bg-card border border-border rounded-2xl ${role === "corretor" ? "lg:col-span-2" : ""}`}>
           <div className="px-6 py-5 border-b border-border flex items-center gap-2">
-            <Building2 size={16} className="text-gold" />
-            <h2 className="font-serif text-xl font-semibold text-white">Imóveis Mais Procurados</h2>
+            <Building2 size={16} className="text-[var(--primary-default)]" />
+            <h2 className="font-serif text-xl font-semibold text-foreground">Imóveis Mais Procurados</h2>
           </div>
           {topProperties.length === 0 ? (
             <div className="px-6 py-10 text-center text-muted-foreground/50 font-sans text-sm">
@@ -244,11 +245,11 @@ export default async function AnalyticsPage() {
                       <Eye size={10} className="text-amber-400/60" />{p.views}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MessageSquare size={10} className="text-gold/60" />{p.leads}
+                      <MessageSquare size={10} className="text-muted-foreground" />{p.leads}
                     </span>
                   </div>
                   <div className="w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden flex-shrink-0">
-                    <div className="h-full bg-gold/50 rounded-full transition-all" style={{ width: `${((p.leads + p.views) / maxPropScore) * 100}%` }} />
+                    <div className="h-full bg-[var(--primary-default)]/50 rounded-full transition-all" style={{ width: `${((p.leads + p.views) / maxPropScore) * 100}%` }} />
                   </div>
                 </div>
               ))}
@@ -261,7 +262,7 @@ export default async function AnalyticsPage() {
       {Object.keys(sourceMap).length > 0 && (
         <div className="bg-card border border-border rounded-2xl">
           <div className="px-6 py-5 border-b border-border">
-            <h2 className="font-serif text-xl font-semibold text-white">Origem dos Leads</h2>
+            <h2 className="font-serif text-xl font-semibold text-foreground">Origem dos Leads</h2>
           </div>
           <div className="p-6 flex flex-wrap gap-4">
             {Object.entries(sourceMap).sort((a, b) => b[1] - a[1]).map(([src, count]) => (
@@ -270,7 +271,7 @@ export default async function AnalyticsPage() {
                   <p className="text-foreground/60 text-sm font-sans">{SOURCE_LABELS[src] ?? src}</p>
                   <p className="text-muted-foreground/50 text-xs font-sans mt-0.5">{pct(count, totalLeads)} do total</p>
                 </div>
-                <p className="font-serif text-2xl font-bold text-white">{count}</p>
+                <p className="font-serif text-2xl font-bold text-foreground">{count}</p>
               </div>
             ))}
           </div>

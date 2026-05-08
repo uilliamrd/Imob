@@ -15,6 +15,7 @@ import Link from "next/link"
 import { PlanUsage } from "@/components/dashboard/PlanUsage"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 import { StatsCard } from "@/components/dashboard/StatsCard"
+import { MetricTooltip } from "@/components/ui/MetricTooltip"
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed"
 import { BuilderProjectCard } from "@/components/dashboard/BuilderProjectCard"
 import { BuscarImoveisClient } from "@/components/dashboard/BuscarImoveisClient"
@@ -287,7 +288,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard title="Imóveis Cadastrados"  value={totalProperties ?? 0}     icon={Home}       iconColor="muted"   />
           <StatsCard title="Unidades Disponíveis" value={availableProperties ?? 0} icon={TrendingUp} iconColor="forest"  />
-          <StatsCard title="VGV do Mês"           value={formatVGV(vgvMes)}        icon={DollarSign} iconColor="gold"    />
+          <StatsCard title={<MetricTooltip label="VGV do Mês" tooltip="Soma do valor de todas as unidades disponíveis. Representa o potencial máximo de receita do empreendimento." />} value={formatVGV(vgvMes)} icon={DollarSign} iconColor="gold" />
           <StatsCard title="Lançamentos"          value={devCount ?? 0}            icon={Building2}  iconColor="muted"   />
         </div>
 

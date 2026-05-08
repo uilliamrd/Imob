@@ -4,9 +4,10 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { staggerContainerVariants, listItemVariants } from "@/lib/design-system/motion"
 import type { LucideIcon } from "lucide-react"
+import type { ReactNode } from "react"
 
 export interface StatItem {
-  label: string
+  label: ReactNode
   value: string | number
   icon?: LucideIcon
   /** Optional trend indicator */

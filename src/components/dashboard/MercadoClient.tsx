@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { TrendingUp, TrendingDown, Home, Users, BarChart3, MapPin } from "lucide-react"
 import { StatsBar } from "@/components/ui/premium"
+import { MetricTooltip } from "@/components/ui/MetricTooltip"
 
 interface SalesBuckets {
   semana: number; mes: number; semestre: number; ano: number; dois_anos: number; cinco_anos: number
@@ -64,7 +65,7 @@ export function MercadoClient({
         { label: "Total Cadastrado", value: totalProps,        icon: Home,        accent: "default" },
         { label: "Disponíveis",      value: totalDisponiveis,  icon: TrendingUp,  accent: "forest"  },
         { label: "Vendidos (total)", value: totalVendidos,     icon: BarChart3,   accent: "gold"    },
-        { label: "Taxa de Absorção", value: `${totalProps > 0 ? Math.round((totalVendidos / totalProps) * 100) : 0}%`, icon: TrendingDown, accent: "default" },
+        { label: <MetricTooltip label="Taxa de Absorção" tooltip="Percentual das unidades disponíveis que foram vendidas no período. Quanto maior, mais rápido o empreendimento está sendo comercializado." />, value: `${totalProps > 0 ? Math.round((totalVendidos / totalProps) * 100) : 0}%`, icon: TrendingDown, accent: "default" },
       ]} />
 
       {/* Vendidos por período */}
@@ -121,7 +122,9 @@ export function MercadoClient({
 
       {/* Avg ticket */}
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h2 className="font-serif text-lg font-semibold text-white mb-5">Ticket Médio por Categoria</h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground mb-5">
+          <MetricTooltip label="Ticket Médio por Categoria" tooltip="Valor médio por unidade vendida no período." />
+        </h2>
         <div className="space-y-4">
           {avgTicket.sort((a, b) => b.avg - a.avg).map((item) => (
             <div key={item.categoria}>
