@@ -8,7 +8,49 @@ import { useState } from "react"
 import { ChevronDown, MessageCircle, BedDouble, Car, Maximize2, ArrowRight, MapPin, Flame, ArrowLeft, Hash, FileDown, Lock } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
-import type { Development, Organization, Property } from "@/types/database"
+import type { Development, DevelopmentUpdate, Organization, Property } from "@/types/database"
+
+const FASE_MAP: Record<string, { label: string; cls: string }> = {
+  pre_lancamento: { label: "Pré-lançamento", cls: "bg-amber-900/30 text-amber-300 border-amber-700/40" },
+  lancamento:     { label: "Lançamento",     cls: "bg-orange-900/30 text-orange-300 border-orange-700/40" },
+  fundacao:       { label: "Fundação",        cls: "bg-blue-900/30 text-blue-300 border-blue-700/40" },
+  estrutura:      { label: "Estrutura",       cls: "bg-blue-900/30 text-blue-300 border-blue-700/40" },
+  alvenaria:      { label: "Alvenaria",       cls: "bg-cyan-900/30 text-cyan-300 border-cyan-700/40" },
+  acabamento:     { label: "Acabamento",      cls: "bg-teal-900/30 text-teal-300 border-teal-700/40" },
+  entregue:       { label: "Entregue",        cls: "bg-emerald-900/30 text-emerald-300 border-emerald-700/40" },
+}
+
+function UpdatesFeed({ updates }: { updates: DevelopmentUpdate[] }) {
+  const [showAll, setShowAll] = useState(false)
+  const visible = showAll ? updates : updates.slice(0, 5)
+  return (
+    <div className="space-y-1">
+      {visible.map((u, i) => (
+        <div key={u.id} className="flex gap-3">
+          <div className="flex flex-col items-center flex-shrink-0">
+            <div className="w-1.5 h-1.5 rounded-full bg-gold/60 mt-1.5" />
+            {i < visible.length - 1 && <div className="w-px flex-1 bg-white/10 mt-1" />}
+          </div>
+          <div className="pb-3 flex-1 min-w-0">
+            <p className="text-white/80 text-sm font-sans font-medium leading-snug">{u.title}</p>
+            {u.body && <p className="text-white/50 text-xs font-sans mt-0.5 leading-relaxed">{u.body}</p>}
+            <p className="text-white/30 text-[10px] font-sans mt-1">
+              {new Date(u.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+            </p>
+          </div>
+        </div>
+      ))}
+      {!showAll && updates.length > 5 && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="text-gold/70 text-xs font-sans hover:text-gold transition-colors uppercase tracking-wider mt-1"
+        >
+          Ver mais {updates.length - 5} {updates.length - 5 === 1 ? "atualização" : "atualizações"}
+        </button>
+      )}
+    </div>
+  )
+}
 
 function formatPrice(price: number) {
   if (price >= 1_000_000)
@@ -27,12 +69,13 @@ interface Props {
   development: Development
   org: Organization | null
   properties: Property[]
+  updates?: DevelopmentUpdate[]
   refId?: string
   whatsapp: string
   canDownload?: boolean
 }
 
-export function LancamentoLanding({ development, org, properties, refId, whatsapp, canDownload = false }: Props) {
+export function LancamentoLanding({ development, org, properties, updates = [], refId, whatsapp, canDownload = false }: Props) {
   const [activeFilter, setActiveFilter] = useState("todos")
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
@@ -154,6 +197,54 @@ export function LancamentoLanding({ development, org, properties, refId, whatsap
           ))}
         </div>
       </div>
+
+      {/* ── OBRA STATUS ─────────────────────────────────────── */}
+      {(development.obra_fase || updates.length > 0) && (
+        <section className="py-10 px-4 md:px-6 bg-[#0d0d0d] border-t border-white/5">
+          <div className="max-w-5xl mx-auto">
+            <div className={`grid grid-cols-1 ${development.obra_fase && updates.length > 0 ? "md:grid-cols-2" : ""} gap-8`}>
+              {development.obra_fase && (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-4">Status da Obra</p>
+                  <div className="flex items-center gap-3 mb-5 flex-wrap">
+                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-sans uppercase tracking-wider border ${FASE_MAP[development.obra_fase]?.cls ?? ""}`}>
+                      {FASE_MAP[development.obra_fase]?.label ?? development.obra_fase}
+                    </span>
+                    {development.obra_prazo && (
+                      <span className="text-white/50 text-xs font-sans">
+                        Previsão: {new Date(development.obra_prazo + "T00:00:00").toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+                      </span>
+                    )}
+                  </div>
+                  {development.obra_percent != null && (
+                    <div>
+                      <div className="flex justify-between text-xs font-sans text-white/50 mb-2">
+                        <span>Progresso</span>
+                        <span>{development.obra_percent}%</span>
+                      </div>
+                      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${development.obra_percent}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 1.2, ease: "easeOut" }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {updates.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-4">Atualizações</p>
+                  <UpdatesFeed updates={updates} />
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── TABELA DE UNIDADES ────────────────────────────────── */}
       {/* Fundo sempre escuro (bg-graphite) — todas as cores de texto são fixas, sem variáveis de tema */}

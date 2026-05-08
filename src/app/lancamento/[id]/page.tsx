@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { LancamentoLanding } from "@/components/construtora/LancamentoLanding"
 import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
-import type { Development, Organization, Property } from "@/types/database"
+import type { Development, DevelopmentUpdate, Organization, Property } from "@/types/database"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://baseimob.com.br"
 
@@ -62,9 +62,10 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
       canDownload = ["admin", "corretor", "construtora"].includes(prof?.role ?? "")
     }
 
-    const [{ data: dev }, { data: properties }] = await Promise.all([
+    const [{ data: dev }, { data: properties }, { data: rawUpdates }] = await Promise.all([
       supabase.from("developments").select("*, organization:organizations(*)").eq("id", id).single(),
       supabase.from("properties").select("*").eq("development_id", id).eq("visibility", "publico").order("status").order("price"),
+      supabase.from("development_updates").select("*").eq("development_id", id).order("created_at", { ascending: false }).limit(10),
     ])
 
     if (!dev) notFound()
@@ -95,6 +96,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
           development={development}
           org={org}
           properties={(properties ?? []) as Property[]}
+          updates={(rawUpdates ?? []) as DevelopmentUpdate[]}
           refId={ref}
           whatsapp={whatsapp}
           canDownload={canDownload}

@@ -52,6 +52,10 @@ export interface Profile {
   organization?: Organization
 }
 
+export type ObraFase =
+  | 'pre_lancamento' | 'lancamento' | 'fundacao'
+  | 'estrutura' | 'alvenaria' | 'acabamento' | 'entregue'
+
 export interface Development {
   id: string
   name: string
@@ -67,6 +71,19 @@ export interface Development {
   custom_page_html: string | null
   custom_page_type: 'html' | 'json' | null
   documents: { name: string; url: string; type: string }[]
+  obra_fase: ObraFase | null
+  obra_percent: number | null
+  obra_prazo: string | null
+  created_at: string
+}
+
+export interface DevelopmentUpdate {
+  id: string
+  development_id: string
+  org_id: string | null
+  title: string
+  body: string | null
+  image_url: string | null
   created_at: string
 }
 

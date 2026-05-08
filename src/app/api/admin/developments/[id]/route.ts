@@ -32,7 +32,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const body = await request.json()
   const ALLOWED = ["name","address","neighborhood","city","is_lancamento","is_delivered",
-                   "description","cover_image","images","custom_page_html","custom_page_type","documents"]
+                   "description","cover_image","images","custom_page_html","custom_page_type","documents",
+                   "obra_fase","obra_percent","obra_prazo"]
   const payload: Record<string, unknown> = {}
   for (const key of ALLOWED) { if (key in body) payload[key] = body[key] }
   const { error } = await admin.from("developments").update(payload).eq("id", id)

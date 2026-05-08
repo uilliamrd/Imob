@@ -7,9 +7,19 @@ import { ImageUpload } from "@/components/ui/ImageUpload"
 import { CustomPageEditor } from "@/components/dashboard/CustomPageEditor"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/lib/toast-context"
-import type { Development } from "@/types/database"
+import type { Development, DevelopmentUpdate, ObraFase } from "@/types/database"
 
 type DocEntry = { name: string; url: string; type: string }
+
+const OBRA_FASE_OPTIONS: { value: ObraFase; label: string }[] = [
+  { value: "pre_lancamento", label: "Pré-lançamento" },
+  { value: "lancamento",     label: "Lançamento"     },
+  { value: "fundacao",       label: "Fundação"        },
+  { value: "estrutura",      label: "Estrutura"       },
+  { value: "alvenaria",      label: "Alvenaria"       },
+  { value: "acabamento",     label: "Acabamento"      },
+  { value: "entregue",       label: "Entregue"        },
+]
 
 interface OrgOption { id: string; name: string }
 interface BairroOption { id: string; name: string; city: string; state: string }
@@ -46,6 +56,9 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const newDocInputRef = useRef<HTMLInputElement>(null)
   const editDocInputRef = useRef<Record<string, HTMLInputElement | null>>({})
+  const [devUpdates, setDevUpdates] = useState<Record<string, DevelopmentUpdate[]>>({})
+  const [newUpdate, setNewUpdate] = useState<Record<string, { title: string; body: string }>>({})
+  const [savingUpdate, setSavingUpdate] = useState<string | null>(null)
 
   async function uploadDoc(file: File, devId?: string): Promise<string | null> {
     const supabase = createClient()
@@ -74,7 +87,7 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
     setUploadingDoc(false)
   }
 
-  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--gold)]/50 transition-colors"
+  const inputClass = "w-full bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground/60 px-3 py-2.5 rounded-lg font-sans text-sm focus:outline-none focus:border-[var(--primary-default)]/50 transition-colors"
   const labelClass = "text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans font-medium block mb-1.5"
 
   async function createDev() {
@@ -167,11 +180,56 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
     }
   }
 
+  async function fetchUpdates(devId: string) {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("development_updates")
+      .select("*")
+      .eq("development_id", devId)
+      .order("created_at", { ascending: false })
+    setDevUpdates((p) => ({ ...p, [devId]: (data ?? []) as DevelopmentUpdate[] }))
+  }
+
+  async function postUpdate(devId: string) {
+    const u = newUpdate[devId]
+    if (!u?.title?.trim()) return
+    setSavingUpdate(devId)
+    try {
+      const res = await fetch(`/api/admin/developments/${devId}/updates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: u.title, body: u.body || null }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setDevUpdates((p) => ({ ...p, [devId]: [data as DevelopmentUpdate, ...(p[devId] ?? [])] }))
+        setNewUpdate((p) => ({ ...p, [devId]: { title: "", body: "" } }))
+        toast("Atualização publicada!", "success")
+      } else {
+        toast(data.error ?? "Erro ao publicar.", "error")
+      }
+    } catch {
+      toast("Erro de conexão.", "error")
+    } finally {
+      setSavingUpdate(null)
+    }
+  }
+
+  async function removeUpdate(devId: string, updateId: string) {
+    const res = await fetch(`/api/admin/developments/${devId}/updates/${updateId}`, { method: "DELETE" })
+    if (res.ok) {
+      setDevUpdates((p) => ({ ...p, [devId]: (p[devId] ?? []).filter((u) => u.id !== updateId) }))
+    } else {
+      toast("Erro ao excluir atualização.", "error")
+    }
+  }
+
   function startEdit(dev: Development) {
     setEditForms((prev) => ({ ...prev, [dev.id]: { ...dev } }))
     setEditImages((prev) => ({ ...prev, [dev.id]: dev.images?.length ? dev.images : (dev.cover_image ? [dev.cover_image] : []) }))
     setEditDocuments((prev) => ({ ...prev, [dev.id]: dev.documents?.length ? [...dev.documents] : [] }))
     setExpanded(dev.id)
+    if (!devUpdates[dev.id]) fetchUpdates(dev.id)
   }
 
   return (
@@ -495,6 +553,90 @@ export function DevelopmentsManager({ developments: initial, orgId, orgs = [], b
                       }}
                     />
                   </div>
+                </div>
+
+                {/* Status da Obra */}
+                <div className="border-t border-border pt-4">
+                  <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans font-medium mb-3">Status da Obra</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className={labelClass}>Fase</label>
+                      <select
+                        value={form.obra_fase ?? ""}
+                        onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], obra_fase: (e.target.value || null) as ObraFase | null } }))}
+                        className={inputClass}
+                      >
+                        <option value="">— Não definida —</option>
+                        {OBRA_FASE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Progresso — {form.obra_percent ?? 0}%</label>
+                      <input
+                        type="range" min={0} max={100}
+                        value={form.obra_percent ?? 0}
+                        onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], obra_percent: Number(e.target.value) } }))}
+                        className="w-full mt-2 accent-[var(--primary-default)]"
+                      />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Prazo de entrega</label>
+                      <input
+                        type="date"
+                        value={form.obra_prazo ?? ""}
+                        onChange={(e) => setEditForms((p) => ({ ...p, [dev.id]: { ...p[dev.id], obra_prazo: e.target.value || null } }))}
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Atualizações da Obra */}
+                <div className="border-t border-border pt-4">
+                  <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-sans font-medium mb-3">Atualizações da Obra</p>
+                  <div className="space-y-2 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Título da atualização *"
+                      value={newUpdate[dev.id]?.title ?? ""}
+                      onChange={(e) => setNewUpdate((p) => ({ ...p, [dev.id]: { ...(p[dev.id] ?? { title: "", body: "" }), title: e.target.value } }))}
+                      className={inputClass}
+                    />
+                    <textarea
+                      placeholder="Detalhes (opcional)"
+                      value={newUpdate[dev.id]?.body ?? ""}
+                      onChange={(e) => setNewUpdate((p) => ({ ...p, [dev.id]: { ...(p[dev.id] ?? { title: "", body: "" }), body: e.target.value } }))}
+                      className={inputClass + " min-h-[80px] resize-y"}
+                    />
+                    <button
+                      type="button"
+                      disabled={!newUpdate[dev.id]?.title?.trim() || savingUpdate === dev.id}
+                      onClick={() => postUpdate(dev.id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] disabled:opacity-40 transition-colors text-xs uppercase tracking-[0.12em] font-sans rounded-lg"
+                    >
+                      <Plus size={12} /> {savingUpdate === dev.id ? "Publicando..." : "Publicar Atualização"}
+                    </button>
+                  </div>
+                  {(devUpdates[dev.id] ?? []).length === 0 ? (
+                    <p className="text-muted-foreground/40 text-xs font-sans">Nenhuma atualização ainda.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {(devUpdates[dev.id] ?? []).map((u) => (
+                        <div key={u.id} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-foreground/80 text-sm font-sans font-medium">{u.title}</p>
+                            {u.body && <p className="text-muted-foreground text-xs font-sans mt-0.5">{u.body}</p>}
+                            <p className="text-muted-foreground/40 text-[10px] font-sans mt-1">{new Date(u.created_at).toLocaleDateString("pt-BR")}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeUpdate(dev.id, u.id)}
+                            className="text-muted-foreground/40 hover:text-red-400 transition-colors flex-shrink-0"
+                          ><X size={12} /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-4">
