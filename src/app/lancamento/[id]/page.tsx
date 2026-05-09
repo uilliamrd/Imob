@@ -65,7 +65,7 @@ export default async function LancamentoPage({ params, searchParams }: PageProps
     const adminForRef = createAdminClient()
     const [{ data: dev }, { data: properties }, { data: rawUpdates }, { data: corretorProfile }] = await Promise.all([
       supabase.from("developments").select("*, organization:organizations(*)").eq("id", id).single(),
-      supabase.from("properties").select("*").eq("development_id", id).eq("visibility", "publico").order("status").order("price"),
+      supabase.from("properties").select("*").eq("development_id", id).eq("visibility", "publico").neq("status", "vendido").order("status").order("price"),
       supabase.from("development_updates").select("*").eq("development_id", id).order("created_at", { ascending: false }).limit(10),
       ref ? adminForRef.from("profiles").select("whatsapp").eq("id", ref).single() : Promise.resolve({ data: null, error: null }),
     ])

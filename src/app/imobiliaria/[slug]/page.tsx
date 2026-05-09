@@ -27,6 +27,7 @@ async function getData(slug: string): Promise<{ org: Organization; properties: P
         .select("*")
         .eq("org_id", org.id)
         .eq("visibility", "publico")
+        .neq("status", "vendido")
         .order("status"),
       supabase
         .from("profiles")

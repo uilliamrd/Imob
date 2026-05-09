@@ -174,13 +174,9 @@ export function ConstrutoraLanding({ org, properties, developments, portfolio = 
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-5">
           Fale com um <span className="italic" style={{ color: "#C9A96E" }}>Corretor Especialista</span>
         </h2>
-        <p className="text-white/50 font-sans text-base mb-8 max-w-md mx-auto">
-          Negócios imobiliários são realizados por nossos corretores parceiros credenciados.
+        <p className="text-white/50 font-sans text-base max-w-md mx-auto">
+          Entre em contato para dar o próximo passo no seu investimento.
         </p>
-        <Link href="/corretores"
-          className="inline-flex items-center gap-2 px-10 py-4 bg-gold text-foreground hover:bg-gold-light transition-all duration-500 text-sm uppercase tracking-[0.2em] font-sans mt-2">
-          <Users size={15} /> Ver Corretores Parceiros
-        </Link>
       </section>
     </>
   )

@@ -94,7 +94,7 @@ export function NotificationBell({ userId }: Props) {
       <button
         onClick={handleOpen}
         aria-label="Notificações"
-        className="relative w-9 h-9 rounded-md border border-border/60 bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[var(--primary-default)]/30 hover:bg-muted/70 transition-all duration-200"
+        className="relative w-9 h-9 rounded-md border border-border/60 bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[var(--gold)]/30 hover:bg-muted/70 transition-all duration-200"
       >
         <Bell size={14} />
         {unread > 0 && (
@@ -119,7 +119,7 @@ export function NotificationBell({ userId }: Props) {
                 {unread > 0 && (
                   <button
                     onClick={markAllRead}
-                    className="flex items-center gap-1 text-[11px] font-sans text-muted-foreground hover:text-[var(--primary-default)] transition-colors px-2 py-1 rounded-lg hover:bg-muted/50"
+                    className="flex items-center gap-1 text-[11px] font-sans text-muted-foreground hover:text-[var(--gold)] transition-colors px-2 py-1 rounded-lg hover:bg-muted/50"
                   >
                     <CheckCheck size={11} /> Marcar lidas
                   </button>
@@ -147,9 +147,9 @@ export function NotificationBell({ userId }: Props) {
                   key={n.id}
                   href={n.link ?? "/dashboard"}
                   onClick={() => setOpen(false)}
-                  className={`flex gap-3 px-4 py-3 border-b border-border/30 hover:bg-muted/40 transition-colors last:border-0 ${!n.read_at ? "bg-[var(--primary-default)]/5" : ""}`}
+                  className={`flex gap-3 px-4 py-3 border-b border-border/30 hover:bg-muted/40 transition-colors last:border-0 ${!n.read_at ? "bg-[var(--gold)]/5" : ""}`}
                 >
-                  <div className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${!n.read_at ? "bg-[var(--primary-default)]" : "bg-transparent"}`} />
+                  <div className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${!n.read_at ? "bg-[var(--gold)]" : "bg-transparent"}`} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-[13px] font-sans leading-snug ${!n.read_at ? "text-foreground font-medium" : "text-foreground/70"}`}>
                       {n.title}

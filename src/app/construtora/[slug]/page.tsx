@@ -22,7 +22,7 @@ async function getData(slug: string): Promise<{ org: Organization; properties: P
     if (!org || org.type !== "construtora") return null
 
     const [{ data: properties }, { data: developments }, { data: portfolio }] = await Promise.all([
-      supabase.from("properties").select("*").eq("org_id", org.id).eq("visibility", "publico").order("status").order("created_at", { ascending: false }),
+      supabase.from("properties").select("*").eq("org_id", org.id).eq("visibility", "publico").neq("status", "vendido").order("status").order("created_at", { ascending: false }),
       supabase.from("developments").select("*").eq("org_id", org.id).order("name"),
       supabase.from("org_portfolio").select("*").eq("org_id", org.id).order("ano_entrega", { ascending: false }).order("created_at", { ascending: false }),
     ])

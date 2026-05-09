@@ -92,6 +92,7 @@ async function getProperty(slug: string): Promise<{
       .select("*, organization:organizations(*)")
       .eq("slug", slug)
       .in("visibility", ["publico", "corretores"])
+      .neq("status", "vendido")
       .single()
 
     if (!data) return { property: MOCK, org: null, development: null, adminWhatsapp: null }

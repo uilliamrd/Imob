@@ -13,8 +13,8 @@ import type { Development, DevelopmentUpdate, Organization, Property } from "@/t
 const FASE_MAP: Record<string, { label: string; cls: string }> = {
   pre_lancamento: { label: "Pré-lançamento", cls: "bg-amber-900/30 text-amber-300 border-amber-700/40" },
   lancamento:     { label: "Lançamento",     cls: "bg-orange-900/30 text-orange-300 border-orange-700/40" },
-  fundacao:       { label: "Fundação",        cls: "bg-blue-900/30 text-blue-300 border-blue-700/40" },
-  estrutura:      { label: "Estrutura",       cls: "bg-blue-900/30 text-blue-300 border-blue-700/40" },
+  fundacao:       { label: "Fundação",        cls: "bg-[var(--gold)]/10 text-[var(--gold)] border-[var(--gold)]/30" },
+  estrutura:      { label: "Estrutura",       cls: "bg-[var(--gold)]/10 text-[var(--gold)] border-[var(--gold)]/30" },
   alvenaria:      { label: "Alvenaria",       cls: "bg-cyan-900/30 text-cyan-300 border-cyan-700/40" },
   acabamento:     { label: "Acabamento",      cls: "bg-teal-900/30 text-teal-300 border-teal-700/40" },
   entregue:       { label: "Entregue",        cls: "bg-emerald-900/30 text-emerald-300 border-emerald-700/40" },

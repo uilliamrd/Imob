@@ -15,7 +15,7 @@ interface Props {
 }
 
 const ICON_COLORS = {
-  gold:   { wrapper: "bg-[var(--primary-subtle)] border-[var(--primary-default)]/20", icon: "text-[var(--primary-default)]" },
+  gold:   { wrapper: "bg-[var(--gold)]/10 border-[var(--gold)]/20", icon: "text-[var(--gold)]" },
   forest: { wrapper: "bg-[var(--action-subtle)] border-[var(--action-default)]/20",   icon: "text-[var(--action-default)]" },
   muted:  { wrapper: "bg-muted border-border",                                        icon: "text-muted-foreground" },
 }
@@ -35,7 +35,7 @@ export function StatsCard({ title, value, delta, icon: Icon, iconColor = "muted"
     <div className={cn(
       "relative bg-card rounded-2xl p-6 border border-border overflow-hidden transition-all duration-200",
       "elevation-soft",
-      href && "hover:border-[var(--primary-default)]/30 hover:shadow-md cursor-pointer"
+      href && "hover:border-[var(--gold)]/30 hover:shadow-md cursor-pointer"
     )}>
       {/* Icon */}
       <div className={cn("absolute top-5 right-5 p-2.5 rounded-xl border", colors.wrapper)}>
@@ -72,7 +72,7 @@ export function StatsCard({ title, value, delta, icon: Icon, iconColor = "muted"
           <p className="text-xs text-muted-foreground font-sans">Disponível no plano Gold</p>
           <Link
             href="/dashboard/upgrade"
-            className="text-xs px-3 py-1.5 rounded-md bg-[var(--primary-subtle)] text-[var(--primary-default)] border border-[var(--primary-default)]/20 hover:bg-[var(--primary-subtle)]/80 transition-colors font-sans"
+            className="text-xs px-3 py-1.5 rounded-md bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/20 hover:bg-[var(--gold)]/20 transition-colors font-sans"
           >
             Ver planos
           </Link>
