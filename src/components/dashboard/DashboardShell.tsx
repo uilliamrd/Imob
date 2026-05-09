@@ -5,6 +5,7 @@ import { ThemeSwitch } from "@/components/ThemeSwitch"
 import { Sidebar } from "./Sidebar"
 import { DashboardTopbar } from "./DashboardTopbar"
 import { BottomNav } from "./BottomNav"
+import { NotificationBell } from "./NotificationBell"
 import type { ReactNode } from "react"
 import type { UserRole, OrgPlan, OrgType } from "@/types/database"
 
@@ -39,6 +40,7 @@ export function DashboardShell({ children, role, user, orgSlug, userId, orgType 
             <span className="font-serif text-[15px] font-bold text-[var(--gold)]">Imob</span>
           </div>
           <div className="flex items-center gap-2">
+            {role === "corretor" && userId && <NotificationBell userId={userId} />}
             <ThemeSwitch />
             {user.avatar ? (
               <Image

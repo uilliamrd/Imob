@@ -16,10 +16,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const admin = createAdminClient()
 
   // Whitelist updatable fields
-  const { full_name, whatsapp, creci, bio, avatar_url, slug } = body
+  const { full_name, whatsapp, creci, bio, avatar_url, slug, notif_new_property } = body
+  const patch: Record<string, unknown> = { full_name, whatsapp, creci, bio, avatar_url, slug: slug ?? null }
+  if (typeof notif_new_property === "boolean") patch.notif_new_property = notif_new_property
   const { error } = await admin
     .from("profiles")
-    .update({ full_name, whatsapp, creci, bio, avatar_url, slug: slug ?? null })
+    .update(patch)
     .eq("id", id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { notifyNewProperty } from "@/lib/notifications"
 
 const ALLOWED_ROLES = ["admin", "imobiliaria", "corretor", "construtora"]
 
@@ -38,10 +39,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { id } = await params
 
-  // Non-admins can only edit their own org's properties
+  // Fetch current state: consolidates permission check + data needed for notification
+  const { data: current } = await auth.admin
+    .from("properties")
+    .select("org_id, status, title, slug, price")
+    .eq("id", id)
+    .single()
+
   if (auth.profile.role !== "admin") {
-    const { data: prop } = await auth.admin.from("properties").select("org_id").eq("id", id).single()
-    if (prop?.org_id !== auth.profile.organization_id) {
+    if (current?.org_id !== auth.profile.organization_id) {
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
     }
   }
@@ -99,5 +105,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }).eq("id", id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  // Notify corretores when a construtora property goes back on sale
+  if (body.status === "disponivel" && current?.status && current.status !== "disponivel") {
+    const orgId = body.org_id ?? current.org_id
+    if (orgId) {
+      const { data: org } = await auth.admin.from("organizations").select("name, type").eq("id", orgId).single()
+      if (org?.type === "construtora") {
+        notifyNewProperty(
+          { id, title: current.title, slug: current.slug, price: current.price, org_name: org.name },
+          auth.admin,
+        ).catch(console.error)
+      }
+    }
+  }
+
   return NextResponse.json({ ok: true })
 }

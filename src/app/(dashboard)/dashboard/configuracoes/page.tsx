@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { requireAuth } from "@/lib/auth"
 import { ProfileForm } from "@/components/dashboard/ProfileForm"
 import { PasswordChangeForm } from "@/components/dashboard/PasswordChangeForm"
+import { NotificationPrefsForm } from "@/components/dashboard/NotificationPrefsForm"
 import { PageHeader } from "@/components/dashboard/PageHeader"
 import { Settings } from "lucide-react"
 
@@ -32,6 +33,13 @@ export default async function ConfiguracoesPage() {
           avatar_url: profile?.avatar_url ?? "",
         }}
       />
+
+      {profile?.role === "corretor" && (
+        <NotificationPrefsForm
+          userId={user.id}
+          initialValue={profile?.notif_new_property ?? true}
+        />
+      )}
 
       <PasswordChangeForm email={email} />
     </div>

@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { getPlanLimits, resolveEntityType } from "@/lib/plans"
+import { notifyNewProperty } from "@/lib/notifications"
 import type { OrgPlan, OrgType } from "@/types/database"
 
 const ALLOWED_ROLES = ["admin", "imobiliaria", "corretor", "construtora", "secretaria"]
@@ -121,5 +122,22 @@ export async function POST(request: Request) {
   }).select("id, slug").single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  // Notify corretores when a construtora publishes a new available property
+  if (
+    auth.profile.role === "construtora" &&
+    (body.visibility ?? "publico") === "publico" &&
+    (body.status ?? "disponivel") === "disponivel"
+  ) {
+    const orgId = body.org_id ?? auth.profile.organization_id
+    if (orgId) {
+      const { data: org } = await auth.admin.from("organizations").select("name").eq("id", orgId).single()
+      notifyNewProperty(
+        { id: data.id, title: body.title, slug: data.slug, price: body.price, org_name: org?.name ?? "" },
+        auth.admin,
+      ).catch(console.error)
+    }
+  }
+
   return NextResponse.json(data, { status: 201 })
 }

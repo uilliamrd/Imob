@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Bell, Search, Zap, ChevronDown, LogOut, User, Settings, ChevronRight } from "lucide-react"
+import { Search, Zap, ChevronDown, LogOut, User, Settings, ChevronRight } from "lucide-react"
+import { NotificationBell } from "./NotificationBell"
 import Image from "next/image"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
@@ -48,11 +49,11 @@ export function DashboardTopbar({
   userName,
   userAvatar,
   role,
-  userId: _userId,
+  userId,
   title,
   breadcrumb,
   actions,
-  notificationCount = 0,
+  notificationCount: _notificationCount = 0,
 }: DashboardTopbarProps) {
   const [menuOpen, setMenuOpen]     = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -153,15 +154,10 @@ export function DashboardTopbar({
             <span className="hidden xl:inline">{quickAction.label}</span>
           </Link>
 
-          {/* Bell */}
-          <button aria-label="Notificações" className="relative w-9 h-9 rounded-md border border-border/60 bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[var(--primary-default)]/30 hover:bg-muted/70 transition-all duration-200">
-            <Bell size={14} />
-            {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--primary-default)] text-white text-[9px] font-bold flex items-center justify-center">
-                {notificationCount > 9 ? "9+" : notificationCount}
-              </span>
-            )}
-          </button>
+          {/* Bell — only corretores receive property notifications */}
+          {role === "corretor" && userId && (
+            <NotificationBell userId={userId} />
+          )}
 
           {/* Avatar + dropdown */}
           <div className="relative" ref={menuRef}>

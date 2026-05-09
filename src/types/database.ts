@@ -49,7 +49,20 @@ export interface Profile {
   subscription_status: SubscriptionStatus
   subscription_expires_at: string | null
   payment_due_date: string | null
+  notif_new_property: boolean
   organization?: Organization
+}
+
+export interface Notification {
+  id: string
+  recipient_id: string
+  type: string
+  title: string
+  body: string | null
+  link: string | null
+  metadata: Record<string, unknown> | null
+  read_at: string | null
+  created_at: string
 }
 
 export type ObraFase =
