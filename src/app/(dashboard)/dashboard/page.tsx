@@ -259,12 +259,19 @@ export default async function DashboardPage() {
           { href: "/dashboard/analytics",      title: "Analytics",         desc: "Performance e métricas",       icon: BarChart3  },
         ]
 
-    const commandItems = [
-      { label: "Revisar imóveis sem foto",        href: "/dashboard/imoveis"   },
-      { label: "Verificar leads sem resposta",     href: "/dashboard/leads"     },
-      { label: "Atualizar status de unidades",     href: "/dashboard/disponibilidade" },
-      { label: "Publicar novos anúncios",          href: "/dashboard/anuncios"  },
-    ]
+    const commandItems = role === "construtora"
+      ? [
+          { label: "Revisar imóveis sem foto",         href: "/dashboard/imoveis"         },
+          { label: "Atualizar status de unidades",      href: "/dashboard/disponibilidade" },
+          { label: "Adicionar projeto ao portfólio",    href: "/dashboard/portfolio"       },
+          { label: "Ver minisite público",              href: "/dashboard/minisite"        },
+        ]
+      : [
+          { label: "Revisar imóveis sem foto",         href: "/dashboard/imoveis"         },
+          { label: "Verificar leads sem resposta",      href: "/dashboard/leads"           },
+          { label: "Atualizar status de unidades",      href: "/dashboard/disponibilidade" },
+          { label: "Publicar novos anúncios",           href: "/dashboard/anuncios"        },
+        ]
 
     return (
       <div className="px-6 py-8 lg:px-8 max-w-7xl space-y-8">
@@ -276,7 +283,7 @@ export default async function DashboardPage() {
           category={isAdmin ? "Admin" : "Construtora"}
           actions={
             <Link href={isAdmin ? "/dashboard/imoveis/novo" : "/dashboard/lancamentos"}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary-default)] text-white hover:bg-[var(--primary-hover)] text-xs font-sans rounded-md transition-all duration-200 shadow-md shadow-[var(--primary-default)]/20 font-medium"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--gold)] text-[#0a0a0a] hover:bg-[var(--gold-light)] text-xs font-sans rounded-md transition-all duration-200 shadow-md shadow-[var(--gold)]/20 font-medium"
             >
               <Zap size={12} />
               {isAdmin ? "Novo imóvel" : "Ver lançamentos"}
