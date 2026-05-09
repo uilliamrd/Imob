@@ -132,7 +132,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId }: Pro
       </div>
 
       {/* ── MOBILE NAV ────────────────────────────────────────── */}
-      <div className="md:hidden sticky top-0 z-30 bg-foreground border-b border-white/10 flex overflow-x-auto">
+      <div className="md:hidden sticky top-0 z-30 bg-[#0a0a0a] border-b border-white/10 flex overflow-x-auto">
         {navItems.map((item) => (
           <button key={item.id} onClick={() => setActiveSection(item.id)}
             className={`flex-shrink-0 px-5 py-3.5 text-xs uppercase tracking-[0.15em] font-sans transition-colors border-b-2 ${
@@ -164,7 +164,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId }: Pro
       </div>
 
       {/* ── CTA ───────────────────────────────────────────────── */}
-      <section className="py-16 md:py-28 px-5 bg-foreground text-center border-t border-white/5">
+      <section className="py-16 md:py-28 px-5 bg-[#0a0a0a] text-center border-t border-white/5">
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold/80 font-sans mb-3">Pronto para dar o próximo passo?</p>
         <h2 className="font-serif text-3xl md:text-5xl font-bold text-white mb-5">
           Fale com um <span className="italic" style={{ color: "#C9A96E" }}>Corretor Especialista</span>
@@ -226,7 +226,7 @@ function SobreSection({ org }: { org: Organization }) {
 function PortfolioSection({ developments }: { developments: Development[] }) {
   return (
     <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-      className="py-14 md:py-24 px-5 md:px-6 bg-foreground">
+      className="py-14 md:py-24 px-5 md:px-6 bg-[#0a0a0a]">
       <div className="max-w-6xl mx-auto">
         <div className="mb-10 md:mb-16">
           <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-3">Obras Entregues</p>
@@ -400,7 +400,7 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
 
   return (
     <motion.section id="unidades" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
-      className="py-12 md:py-20 px-4 md:px-6 bg-foreground">
+      className="py-12 md:py-20 px-4 md:px-6 bg-[#0a0a0a]">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col gap-5 mb-8 md:mb-12 md:flex-row md:items-end md:justify-between">
           <div>

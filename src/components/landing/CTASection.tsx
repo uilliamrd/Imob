@@ -21,7 +21,7 @@ export function CTASection({ whatsapp, orgName }: CTASectionProps) {
   )}`
 
   return (
-    <section ref={ref} className="relative py-40 px-6 bg-foreground overflow-hidden">
+    <section ref={ref} className="relative py-40 px-6 bg-[#0a0a0a] overflow-hidden">
       <Spotlight className="-top-40 left-0 md:left-60" fill="#C9A96E" />
       <Particles quantity={30} color="#C9A96E" className="opacity-40" />
 

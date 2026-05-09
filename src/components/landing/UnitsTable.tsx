@@ -39,7 +39,7 @@ export function UnitsTable({ properties, refId }: UnitsTableProps) {
   const refParam = refId ? '?ref=' + refId : ''
 
   return (
-    <section id="unidades" className="py-24 px-6 bg-foreground">
+    <section id="unidades" className="py-24 px-6 bg-[#0a0a0a]">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
