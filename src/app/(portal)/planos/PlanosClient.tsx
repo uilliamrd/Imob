@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Check, X, ChevronDown, Sparkles, Building2, Users, User, Zap, Shield, Send, Globe, BarChart2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { PLAN_PRICES, PLAN_FEATURES } from "@/lib/plans"
+import { PLAN_PRICES, PLAN_FEATURES, getPlanName } from "@/lib/plans"
 import type { PlanEntityType } from "@/lib/plans"
 import type { OrgPlan } from "@/types/database"
 
@@ -38,22 +38,14 @@ type PlanMeta = {
   key: OrgPlan
   color: string
   highlight: boolean
-  cta: string
 }
 
 const PLANS: PlanMeta[] = [
-  { key: "free",       color: "border-border",                highlight: false, cta: "Começar grátis"      },
-  { key: "starter",    color: "border-border",                highlight: false, cta: "Escolher Starter"    },
-  { key: "pro",        color: "border-[var(--gold)]/60",      highlight: true,  cta: "Escolher Pro"        },
-  { key: "enterprise", color: "border-[var(--gold)]/30",      highlight: false, cta: "Falar com consultor" },
+  { key: "free",       color: "border-border",                highlight: false },
+  { key: "starter",    color: "border-border",                highlight: false },
+  { key: "pro",        color: "border-[var(--gold)]/60",      highlight: true  },
+  { key: "enterprise", color: "border-[var(--gold)]/30",      highlight: false },
 ]
-
-const PLAN_LABELS: Record<OrgPlan, string> = {
-  free:       "Free",
-  starter:    "Starter",
-  pro:        "Pro",
-  enterprise: "Enterprise",
-}
 
 // ── FAQ data ─────────────────────────────────────────────────────────────────
 
@@ -177,10 +169,15 @@ export function PlanosClient() {
 
       {/* ── Plan cards ────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-        {PLANS.map(({ key, color, highlight, cta }) => {
+        {PLANS.map(({ key, color, highlight }) => {
           const price = getPrice(key)
           const impl  = prices[key].implantacao
           const isEnterprise = key === "enterprise"
+          const cta = key === "free"
+            ? "Começar grátis"
+            : key === "enterprise"
+              ? "Falar com consultor"
+              : `Escolher ${getPlanName(tab, key)}`
 
           return (
             <div
@@ -203,7 +200,7 @@ export function PlanosClient() {
 
               <div className="mb-5">
                 <p className="text-xs font-sans uppercase tracking-[0.2em] text-muted-foreground mb-1">
-                  {PLAN_LABELS[key]}
+                  {getPlanName(tab, key)}
                 </p>
                 {isEnterprise ? (
                   <>
@@ -281,7 +278,7 @@ export function PlanosClient() {
             </div>
             {PLANS.map(({ key, highlight }) => (
               <div key={key} className={cn("text-center text-xs uppercase tracking-wider font-sans font-medium", highlight ? "text-[var(--gold)]" : "text-muted-foreground")}>
-                {PLAN_LABELS[key]}
+                {getPlanName(tab, key)}
               </div>
             ))}
           </div>

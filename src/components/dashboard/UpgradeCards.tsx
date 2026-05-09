@@ -162,7 +162,7 @@ export function UpgradeCards({ entityType, currentPlan }: Props) {
                   plan === selected ? "text-[var(--gold)]" : "text-muted-foreground/50"
                 )}
               >
-                {plan}
+                {getPlanName(entityType, plan)}
               </span>
             ))}
           </div>
@@ -202,9 +202,6 @@ export function UpgradeCards({ entityType, currentPlan }: Props) {
             <h3 className="font-serif text-2xl font-bold text-foreground">
               {selectedName}
             </h3>
-            <p className="text-xs text-muted-foreground font-sans mt-0.5 uppercase tracking-wider">
-              {selected}
-            </p>
           </div>
 
           <div className="divider-gold" />
