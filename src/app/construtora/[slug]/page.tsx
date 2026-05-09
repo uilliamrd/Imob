@@ -5,11 +5,11 @@ import { Footer } from "@/components/landing/Footer"
 import { CorretorMinisite } from "@/components/corretor/CorretorMinisite"
 import { ConstrutoraLanding } from "@/components/construtora/ConstrutoraLanding"
 import { JsonLd } from "@/components/seo/JsonLd"
-import type { Organization, Property, Development } from "@/types/database"
+import type { Organization, Property, Development, OrgPortfolio } from "@/types/database"
 
 export const revalidate = 600
 
-async function getData(slug: string): Promise<{ org: Organization; properties: Property[]; developments: Development[] } | null> {
+async function getData(slug: string): Promise<{ org: Organization; properties: Property[]; developments: Development[]; portfolio: OrgPortfolio[] } | null> {
   try {
     const supabase = createAdminClient()
 
@@ -21,15 +21,17 @@ async function getData(slug: string): Promise<{ org: Organization; properties: P
 
     if (!org || org.type !== "construtora") return null
 
-    const [{ data: properties }, { data: developments }] = await Promise.all([
+    const [{ data: properties }, { data: developments }, { data: portfolio }] = await Promise.all([
       supabase.from("properties").select("*").eq("org_id", org.id).eq("visibility", "publico").order("status").order("created_at", { ascending: false }),
       supabase.from("developments").select("*").eq("org_id", org.id).order("name"),
+      supabase.from("org_portfolio").select("*").eq("org_id", org.id).order("ano_entrega", { ascending: false }).order("created_at", { ascending: false }),
     ])
 
     return {
       org: org as unknown as Organization,
       properties: (properties ?? []) as Property[],
       developments: (developments ?? []) as Development[],
+      portfolio: (portfolio ?? []) as OrgPortfolio[],
     }
   } catch {
     return null
@@ -91,11 +93,12 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
       { id: "5", code: 1005, title: "Torre C — Apt 1502", description: null, price: 3100000, features: { suites: 4, vagas: 3, area_m2: 210, andar: 15 }, tags: ["VM", "PT"], status: "disponivel" as const, visibility: "publico" as const, created_by: "1", org_id: "demo", development_id: null, images: [], video_url: null, address: null, neighborhood: "Leblon", city: "Rio de Janeiro", slug: "torre-c-apt-1502", created_at: "", updated_at: "", cep: null, categoria: null, tipo_negocio: "venda", bairro_id: null, logradouro_id: null },
     ],
     developments: [],
+    portfolio: [],
   } : null)
 
   if (!data) notFound()
 
-  const { org, properties, developments } = data
+  const { org, properties, developments, portfolio } = data
   const whatsapp = org.whatsapp ?? "5521999999999"
 
   const orgAny = org as unknown as Record<string, unknown>
@@ -116,6 +119,7 @@ export default async function ConstrutoraPage({ params, searchParams }: PageProp
         org={org}
         properties={properties}
         developments={developments}
+        portfolio={portfolio}
         refId={ref}
         initialSection={section}
       />

@@ -87,6 +87,17 @@ export interface DevelopmentUpdate {
   created_at: string
 }
 
+export interface OrgPortfolio {
+  id: string
+  org_id: string
+  nome: string
+  ano_entrega: number | null
+  cidade: string | null
+  descricao: string | null
+  fotos: string[]
+  created_at: string
+}
+
 export interface PropertyFeatures {
   suites?: number
   quartos?: number

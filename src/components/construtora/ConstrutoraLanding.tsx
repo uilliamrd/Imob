@@ -7,7 +7,7 @@ import Link from "next/link"
 import { ChevronDown, BedDouble, Car, Maximize2, ArrowRight, Building2, Flame, CheckCircle, MapPin, Users } from "lucide-react"
 import { getTagInfo } from "@/lib/tag-icons"
 import { ThemeSwitch } from "@/components/ThemeSwitch"
-import type { Organization, Property, Development } from "@/types/database"
+import type { Organization, Property, Development, OrgPortfolio } from "@/types/database"
 
 function formatPrice(price: number) {
   if (price >= 1_000_000)
@@ -21,18 +21,19 @@ const STATUS_MAP = {
   vendido:    { label: "Vendido",    cls: "bg-zinc-800/60 text-zinc-400 border-zinc-600/50" },
 } as const
 
-type Section = "sobre" | "portfolio" | "imoveis" | "lancamentos"
+type Section = "sobre" | "portfolio" | "projetos" | "imoveis" | "lancamentos"
 
 interface Props {
   org: Organization
   properties: Property[]
   developments: Development[]
+  portfolio?: OrgPortfolio[]
   refId?: string
   initialSection?: string
   whatsapp?: string
 }
 
-export function ConstrutoraLanding({ org, properties, developments, refId }: Props) {
+export function ConstrutoraLanding({ org, properties, developments, portfolio = [], refId }: Props) {
   const [activeSection, setActiveSection] = useState<Section>("sobre")
   const [unitFilter, setUnitFilter] = useState("todos")
   const heroRef = useRef<HTMLDivElement>(null)
@@ -53,6 +54,7 @@ export function ConstrutoraLanding({ org, properties, developments, refId }: Pro
       { id: "lancamentos" as Section, label: "Lançamentos", show: org.has_lancamentos && lancamentos.length > 0 },
       { id: "imoveis"     as Section, label: "Imóveis",     show: propertiesForSale.length > 0 },
       { id: "portfolio"   as Section, label: "Portfólio",   show: true },
+      { id: "projetos"    as Section, label: "Projetos",    show: portfolio.length > 0 },
       { id: "sobre"       as Section, label: "Sobre",       show: true },
     ] as { id: Section; label: string; show: boolean }[]
   ).filter((n) => n.show)
@@ -151,6 +153,9 @@ export function ConstrutoraLanding({ org, properties, developments, refId }: Pro
           )}
           {activeSection === "portfolio" && (
             <PortfolioSection key="portfolio" developments={delivered} />
+          )}
+          {activeSection === "projetos" && (
+            <ProjetosSection key="projetos" portfolio={portfolio} />
           )}
           {activeSection === "imoveis" && (
             <ImoveisSection key="imoveis" properties={properties} filteredUnits={filteredUnits}
@@ -482,6 +487,52 @@ function ImoveisSection({ properties: _properties, filteredUnits, unitFilter, se
           <div className="py-12 text-center text-muted-foreground/40 font-sans">Nenhuma unidade encontrada.</div>
         )}
         <div className="divider-gold opacity-20 mt-1" />
+      </div>
+    </motion.section>
+  )
+}
+
+function ProjetosSection({ portfolio }: { portfolio: OrgPortfolio[] }) {
+  return (
+    <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}
+      className="py-14 md:py-24 px-5 md:px-6 bg-[#0a0a0a]">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-10 md:mb-16">
+          <p className="text-xs uppercase tracking-[0.3em] text-gold font-sans mb-3">Histórico</p>
+          <h2 className="font-serif text-3xl md:text-5xl font-bold text-white">
+            Nossos <span className="italic" style={{ color: "#C9A96E" }}>Projetos</span>
+          </h2>
+          <div className="divider-gold mt-5 w-16 opacity-60" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {portfolio.map((item) => (
+            <div key={item.id} className="rounded-2xl overflow-hidden border border-white/10 bg-[#111] group">
+              <div className="relative aspect-video overflow-hidden bg-[#1a1a1a]">
+                {item.fotos[0]
+                  ? <Image src={item.fotos[0]} alt={item.nome} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  : <div className="w-full h-full flex items-center justify-center">
+                      <Building2 size={32} className="text-white/10" />
+                    </div>
+                }
+              </div>
+              <div className="p-5">
+                <h3 className="font-serif text-lg font-bold text-white mb-1.5">{item.nome}</h3>
+                <div className="flex items-center gap-3 text-xs font-sans">
+                  {item.ano_entrega && (
+                    <span className="flex items-center gap-1 text-gold/70">
+                      <CheckCircle size={11} /> {item.ano_entrega}
+                    </span>
+                  )}
+                  {item.cidade && <span className="text-white/50">{item.cidade}</span>}
+                </div>
+                {item.descricao && (
+                  <p className="text-white/40 text-sm font-sans mt-2 leading-relaxed line-clamp-2">{item.descricao}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </motion.section>
   )

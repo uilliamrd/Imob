@@ -66,6 +66,7 @@ const SECONDARY: Record<UserRole, NavItemDef[]> = {
     { href: "/dashboard/configuracoes", label: "Config",   icon: Settings },
   ],
   construtora: [
+    { href: "/dashboard/portfolio",       label: "Portfólio", icon: BookOpen },
     { href: "/dashboard/disponibilidade", label: "Disponib.", icon: ClipboardList },
     { href: "/dashboard/minisite",        label: "Meu Site",  icon: ExternalLink },
     { href: "/dashboard/configuracoes",   label: "Config",    icon: Settings },
