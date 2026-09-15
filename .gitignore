@@ -43,3 +43,9 @@ dev-server.log
 next-env.d.ts
 
 .vercel
+
+# script de prospecção (prospectar.py)
+__pycache__/
+*.pyc
+.venv/
+/output/*.csv
