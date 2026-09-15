@@ -27,6 +27,7 @@ CTA_KEYWORDS = [
 
 NO_RESULTS_MARKERS = [
     "nenhum resultado encontrado", "0 resultados", "no ads match", "0 results",
+    "nenhum anúncio corresponde aos seus critérios de pesquisa",
 ]
 
 RESULT_COUNT_PATTERNS = [
@@ -39,6 +40,40 @@ CREATIVE_SAMPLE_SIZE = 5
 
 
 def analyze_ads(company_name: str, browser: Browser) -> AdsAnalysis:
+    try:
+        result = _query_ads_library(company_name, browser)
+        if result.active_ads_count == 0:
+            # Nomes do Google Maps costumam vir com sufixos descritivos
+            # ("Nome - Imobiliária em X - Y") que a busca por palavra-chave
+            # da Ads Library não casa bem, gerando falso "0 anúncios". Tenta
+            # de novo com um nome mais limpo antes de aceitar o zero.
+            clean_name = _clean_company_name(company_name)
+            if clean_name and clean_name.lower() != company_name.lower():
+                retry = _query_ads_library(clean_name, browser)
+                if retry.active_ads_count:
+                    retry.notes.append(f'reconsultado como "{clean_name}"')
+                    return retry
+        return result
+    except Exception:
+        return AdsAnalysis(
+            active_ads_count=None,
+            creative_quality_score=None,
+            ads_score=NOT_VERIFIED_ADS_SCORE,
+            notes=["Meta Ads Library não verificado (falha na consulta)"],
+        )
+
+
+def _clean_company_name(name: str) -> str:
+    """Extrai o nome 'nu' do negócio, removendo sufixos descritivos comuns
+    em títulos do Google Maps (ex: "Nome - Imobiliária em Gramado - Canela",
+    "Nome | Aluguel e venda de imóveis")."""
+    for sep in (" - ", " – ", " — ", " | "):
+        if sep in name:
+            name = name.split(sep)[0]
+    return name.strip()
+
+
+def _query_ads_library(company_name: str, browser: Browser) -> AdsAnalysis:
     context = browser.new_context(user_agent=USER_AGENT, locale="pt-BR")
     page = context.new_page()
     try:
@@ -55,7 +90,7 @@ def analyze_ads(company_name: str, browser: Browser) -> AdsAnalysis:
         if _looks_like_no_results(body_text):
             return AdsAnalysis(active_ads_count=0, creative_quality_score=0.0, ads_score=0.0, notes=["0 anúncios ativos"])
 
-        cards = page.locator("text=Library ID")
+        cards = page.locator("text=Identificação da biblioteca")
         count = _parse_result_count(body_text)
         if count is None:
             count = cards.count()
@@ -68,13 +103,6 @@ def analyze_ads(company_name: str, browser: Browser) -> AdsAnalysis:
             creative_quality_score=creative_quality,
             ads_score=ads_score,
             notes=[],
-        )
-    except Exception:
-        return AdsAnalysis(
-            active_ads_count=None,
-            creative_quality_score=None,
-            ads_score=NOT_VERIFIED_ADS_SCORE,
-            notes=["Meta Ads Library não verificado (falha na consulta)"],
         )
     finally:
         context.close()
