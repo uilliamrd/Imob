@@ -29,6 +29,12 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Prospecção automatizada de leads
+
+Script Python separado do app Next.js para prospectar imobiliárias por
+cidade (Google Maps + análise de site + Meta Ads Library). Veja
+[`prospecting/README.md`](./prospecting/README.md).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
