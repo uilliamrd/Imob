@@ -26,6 +26,7 @@ from prospecting.models import AdsAnalysis, LeadResult
 from prospecting.scoring import compute_final
 from prospecting.site_analyzer import analyze_site
 from prospecting.utils import random_delay
+from prospecting.xlsx_writer import write_xlsx
 
 
 def parse_args() -> argparse.Namespace:
@@ -83,7 +84,7 @@ def main() -> None:
                 ads_analyses.append(analyze_ads(agency.title, browser=browser))
                 random_delay(DELAY_BETWEEN_ADS_CHECKS)
 
-            print("[4/4] Calculando pontuação final e gerando CSV...")
+            print("[4/4] Calculando pontuação final e gerando planilha...")
             results = []
             for agency, site, ads in zip(agencies, site_analyses, ads_analyses):
                 score_final, motivo = compute_final(site, ads)
@@ -91,8 +92,9 @@ def main() -> None:
 
             results.sort(key=lambda r: r.score_final, reverse=True)
 
-            path = write_csv(args.cidade, results)
-            print(f"\nConcluído. CSV salvo em: {path}")
+            csv_path = write_csv(args.cidade, results)
+            xlsx_path = write_xlsx(args.cidade, results)
+            print(f"\nConcluído.\nPlanilha (.xlsx): {xlsx_path}\nCSV: {csv_path}")
         finally:
             browser.close()
 

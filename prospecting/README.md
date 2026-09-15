@@ -42,14 +42,20 @@ Opções:
    anúncios ativos = nota baixa = maior oportunidade).
 4. **Classificação final** — combina os dois gaps priorizando quem tem
    deficiência em ambas as frentes, gera `score_final` (0-10, **maior =
-   mais oportunidade**) e um `motivo` resumido, e ordena o CSV do maior
-   para o menor `score_final`.
+   mais oportunidade**) e um `motivo` resumido, e ordena a planilha do
+   maior para o menor `score_final`.
 
 ## Saída
 
-CSV salvo em `output/<cidade-slugificada>_<data>.csv` com as colunas:
-`title, street, phone, categoryName, url, website, site_score, ads_score,
-score_final, motivo`.
+Dois arquivos equivalentes em `output/<cidade-slugificada>_<data>.{xlsx,csv}`,
+com as colunas: `title, street, phone, categoryName, url, website,
+site_score, ads_score, score_final, motivo`.
+
+O `.xlsx` é a versão recomendada para abrir no Excel/Google Sheets: já vem
+com cabeçalho fixo, filtro automático e a coluna `score_final` colorida
+(verde = mais oportunidade, vermelho = menos) para facilitar a priorização
+visual. O `.csv` é gerado em paralelo para quem preferir importar os dados
+em outra ferramenta.
 
 ## Observações
 

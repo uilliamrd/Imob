@@ -42,3 +42,21 @@ class LeadResult:
     ads: AdsAnalysis
     score_final: float = 0.0
     motivo: str = ""
+
+    def to_row(self) -> dict:
+        """Representação tabular usada pelos writers de CSV e XLSX."""
+        return {
+            "title": self.agency.title,
+            "street": self.agency.street,
+            "phone": self.agency.phone,
+            "categoryName": self.agency.categoryName,
+            "url": self.agency.url,
+            "website": self.agency.website,
+            "site_score": self.site.site_score,
+            "ads_score": self.ads.ads_score,
+            "score_final": self.score_final,
+            "motivo": self.motivo,
+        }
+
+
+ROW_FIELDNAMES = ["title", "street", "phone", "categoryName", "url", "website", "site_score", "ads_score", "score_final", "motivo"]
