@@ -43,3 +43,6 @@ dev-server.log
 next-env.d.ts
 
 .vercel
+
+# day-trader skills local state
+/trader/
